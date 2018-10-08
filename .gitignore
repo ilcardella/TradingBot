@@ -100,4 +100,4 @@ ENV/
 # mypy
 .mypy_cache/
 
-data/epic_ids.txt
+epic_ids.txt
