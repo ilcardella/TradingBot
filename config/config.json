@@ -6,7 +6,8 @@
         "debug_log": false,
         "time_zone": "Europe/London",
         "log_file": "trading_bot.log",
-        "spread_filter_enabled": true
+        "spread_filter_enabled": true,
+        "epic_ids_filepath": "../data/epic_ids.txt"
     },
     "ig_interface" : {
         "order_type": "MARKET",

@@ -22,18 +22,24 @@ class StocksAutoTrader:
         self.time_zone = config['general']['time_zone']
         self.max_account_usable = config['general']['max_account_usable']
         self.spread_filter = config['general']['spread_filter_enabled']
+        self.epic_ids_filepath = config['general']['epic_ids_filepath']
 
     def get_epic_ids(self):
         # define empty list
         epic_ids = []
-        # open file and read the content in a list
-        with open('../data/epic_ids.txt', 'r') as filehandle:
-            filecontents = filehandle.readlines()
-            for line in filecontents:
-                # remove linebreak which is the last character of the string
-                current_epic_id = line[:-1]
-                # add item to the list
-                epic_ids.append(current_epic_id)
+        try:
+            # open file and read the content in a list
+            with open(self.epic_ids_filepath, 'r') as filehandle:
+                filecontents = filehandle.readlines()
+                for line in filecontents:
+                    # remove linebreak which is the last character of the string
+                    current_epic_id = line[:-1]
+                    # add item to the list
+                    epic_ids.append(current_epic_id)
+        except IOError:
+            # Create the file empty
+            logging.warn("Epic ids file not found, it will be created empty.")
+            filehandle = open(self.epic_ids_filepath, 'w')
         logging.debug(epic_ids)
         return epic_ids
     
@@ -111,53 +117,57 @@ class StocksAutoTrader:
                 else:
                     tradeable_epic_ids = self.main_epic_ids
 
-                for epic_id in tradeable_epic_ids:
-                    try:
-                        # Run the strategy
-                        trade_direction, 
-                        limitDistance_value, 
-                        stopDistance_value = strategy.execute(self.IG, epic_id)
+                if len(self.main_epic_ids) > 0:
+                    for epic_id in tradeable_epic_ids:
+                        try:
+                            # Run the strategy
+                            trade_direction, 
+                            limitDistance_value, 
+                            stopDistance_value = strategy.execute(self.IG, epic_id)
 
-                        # In case of no trade skip to next epic
-                        if trade_direction == TradeDirection.NONE:
+                            # In case of no trade skip to next epic
+                            if trade_direction == TradeDirection.NONE:
+                                continue
+
+                            positionMap = self.IG.get_open_positions()
+                            # Check if we have too many positions on this epic
+                            key = epic_id + '-' + trade_direction
+                            if self.idTooMuchPositions(key, positionMap):
+                                logging.info("{} has {} positions open already, hence should not trade"
+                                                        .format(str(key), str(positionMap[key])))
+                                continue
+
+                            # TODO This is commented out now but we need to do this check 
+                            # and prevent the trade only if the strategy is trying to make us 
+                            # open a new position. In case of close position trade we should go through
+                            #
+                            # try:
+                            #     # Check if the account has enough cash available to trade
+                            #     balance, deposit = self.IG.get_account_balances()
+                            #     percent_used = percentage(deposit, balance)
+                            #     if float(percent_used) > self.max_account_usable:
+                            #         logging.info("Will not trade, {}% of account balance is used. Waiting..."
+                            #                         .format(str(percent_used)))
+                            #         time.sleep(60)
+                            #         continue
+                            #     else:
+                            #         logging.info("Ok to trade, {}% of account is used"
+                            #                         .format(str(percent_used)))
+                            # except Exception as e:
+                            #     logging.debug(e)
+                            #     logging.warn("Unable to retrieve account balances.")
+                            #     continue
+
+                            self.IG.trade(epic_id, trade_direction,
+                                                limitDistance_value, stopDistance_value)
+                        except Exception as e:
+                            logging.debug(e)
+                            logging.debug(traceback.format_exc())
+                            logging.debug(sys.exc_info()[0])
+                            logging.info("Something fucked up.")
+                            time.sleep(2)
                             continue
-
-                        positionMap = self.IG.get_open_positions()
-                        # Check if we have too many positions on this epic
-                        key = epic_id + '-' + trade_direction
-                        if self.idTooMuchPositions(key, positionMap):
-                            logging.info("{} has {} positions open already, hence should not trade"
-                                                    .format(str(key), str(positionMap[key])))
-                            continue
-
-                        # TODO This is commented out now but we need to do this check 
-                        # and prevent the trade only if the strategy is trying to make us 
-                        # open a new position. In case of close position trade we should go through
-                        #
-                        # try:
-                        #     # Check if the account has enough cash available to trade
-                        #     balance, deposit = self.IG.get_account_balances()
-                        #     percent_used = percentage(deposit, balance)
-                        #     if float(percent_used) > self.max_account_usable:
-                        #         logging.info("Will not trade, {}% of account balance is used. Waiting..."
-                        #                         .format(str(percent_used)))
-                        #         time.sleep(60)
-                        #         continue
-                        #     else:
-                        #         logging.info("Ok to trade, {}% of account is used"
-                        #                         .format(str(percent_used)))
-                        # except Exception as e:
-                        #     logging.debug(e)
-                        #     logging.warn("Unable to retrieve account balances.")
-                        #     continue
-
-                        self.IG.trade(epic_id, trade_direction,
-                                            limitDistance_value, stopDistance_value)
-                    except Exception as e:
-                        logging.debug(e)
-                        logging.debug(traceback.format_exc())
-                        logging.debug(sys.exc_info()[0])
-                        logging.info("Something fucked up.")
-                        time.sleep(2)
-                        continue
-
+                else:
+                    logging.warn("Epic ids list is empty!")
+                    # TODO work only using the open positions
+                    return
