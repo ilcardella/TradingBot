@@ -53,8 +53,7 @@ class StocksAutoTrader:
     def isMarketOpen(self, timezone):
         tz = pytz.timezone(timezone)
         now_time = datetime.datetime.now(tz=tz).strftime('%H:%M')
-        is_between(str(now_time), ("17:00", "07:59"))
-
+        return is_between(str(now_time), ("07:55", "16:35"))
 
     def find_good_epics(self, epic_ids):
         spreads_and_epics = []
