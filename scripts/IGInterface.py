@@ -100,7 +100,7 @@ class IGInterface():
         return positionMap
 
     def get_market_price(self, epic_id):
-        base_url = self.apiBaseURL + '/markets/' + epic_id
+        base_url = self.apiBaseURL + '/markets/' + str(epic_id)
         auth_r = requests.get(base_url, headers=self.authenticated_headers)
         d = json.loads(auth_r.text)
         bid = d['snapshot']['bid']
@@ -112,7 +112,7 @@ class IGInterface():
         # Price resolution (MINUTE, MINUTE_2, MINUTE_3, MINUTE_5,
         # MINUTE_10, MINUTE_15, MINUTE_30, HOUR, HOUR_2, HOUR_3,
         # HOUR_4, DAY, WEEK, MONTH)
-        base_url = self.apiBaseURL + "/prices/" + epic_id + "/" + resolution + "/" + range
+        base_url = self.apiBaseURL + "/prices/" + str(epic_id) + "/" + str(resolution) + "/" + str(range)
         auth_r = requests.get(base_url, headers=self.authenticated_headers)
         d = json.loads(auth_r.text)
         logging.debug(auth_r.status_code)

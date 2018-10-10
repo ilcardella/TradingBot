@@ -25,7 +25,7 @@
             "stop_loss_multiplier": 3,
             "too_high_margin": 100
         },
-        "SimpleMACD": {
+        "simple_macd": {
 
         }
     }

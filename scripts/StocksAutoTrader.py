@@ -74,8 +74,7 @@ class StocksAutoTrader:
                                                                             str(i_count),
                                                                             str(len(epic_ids))))
                         time.sleep(1)
-                        esma_new_margin_req = int(percentage_of(ESMA_new_margin,
-                                                                current_bid))
+                        pick_from_epics.append(epic_id)
                     else:
                         logging.info("Not a good epic: {} ({}/{})".format(epic_id,
                                                                             str(i_count),
@@ -102,10 +101,15 @@ class StocksAutoTrader:
         if not self.IG.authenticate(username, password):
             return
 
+        if len(self.main_epic_ids) < 1:
+            # TODO work only on open positions
+            logging.warn("Epic list is empty!")
+            return
+
         logging.info('Starting main routine.')
 
         while True:
-            if not self.isMarketOpen(self.time_zone):
+            if self.isMarketOpen(self.time_zone):
                 logging.info("Market is closed! Wait...")
                 time.sleep(60)
                 continue
@@ -115,14 +119,12 @@ class StocksAutoTrader:
                     tradeable_epic_ids = self.find_good_epics(self.main_epic_ids)
                 else:
                     tradeable_epic_ids = self.main_epic_ids
-
-                if len(self.main_epic_ids) > 0:
+                
+                if len(tradeable_epic_ids) > 0:
                     for epic_id in tradeable_epic_ids:
                         try:
                             # Run the strategy
-                            trade_direction, 
-                            limitDistance_value, 
-                            stopDistance_value = strategy.execute(self.IG, epic_id)
+                            trade_direction, limitDistance_value, stopDistance_value = strategy.execute(self.IG, epic_id)
 
                             # In case of no trade skip to next epic
                             if trade_direction == TradeDirection.NONE:
@@ -160,13 +162,12 @@ class StocksAutoTrader:
                             self.IG.trade(epic_id, trade_direction,
                                                 limitDistance_value, stopDistance_value)
                         except Exception as e:
-                            logging.debug(e)
-                            logging.debug(traceback.format_exc())
-                            logging.debug(sys.exc_info()[0])
+                            logging.info(e)
+                            logging.info(traceback.format_exc())
+                            logging.info(sys.exc_info()[0])
                             logging.info("Something fucked up.")
                             time.sleep(2)
                             continue
                 else:
-                    logging.warn("Epic ids list is empty!")
-                    # TODO work only using the open positions
-                    return
+                    logging.info("No tradable epic found")
+                    continue
