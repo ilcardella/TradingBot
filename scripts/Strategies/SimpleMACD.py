@@ -1,6 +1,7 @@
 import logging
-import numpy
-import pandas
+import numpy as np
+import pandas as pd
+import talib as ta
 
 from Utils import *
 
@@ -18,37 +19,41 @@ class SimpleMACD:
         limit = None
         stop = None
         
-        # 1 Get past 26 candles (try DAY)
-        prices = brokerIf.get_prices(epic_id, 'DAY', 26)
+        prices = brokerIf.get_prices(epic_id, 'DAY', 30)
         current_bid, current_offer = brokerIf.get_market_price(epic_id)
 
         if prices is None or current_bid is None or current_offer is None:
             logging.info('Strategy cannot run: something is wrong with the prices.')
             return None, None, None
         
-        # 2 Calculate average close price
-        l = []
+        data = []
         for p in prices['prices']:
-            l.append(p['closePrice']['bid'])
-        df = pandas.DataFrame(l)
-        close_12_ema = df.rolling(window=12,min_periods=1,center=False).mean()
-        close_26_ema = df.rolling(window=26,min_periods=1,center=False).mean()
-        data = (close_12_ema - close_26_ema)
-        print(data)
-        # close_prices = []
-        # for i in prices['prices']:
-        #     if i['closePrice']['bid'] is not None:
-        #         close_prices.append(i['closePrice']['bid'])
-        # long_avg = numpy.average(close_prices)
+            data.append(p['closePrice']['bid'])
 
-        # 3 Calculate average of the previous 12 values of the average
-        # 4 Calculate the diff
-        # 5 Evaluate whether diff is > < = 0
-        # 6 Repeat steps 1-5 starting from current market prices backward
-        # 7 Compare first diff with second diff
-        # 8 Take a decision based on crossing of the two values
+        px = pd.DataFrame({'close': data})
+        px['26_ema'] = pd.DataFrame.ewm(px['close'], span=26).mean()
+        px['12_ema'] = pd.DataFrame.ewm(px['close'], span=12).mean()
 
-       
+        px['macd'] = (px['12_ema'] - px['26_ema'])
+        px['macd_signal'] = px['macd'].rolling(9).mean()
+
+        px['positions'] = 0
+        px['positions'][9:]=np.where(px['macd'][9:]>=px['macd_signal'][9:],1,0)
+        px['signals']=px['positions'].diff()
+
+        if px['signals'].iloc[-1] > 0:
+            tradeDirection = TradeDirection.BUY
+        elif px['signals'].iloc[-1] < 0:
+            tradeDirection = TradeDirection.SELL
+        else:
+            tradeDirection = TradeDirection.NONE
+
+        limit = current_bid + percentage_of(10, current_bid)
+        stop = current_bid - percentage_of(5, current_bid)
+
+        logging.info("{} {} with limit={} and stop={}".format(tradeDirection,
+                                                                epic_id, limit, stop))
+
         return tradeDirection, limit, stop
 
 

@@ -44,7 +44,7 @@ class StocksAutoTrader:
         return epic_ids
     
     def idTooMuchPositions(self, key, positionMap):
-        max_trades = int(int(self.order_size) * 2)
+        max_trades = int(int(self.order_size))
         if((key in positionMap) and (int(positionMap[key]) >= int(max_trades))):
             return True
         else:
@@ -109,7 +109,7 @@ class StocksAutoTrader:
         logging.info('Starting main routine.')
 
         while True:
-            if self.isMarketOpen(self.time_zone):
+            if not self.isMarketOpen(self.time_zone):
                 logging.info("Market is closed! Wait...")
                 time.sleep(60)
                 continue
