@@ -47,13 +47,5 @@ if __name__ == '__main__':
     ###################################################
     ###################################################
 
-     # TODO start on a separate thread
     robot = StocksAutoTrader(config)
     robot.start(sys.argv, strategy)
-
-    # TODO for the future
-    # Create other trader robots (currency, crypto, index, etc.)
-    # Start them on different threads
-
-    # call thread.join on all of them and wait
-

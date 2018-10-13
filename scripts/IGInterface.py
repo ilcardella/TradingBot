@@ -103,9 +103,12 @@ class IGInterface():
         base_url = self.apiBaseURL + '/markets/' + str(epic_id)
         auth_r = requests.get(base_url, headers=self.authenticated_headers)
         d = json.loads(auth_r.text)
-        bid = d['snapshot']['bid']
-        offer = d['snapshot']['offer']
-        logging.debug("Market prices of {} are: bid={}, offer={}".format(epic_id,bid,offer))
+        bid = None
+        offer = None
+        if 'snapshot' in d:
+            bid = d['snapshot']['bid']
+            offer = d['snapshot']['offer']
+            logging.debug("Market prices of {} are: bid={}, offer={}".format(epic_id,bid,offer))
         return bid, offer
 
     def get_prices(self, epic_id, resolution, range):
@@ -119,11 +122,11 @@ class IGInterface():
         logging.debug(auth_r.reason)
         logging.debug(auth_r.text)
 
-        if d['allowance'] is not None:
+        if 'allowance' in d:
             remaining_allowance = d['allowance']['remainingAllowance']
             reset_time = humanize_time(int(d['allowance']['allowanceExpiry']))
-            logging.debug("Remaining API calls left: ".format(str(remaining_allowance)))
-            logging.debug("Time to API Key reset: ".format(str(reset_time)))
+            logging.debug("Remaining API calls left: {}".format(str(remaining_allowance)))
+            logging.debug("Time to API Key reset: {}".format(str(reset_time)))
         return d
 
     def trade(self, epic_id, trade_direction, limitDistance_value, stopDistance_value):
@@ -172,3 +175,5 @@ class IGInterface():
         mins, secs = divmod(secs, 60)
         hours, mins = divmod(mins, 60)
         return '%02d:%02d:%02d' % (hours, mins, secs)
+
+    
