@@ -4,6 +4,7 @@ import pandas as pd
 import time
 import sys
 import traceback
+from random import shuffle
 
 from .Strategy import Strategy
 from Utils import *
@@ -27,6 +28,8 @@ class SimpleMACD(Strategy):
             # TODO monitor only open positions
             logging.warn("Epic list is empty!")
             return
+
+        shuffle(epic_list)
 
         for epic in epic_list:
             try:
@@ -67,17 +70,19 @@ class SimpleMACD(Strategy):
             return TradeDirection.NONE, None, None
 
         data = []
+        prevBid = 0
         for p in prices['prices']:
-            data.append(p['closePrice']['bid'])
-        data.append(current_bid)
+            if p['closePrice']['bid'] is None:
+                data.append(prevBid)
+            else:
+                data.append(p['closePrice']['bid'])
+            prevBid = p['closePrice']['bid']
 
         px = pd.DataFrame({'close': data})
         px['26_ema'] = pd.DataFrame.ewm(px['close'], span=26).mean()
         px['12_ema'] = pd.DataFrame.ewm(px['close'], span=12).mean()
-
         px['macd'] = (px['12_ema'] - px['26_ema'])
         px['macd_signal'] = px['macd'].rolling(9).mean()
-
         px['positions'] = 0
         px['positions'][9:]=np.where(px['macd'][9:]>=px['macd_signal'][9:],1,0)
         px['signals']=px['positions'].diff()
