@@ -69,7 +69,7 @@ class IGInterface():
 
         logging.debug(auth_r.status_code)
         logging.debug(auth_r.reason)
-        logging.info(auth_r.text) # TODO print this in a readable way
+        logging.debug(auth_r.text)
 
         for i in d['accounts']:
             if str(i['accountType']) == "SPREADBET":

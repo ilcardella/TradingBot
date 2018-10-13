@@ -13,11 +13,13 @@ class SimpleMACD(Strategy):
         self.read_configuration(config)
         logging.info('Simple MACD strategy initialised.')
 
+
     def read_configuration(self, config):
         self.order_size = config['ig_interface']['order_size']
         self.max_account_usable = config['general']['max_account_usable']
         self.interval = config['strategies']['simple_macd']['interval']
         self.timeout = 1
+
 
     def spin(self, broker, epic_list):
         logging.info("Simple MACD starting to spin.")
@@ -28,6 +30,7 @@ class SimpleMACD(Strategy):
 
         for epic in epic_list:
             try:
+                # Process the epic and find if we want to trade
                 trade, limit, stop = self.process_epic(broker, epic)
 
                 # In case of no trade skip to next epic
@@ -35,38 +38,13 @@ class SimpleMACD(Strategy):
                     time.sleep(self.timeout)
                     continue
                 else:
-                    # Check if we have already an open position for this epic
-                    positionMap = broker.get_open_positions()
-                    key = epic + '-' + trade.name
-                    if self.idTooMuchPositions(key, positionMap):
-                        logging.warn("{} has {} positions open already, hence should not trade"
-                                                .format(str(key), str(positionMap[key])))
-                        continue
-
-                    # TODO This is commented out now but we need to do this check
-                    # and prevent the trade only if the strategy is trying to make us
-                    # open a new position. In case of close position trade we should go through
-                    #
-                    # try:
-                    #     # Check if the account has enough cash available to trade
-                    #     balance, deposit = broker.get_account_balances()
-                    #     percent_used = percentage(deposit, balance)
-                    #     if float(percent_used) > self.max_account_usable:
-                    #         logging.info("Will not trade, {}% of account balance is used. Waiting..."
-                    #                         .format(str(percent_used)))
-                    #         time.sleep(60)
-                    #         continue
-                    #     else:
-                    #         logging.info("Ok to trade, {}% of account is used"
-                    #                         .format(str(percent_used)))
-                    # except Exception as e:
-                    #     logging.debug(e)
-                    #     logging.warn("Unable to retrieve account balances.")
-                    #     continue
-
-                    if trade is not TradeDirection.NONE:
+                    # Perform safety check for trade action
+                    if self.safe_to_trade(broker, epic, trade):
                         broker.trade(epic, trade.name, limit, stop)
-                    time.sleep(self.timeout)
+                        time.sleep(self.timeout)
+                    else:
+                        # Skip to next epic
+                        continue
             except Exception as e:
                 logging.warn(e)
                 logging.warn(traceback.format_exc())
@@ -117,11 +95,42 @@ class SimpleMACD(Strategy):
         if tradeDirection is not TradeDirection.NONE:
             logging.info("SimpleMACD says: {} {}".format(tradeDirection, epic_id))
 
-        return (tradeDirection, limit, stop)
+        return tradeDirection, limit, stop
 
-    def idTooMuchPositions(self, key, positionMap):
-        max_trades = int(int(self.order_size))
-        if((key in positionMap) and (int(positionMap[key]) >= int(max_trades))):
+
+    def safe_to_trade(self, broker, epic, trade):
+        # Retrieve the current open positions to do safety checks
+        positionMap = broker.get_open_positions()
+
+        # Check if we have already a position with same direction
+        key = epic + '-' + trade.name
+        if key in positionMap and int(positionMap[key]) >= self.order_size:
+            logging.warn("{} has {} positions open already, hence should not trade"
+                                    .format(str(key), str(positionMap[key])))
+            return False
+
+        # Check if it's a signal to exit an open position
+        entryDirection = None
+        if trade is TradeDirection.BUY:
+            entryDirection = TradeDirection.SELL
+        elif trade is TradeDirection.SELL:
+            entryDirection = TradeDirection.BUY
+        else:
+            logging.error("Trying to trade with direction NONE!!!!")
+            return False
+
+        entryKey = epic + '-' + entryDirection.name
+        if entryKey in positionMap:
             return True
         else:
-            return False
+            # Check if the account has enough cash available to open new positions
+            balance, deposit = broker.get_account_balances()
+            percent_used = percentage(deposit, balance)
+            if percent_used > self.max_account_usable:
+                logging.warn("Will not trade, {}% of account balance is used."
+                                .format(str(percent_used)))
+                return False
+            else:
+                logging.info("Ok to trade, {}% of account is used"
+                                .format(str(percent_used)))
+                return True
