@@ -1,6 +1,8 @@
 import requests
 import json
 import logging
+import time
+
 from Utils import *
 
 class IGInterface():
@@ -29,8 +31,8 @@ class IGInterface():
                         'Version': '2'
                         }
         url = self.apiBaseURL + '/session'
-        response = requests.post(url, 
-                                data=json.dumps(credentials), 
+        response = requests.post(url,
+                                data=json.dumps(credentials),
                                 headers=headers)
         headers_json = dict(response.headers)
         try:
@@ -47,10 +49,10 @@ class IGInterface():
                                 'X-IG-API-KEY': self.apiKey,
                                 'CST': CST_token,
                                 'X-SECURITY-TOKEN': x_sec_token}
-        
+
         self.set_default_account(self.accountId)
         return True
-        
+
     def set_default_account(self, accountId):
         url = self.apiBaseURL + '/session'
         data = {"accountId": accountId, "defaultAccount": "True"}
@@ -78,7 +80,7 @@ class IGInterface():
     def get_open_positions(self):
         positionMap = {}
         position_base_url = self.apiBaseURL + "/positions"
-        position_auth_r = requests.get(position_base_url, 
+        position_auth_r = requests.get(position_base_url,
                                         headers=self.authenticated_headers)
         position_json = json.loads(position_auth_r.text)
 
@@ -95,8 +97,7 @@ class IGInterface():
                 positionMap[key] = dealSize + positionMap[key]
             else:
                 positionMap[key] = dealSize
-        # TODO print this in a readable way
-        logging.info("current position summary: {}".format(positionMap))
+        logging.debug("Current position summary: {}".format(positionMap))
         return positionMap
 
     def get_market_price(self, epic_id):
@@ -129,20 +130,21 @@ class IGInterface():
             logging.debug("Time to API Key reset: {}".format(str(reset_time)))
         return d
 
-    def trade(self, epic_id, trade_direction, limitDistance_value, stopDistance_value):
+    def trade(self, epic_id, trade_direction, limit, stop):
         base_url = self.apiBaseURL + '/positions/otc'
         data = {
             "direction": trade_direction,
             "epic": epic_id,
-            "limitDistance": limitDistance_value,
+            "limitDistance": limit,
             "orderType": self.orderType,
             "size": self.orderSize,
             "expiry": self.orderExpiry,
             "guaranteedStop": self.useGStop,
             "currencyCode": self.orderCurrency,
             "forceOpen": self.orderForceOpen,
-            "stopDistance": stopDistance_value
+            "stopDistance": stop
         }
+
         r = requests.post(
             base_url,
             data=json.dumps(data),
@@ -165,15 +167,14 @@ class IGInterface():
                                                                         d['dealStatus'],
                                                                         d['reason']))
         if str(d['reason']) != "SUCCESS":
-            logging.info("Trade {} of {} has failed!".format(trade_direction,epic_id))
-            time.sleep(10)
+            logging.warn("Trade {} of {} has failed!".format(trade_direction,epic_id))
+            time.sleep(1)
         else:
-            logging.info("Yay, order open!")
-            time.sleep(3)
+            logging.info("Order {} for {} opened with limit={} and stop={}".format(trade_direction,
+                        epic_id, limit, stop))
+            time.sleep(1)
 
     def humanize_time(self, secs):
         mins, secs = divmod(secs, 60)
         hours, mins = divmod(mins, 60)
         return '%02d:%02d:%02d' % (hours, mins, secs)
-
-    
