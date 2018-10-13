@@ -12,40 +12,31 @@
 import pytz
 import logging
 import sys
+import json
 
-from Utils import *
 from StocksAutoTrader import StocksAutoTrader
-from Strategies.FAIG_iqr import FAIG_iqr
-from Strategies.SimpleMACD import SimpleMACD
+
 
 if __name__ == '__main__':
 
+    # Set timezone
     set(pytz.all_timezones_set)
 
-    #config = ConfigurationManager('../config/config.json')
+    # Read configuration file
     try:
         with open('../config/config.json', 'r') as file:
             config = json.load(file)
     except IOError:
-        file = open(filepath, 'w')
-        # TODO write the template config file with default values
-        config = json.load(file)
+        #file = open(filepath, 'w')
+        #config = json.load(file)
+        logging.error("Configuration file not found!")
+        exit()
 
+    # Define the global loggin settings
     debugLevel = logging.DEBUG if config['general']['debug_log'] else logging.INFO
     logging.basicConfig(#filename=logfile_name,
                         level=debugLevel,
                         format="[%(asctime)s] %(levelname)s: %(message)s")
 
-    ##################################################
-    # Define the strategy to use here
-    ##################################################
-
-    # Create the strategy
-    #strategy = FAIG_iqr(config)
-    strategy = SimpleMACD(config)
-
-    ###################################################
-    ###################################################
-
     robot = StocksAutoTrader(config)
-    robot.start(sys.argv, strategy)
+    robot.start(sys.argv)

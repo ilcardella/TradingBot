@@ -6,12 +6,15 @@ import time
 
 from Utils import *
 from IGInterface import IGInterface
+from Strategies.SimpleMACD import SimpleMACD
 
 class StocksAutoTrader:
     def __init__(self, config):
         self.read_configuration(config)
         # Create IG interface
         self.IG = IGInterface(config)
+        # Define the strategy to use here
+        self.strategy = SimpleMACD(config)
 
     def read_configuration(self, config):
         self.time_zone = config['general']['time_zone']
@@ -41,7 +44,7 @@ class StocksAutoTrader:
         now_time = datetime.datetime.now(tz=tz).strftime('%H:%M')
         return is_between(str(now_time), ("07:55", "16:35"))
 
-    def start(self, argv, strategy):
+    def start(self, argv):
         if len(argv) != 3: # the first argument is the script name
             logging.error("Wrong number of arguments. Provide username and password`")
             return
@@ -61,5 +64,5 @@ class StocksAutoTrader:
                 time.sleep(60)
                 continue
             else:
-                strategy.spin(self.IG, main_epic_ids)
+                self.strategy.spin(self.IG, main_epic_ids)
                 time.sleep(1)
