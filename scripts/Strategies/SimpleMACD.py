@@ -56,6 +56,13 @@ class SimpleMACD(Strategy):
                 time.sleep(self.timeout)
                 continue
 
+        # Define timeout until next iteration of strategy
+        strategyInteval = 3600 # 1 hour in seconds
+        if self.interval == 'HOUR_4':
+            strategyInterval = 60 * 60 * 4
+        logging.info("Epics analysis complete. Wait for {} seconds".format(strategyInterval))
+        time.sleep(strategyInterval)
+
 
     def process_epic(self, broker, epic_id):
         tradeDirection = TradeDirection.NONE
