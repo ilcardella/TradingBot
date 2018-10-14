@@ -11,60 +11,72 @@ from Utils import *
 
 class SimpleMACD(Strategy):
     def __init__(self, config):
+        super().__init__(config)
         self.read_configuration(config)
         logging.info('Simple MACD strategy initialised.')
 
 
     def read_configuration(self, config):
-        self.order_size = config['ig_interface']['order_size']
-        self.max_account_usable = config['general']['max_account_usable']
         self.interval = config['strategies']['simple_macd']['interval']
         self.timeout = 1
 
-
+    # TODO make as generic as possible and move in Strategy class
     def spin(self, broker, epic_list):
-        logging.info("Simple MACD starting to spin.")
-        if len(epic_list) < 1:
-            # TODO monitor only open positions
-            logging.warn("Epic list is empty!")
-            return
+        logging.info("Strategy started to spin.")
+        try:
+            # Fetch open positions and process them first
+            positionMap = broker.get_open_positions()
+            logging.info("Processing open positions: {}".format(positionMap))
+            for key, dealSize in positionMap.items():
+                epic = positionMap[key].split('-')[0]
+                self.process_epic(broker, epic)
 
-        shuffle(epic_list)
-
-        for epic in epic_list:
-            try:
-                # Process the epic and find if we want to trade
-                trade, limit, stop = self.process_epic(broker, epic)
-
-                # In case of no trade skip to next epic
-                if trade is TradeDirection.NONE:
-                    time.sleep(self.timeout)
-                    continue
-                else:
-                    # Perform safety check for trade action
-                    if self.safe_to_trade(broker, epic, trade):
-                        broker.trade(epic, trade.name, limit, stop)
+            # Start processing all the company in the epic list
+            logging.info("Started processing epic list of length: {}".format(len(epic_list)))
+            if len(epic_list) < 1:
+                logging.warn("Epic list is empty!")
+            else:
+                shuffle(epic_list)
+                for epic in epic_list:
+                    try:
+                        self.process_epic(broker, epic)
+                    except Exception as e:
+                        logging.warn(e)
+                        logging.warn(traceback.format_exc())
+                        logging.warn(sys.exc_info()[0])
                         time.sleep(self.timeout)
-                    else:
-                        # Skip to next epic
                         continue
-            except Exception as e:
+
+            # Define timeout until next iteration of strategy
+            strategyInteval = 3600 # 1 hour in seconds
+            if self.interval == 'HOUR_4':
+                strategyInterval = 60 * 60 * 4
+            logging.info("Epics analysis complete. Wait for {} seconds".format(strategyInterval))
+            time.sleep(strategyInterval)
+        except Exception as e:
                 logging.warn(e)
                 logging.warn(traceback.format_exc())
                 logging.warn(sys.exc_info()[0])
                 logging.warn("Something fucked up.")
                 time.sleep(self.timeout)
-                continue
 
-        # Define timeout until next iteration of strategy
-        strategyInteval = 3600 # 1 hour in seconds
-        if self.interval == 'HOUR_4':
-            strategyInterval = 60 * 60 * 4
-        logging.info("Epics analysis complete. Wait for {} seconds".format(strategyInterval))
-        time.sleep(strategyInterval)
+    # TODO make as generic as possible and move in Strategy class
+    def process_epic(self, broker, epic):
+        # Process the epic and find if we want to trade
+        trade, limit, stop = self.find_trade_signal(broker, epic)
 
+        # In case of no trade return
+        if trade is TradeDirection.NONE:
+            time.sleep(self.timeout)
+            return
+        else:
+            # Perform safety check for trade action
+            if self.safe_to_trade(broker, epic, trade):
+                broker.trade(epic, trade.name, limit, stop)
+                time.sleep(self.timeout)
 
-    def process_epic(self, broker, epic_id):
+    # TODO This should be the only function in this class, possibly split in more smaller ones
+    def find_trade_signal(self, broker, epic_id):
         tradeDirection = TradeDirection.NONE
         limit = None
         stop = None
@@ -94,9 +106,9 @@ class SimpleMACD(Strategy):
         px['positions'][9:]=np.where(px['macd'][9:]>=px['macd_signal'][9:],1,0)
         px['signals']=px['positions'].diff()
 
-        if px['signals'].iloc[-1] > 0:
+        if len(px['signals']) > 0 and px['signals'].iloc[-1] > 0:
             tradeDirection = TradeDirection.BUY
-        elif px['signals'].iloc[-1] < 0:
+        elif len(px['signals']) > 0 and px['signals'].iloc[-1] < 0:
             tradeDirection = TradeDirection.SELL
         else:
             tradeDirection = TradeDirection.NONE
@@ -109,40 +121,16 @@ class SimpleMACD(Strategy):
 
         return tradeDirection, limit, stop
 
-
+    # TODO make as generic as possible and move in Strategy class
     def safe_to_trade(self, broker, epic, trade):
-        # Retrieve the current open positions to do safety checks
-        positionMap = broker.get_open_positions()
-
-        # Check if we have already a position with same direction
-        key = epic + '-' + trade.name
-        if key in positionMap and int(positionMap[key]) >= self.order_size:
-            logging.warn("{} has {} positions open already, hence should not trade"
-                                    .format(str(key), str(positionMap[key])))
+        # Check if the account has enough cash available to open new positions
+        balance, deposit = broker.get_account_balances()
+        percent_used = percentage(deposit, balance)
+        if percent_used > self.max_account_usable:
+            logging.warn("Will not trade, {}% of account balance is used."
+                            .format(str(percent_used)))
             return False
-
-        # Check if it's a signal to exit an open position
-        entryDirection = None
-        if trade is TradeDirection.BUY:
-            entryDirection = TradeDirection.SELL
-        elif trade is TradeDirection.SELL:
-            entryDirection = TradeDirection.BUY
         else:
-            logging.error("Trying to trade with direction NONE!!!!")
-            return False
-
-        entryKey = epic + '-' + entryDirection.name
-        if entryKey in positionMap:
+            logging.info("Ok to trade, {}% of account is used"
+                            .format(str(percent_used)))
             return True
-        else:
-            # Check if the account has enough cash available to open new positions
-            balance, deposit = broker.get_account_balances()
-            percent_used = percentage(deposit, balance)
-            if percent_used > self.max_account_usable:
-                logging.warn("Will not trade, {}% of account balance is used."
-                                .format(str(percent_used)))
-                return False
-            else:
-                logging.info("Ok to trade, {}% of account is used"
-                                .format(str(percent_used)))
-                return True
