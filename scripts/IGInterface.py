@@ -163,7 +163,8 @@ class IGInterface():
         auth_r = requests.get(base_url, headers=self.authenticated_headers)
         d = json.loads(auth_r.text)
         DEAL_ID = d['dealId']
-        logging.debug("Deal id {} has status {} with reason {}".format(str(DEAL_ID),
+        logging.debug(d)
+        logging.info("Deal id {} has status {} with reason {}".format(str(DEAL_ID),
                                                                         d['dealStatus'],
                                                                         d['reason']))
         if str(d['reason']) != "SUCCESS":

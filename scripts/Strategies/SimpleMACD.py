@@ -84,7 +84,7 @@ class SimpleMACD(Strategy):
         prices = broker.get_prices(epic_id, self.interval, 30)
         current_bid, current_offer = broker.get_market_price(epic_id)
 
-        if prices is None or current_bid is None or current_offer is None:
+        if prices is None or current_bid is None or current_offer is None or 'prices' not in prices:
             logging.warn('Strategy can`t process {}'.format(epic_id))
             return TradeDirection.NONE, None, None
 
@@ -114,7 +114,7 @@ class SimpleMACD(Strategy):
             tradeDirection = TradeDirection.NONE
 
         limit = current_bid + percentage_of(10, current_bid)
-        stop = current_bid - percentage_of(5, current_bid)
+        stop = current_bid - percentage_of(10, current_bid)
 
         if tradeDirection is not TradeDirection.NONE:
             logging.info("SimpleMACD says: {} {}".format(tradeDirection, epic_id))
