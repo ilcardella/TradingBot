@@ -18,6 +18,7 @@ class SimpleMACD(Strategy):
 
     def read_configuration(self, config):
         self.interval = config['strategies']['simple_macd']['interval']
+        self.controlledRisk = config['ig_interface']['controlled_risk']
         self.timeout = 1
 
     # TODO make as generic as possible and move in Strategy class
@@ -81,13 +82,17 @@ class SimpleMACD(Strategy):
         limit = None
         stop = None
 
+        # Collect data from the broker interface
         prices = broker.get_prices(epic_id, self.interval, 30)
-        current_bid, current_offer = broker.get_market_price(epic_id)
+        market = broker.get_market_info(epic_id)
 
-        if prices is None or current_bid is None or current_offer is None or 'prices' not in prices:
+        # Safety checks before processing the epic
+        if (prices is None or 'prices' not in prices
+            or market is None or 'markets' in market):
             logging.warn('Strategy can`t process {}'.format(epic_id))
             return TradeDirection.NONE, None, None
 
+        # Create a list of close prices
         data = []
         prevBid = 0
         for p in prices['prices']:
@@ -97,6 +102,7 @@ class SimpleMACD(Strategy):
                 data.append(p['closePrice']['bid'])
             prevBid = p['closePrice']['bid']
 
+        # Calculate the MACD indicator and find signals where macd cross its sma(9) average
         px = pd.DataFrame({'close': data})
         px['26_ema'] = pd.DataFrame.ewm(px['close'], span=26).mean()
         px['12_ema'] = pd.DataFrame.ewm(px['close'], span=12).mean()
@@ -106,6 +112,7 @@ class SimpleMACD(Strategy):
         px['positions'][9:]=np.where(px['macd'][9:]>=px['macd_signal'][9:],1,0)
         px['signals']=px['positions'].diff()
 
+        # Identify the trade direction looking at the last signal
         if len(px['signals']) > 0 and px['signals'].iloc[-1] > 0:
             tradeDirection = TradeDirection.BUY
         elif len(px['signals']) > 0 and px['signals'].iloc[-1] < 0:
@@ -113,9 +120,16 @@ class SimpleMACD(Strategy):
         else:
             tradeDirection = TradeDirection.NONE
 
+        # Extract market data to calculate stop and limit values
+        key = 'minNormalStopOrLimitDistance'
+        if self.controlledRisk:
+            key = 'minControlledRiskStopDistance'
+        stop_perc = market['dealingRules'][key]['value'] + 1 # +1 to avoid rejection
+        current_bid = market['snapshot']['bid']
         limit = current_bid + percentage_of(10, current_bid)
-        stop = current_bid - percentage_of(10, current_bid)
+        stop = current_bid - percentage_of(stop_perc, current_bid)
 
+        # Log only tradable epics
         if tradeDirection is not TradeDirection.NONE:
             logging.info("SimpleMACD says: {} {}".format(tradeDirection, epic_id))
 
