@@ -5,7 +5,8 @@
         "esma_stocks_margin_perc": 20,
         "debug_log": false,
         "time_zone": "Europe/London",
-        "log_file": "trading_bot.log",
+        "log_file": "/tmp/trading_bot_{t}.log",
+	"timestamp_log": true,
         "epic_ids_filepath": "../data/epic_ids.txt"
     },
     "ig_interface" : {

@@ -13,6 +13,7 @@ import pytz
 import logging
 import sys
 import json
+import datetime as dt
 
 from StocksAutoTrader import StocksAutoTrader
 
@@ -27,14 +28,19 @@ if __name__ == '__main__':
         with open('../config/config.json', 'r') as file:
             config = json.load(file)
     except IOError:
-        #file = open(filepath, 'w')
-        #config = json.load(file)
         logging.error("Configuration file not found!")
         exit()
 
+    log_filename = config['general']['log_file']
+
+    if config['general']['timestamp_log']:
+        time_str = dt.datetime.now().isoformat()
+        time_suffix = time_str.replace(':', '_').replace('.', '_')
+        log_filename = log_filename.replace('{t}', time_suffix)
+
     # Define the global loggin settings
     debugLevel = logging.DEBUG if config['general']['debug_log'] else logging.INFO
-    logging.basicConfig(#filename=logfile_name,
+    logging.basicConfig(filename=log_filename,
                         level=debugLevel,
                         format="[%(asctime)s] %(levelname)s: %(message)s")
 
