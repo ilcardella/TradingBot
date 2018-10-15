@@ -6,7 +6,7 @@
         "debug_log": false,
         "time_zone": "Europe/London",
         "log_file": "/tmp/trading_bot_{t}.log",
-	"timestamp_log": true,
+	    "timestamp_log": true,
         "epic_ids_filepath": "../data/epic_ids.txt"
     },
     "ig_interface" : {
