@@ -1,7 +1,7 @@
 {
     "general" : {
         "year": 2018,
-        "max_account_usable": 70,
+        "max_account_usable": 50,
         "esma_stocks_margin_perc": 20,
         "debug_log": false,
         "time_zone": "Europe/London",
@@ -10,14 +10,15 @@
     },
     "ig_interface" : {
         "order_type": "MARKET",
-        "order_size": 2,
+        "order_size": 1,
         "order_expiry": "DFB",
         "order_currency": "GBP",
         "order_force_open": true,
         "use_g_stop": true,
-        "api_key": "YOUR API KEY",
-        "account_id": "YOUR SPREAD BETTING ACCOUNT ID",
-        "use_demo_account": true
+        "api_key": "",
+        "account_id": "",
+        "use_demo_account": true,
+        "controlled_risk": true
     },
     "strategies": {
         "faig": {

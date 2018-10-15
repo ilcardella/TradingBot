@@ -100,17 +100,12 @@ class IGInterface():
         logging.debug("Current position summary: {}".format(positionMap))
         return positionMap
 
-    def get_market_price(self, epic_id):
+
+    def get_market_info(self, epic_id):
         base_url = self.apiBaseURL + '/markets/' + str(epic_id)
         auth_r = requests.get(base_url, headers=self.authenticated_headers)
-        d = json.loads(auth_r.text)
-        bid = None
-        offer = None
-        if 'snapshot' in d:
-            bid = d['snapshot']['bid']
-            offer = d['snapshot']['offer']
-            logging.debug("Market prices of {} are: bid={}, offer={}".format(epic_id,bid,offer))
-        return bid, offer
+        return json.loads(auth_r.text)
+
 
     def get_prices(self, epic_id, resolution, range):
         # Price resolution (MINUTE, MINUTE_2, MINUTE_3, MINUTE_5,
