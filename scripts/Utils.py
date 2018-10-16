@@ -37,6 +37,6 @@ def is_between(time, time_range):
 
 def humanize_time(secs):
     """Convert the given time (in seconds) into a readable format hh:mm:ss"""
-        mins, secs = divmod(secs, 60)
-        hours, mins = divmod(mins, 60)
-        return '%02d:%02d:%02d' % (hours, mins, secs)
+    mins, secs = divmod(secs, 60)
+    hours, mins = divmod(mins, 60)
+    return '%02d:%02d:%02d' % (hours, mins, secs)
