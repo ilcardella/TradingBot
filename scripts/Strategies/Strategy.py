@@ -14,6 +14,8 @@ class Strategy:
         self.max_account_usable = config['general']['max_account_usable']
         self.read_configuration(config)
 
+    def read_configuration(self, config):
+        raise NotImplementedError('Not implemented')
 
     def spin(self, broker, epic_list):
         logging.info("Strategy started to spin.")
@@ -97,3 +99,4 @@ class Strategy:
             logging.info("Ok to trade, {}% of account is used"
                             .format(str(percent_used)))
             return True
+
