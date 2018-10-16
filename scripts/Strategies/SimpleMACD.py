@@ -12,7 +12,6 @@ from Utils import *
 class SimpleMACD(Strategy):
     def __init__(self, config):
         super().__init__(config)
-        self.read_configuration(config)
         logging.info('Simple MACD strategy initialised.')
 
 

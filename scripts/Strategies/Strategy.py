@@ -6,7 +6,9 @@ class Strategy:
         self.order_size = config['ig_interface']['order_size']
         self.max_account_usable = config['general']['max_account_usable']
         self.read_configuration(config)
-        pass
 
     def spin(self, broker, epic_ids):
         logging.error("Strategy not defined!")
+
+    def read_configuration(self, config):
+        raise NotImplementedError('Not implemented')

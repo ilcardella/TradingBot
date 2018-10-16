@@ -11,7 +11,7 @@ from Utils import *
 
 class FAIG_iqr(Strategy):
     def __init__(self, config):
-        self.read_configuration(config)
+        super().__init__(config)
         logging.info('FAIG IQR strategy initialised.')
 
     def read_configuration(self, config):
