@@ -130,14 +130,14 @@ class IGInterface():
         data = {
             "direction": trade_direction,
             "epic": epic_id,
-            "limitDistance": limit,
+            "limitLevel": limit,
             "orderType": self.orderType,
             "size": self.orderSize,
             "expiry": self.orderExpiry,
             "guaranteedStop": self.useGStop,
             "currencyCode": self.orderCurrency,
             "forceOpen": self.orderForceOpen,
-            "stopDistance": stop
+            "stopLevel": stop
         }
 
         r = requests.post(

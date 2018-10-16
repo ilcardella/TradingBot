@@ -21,7 +21,7 @@ class Strategy:
             positionMap = broker.get_open_positions()
             logging.info("Processing open positions: {}".format(positionMap))
             for key, dealSize in positionMap.items():
-                epic = positionMap[key].split('-')[0]
+                epic = key.split('-')[0]
                 self.process_epic(broker, epic)
 
             # Start processing all the company in the epic list
@@ -70,6 +70,8 @@ class Strategy:
 
 
     def safe_to_trade(self, broker, epic, trade):
+        # Check if we got another position open for same epic and same direction
+
         # Check if the account has enough cash available to open new positions
         balance, deposit = broker.get_account_balances()
         percent_used = percentage(deposit, balance)

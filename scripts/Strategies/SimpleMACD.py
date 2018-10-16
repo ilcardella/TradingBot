@@ -38,6 +38,14 @@ class SimpleMACD(Strategy):
             logging.warn('Strategy can`t process {}'.format(epic_id))
             return TradeDirection.NONE, None, None
 
+        # Extract market data to calculate stop and limit values
+        key = 'minNormalStopOrLimitDistance'
+        if self.controlledRisk:
+            key = 'minControlledRiskStopDistance'
+        stop_perc = market['dealingRules'][key]['value'] + 1 # +1 to avoid rejection
+        current_bid = market['snapshot']['bid']
+        current_offer = market['snapshot']['offer']
+
         # Create a list of close prices
         data = []
         prevBid = 0
@@ -61,19 +69,16 @@ class SimpleMACD(Strategy):
         # Identify the trade direction looking at the last signal
         if len(px['signals']) > 0 and px['signals'].iloc[-1] > 0:
             tradeDirection = TradeDirection.BUY
+            limit = current_offer + percentage_of(10, current_offer)
+            stop = current_bid - percentage_of(stop_perc, current_bid)
         elif len(px['signals']) > 0 and px['signals'].iloc[-1] < 0:
             tradeDirection = TradeDirection.SELL
+            limit = current_bid - percentage_of(10, current_bid)
+            stop = current_offer + percentage_of(stop_perc, current_offer)
         else:
             tradeDirection = TradeDirection.NONE
-
-        # Extract market data to calculate stop and limit values
-        key = 'minNormalStopOrLimitDistance'
-        if self.controlledRisk:
-            key = 'minControlledRiskStopDistance'
-        stop_perc = market['dealingRules'][key]['value'] + 1 # +1 to avoid rejection
-        current_bid = market['snapshot']['bid']
-        limit = current_bid + percentage_of(10, current_bid)
-        stop = current_bid - percentage_of(stop_perc, current_bid)
+            limit = None
+            stop = None
 
         # Log only tradable epics
         if tradeDirection is not TradeDirection.NONE:
