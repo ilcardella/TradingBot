@@ -8,6 +8,7 @@ from Utils import *
 
 class Strategy:
     def __init__(self, config):
+        self.positionMap = {}
         # Define common settings in strategies
         self.order_size = config['ig_interface']['order_size']
         self.max_account_usable = config['general']['max_account_usable']
@@ -18,11 +19,14 @@ class Strategy:
         logging.info("Strategy started to spin.")
         try:
             # Fetch open positions and process them first
-            positionMap = broker.get_open_positions()
-            logging.info("Processing open positions: {}".format(positionMap))
-            for key, dealSize in positionMap.items():
-                epic = key.split('-')[0]
-                self.process_epic(broker, epic)
+            logging.info("Processing open positions.")
+            self.positionMap = broker.get_open_positions()
+            if self.positionMap is not None:
+                for key, dealSize in self.positionMap.items():
+                    epic = key.split('-')[0]
+                    self.process_epic(broker, epic)
+            else:
+                logging.warn("Unable to retrieve open positions!")
 
             # Start processing all the company in the epic list
             logging.info("Started processing epic list of length: {}".format(len(epic_list)))
@@ -70,8 +74,17 @@ class Strategy:
 
 
     def safe_to_trade(self, broker, epic, trade):
-        # TODO Check if we got another position open for same epic and same direction
-
+        # Check if we got another position open for same epic and same direction
+        if self.positionMap is not None:
+            for key, dealSize in self.positionMap.items():
+                epic = key.split('-')[0]
+                direction = key.split('-')[1]
+                if trade.name == direction:
+                    logging.warn("There is already an open position for this epic, skip trade")
+                    return False
+        else:
+            logging.warn("Unable to retrieve open positions! Avoid trading this epic")
+            return False
 
         # Check if the account has enough cash available to open new positions
         balance, deposit = broker.get_account_balances()
