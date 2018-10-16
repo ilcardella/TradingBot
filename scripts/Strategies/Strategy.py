@@ -70,7 +70,8 @@ class Strategy:
 
 
     def safe_to_trade(self, broker, epic, trade):
-        # Check if we got another position open for same epic and same direction
+        # TODO Check if we got another position open for same epic and same direction
+
 
         # Check if the account has enough cash available to open new positions
         balance, deposit = broker.get_account_balances()
