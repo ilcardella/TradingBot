@@ -19,5 +19,15 @@ class FAIG_iqr(Strategy):
         self.stopLossMultiplier = config['strategies']['faig']['stop_loss_multiplier']
         self.tooHighMargin = config['strategies']['faig']['too_high_margin']
 
-    # TODO define the spin() method
-    # TODO update with new version
+    def find_trade_signal(self, broker, epic_id):
+        tradeDirection = TradeDirection.NONE
+        limit = None
+        stop = None
+
+        # TODO update with new version
+
+        # Log only tradable epics
+        if tradeDirection is not TradeDirection.NONE:
+            logging.info("FAIG_iqr says: {} {}".format(tradeDirection, epic_id))
+
+        return tradeDirection, limit, stop

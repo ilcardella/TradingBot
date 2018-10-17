@@ -15,7 +15,10 @@ class Strategy:
         self.read_configuration(config)
 
     def read_configuration(self, config):
-        raise NotImplementedError('Not implemented')
+        raise NotImplementedError('Not implemented: read_configuration')
+
+    def find_trade_signal(self, broker, epic_id):
+        raise NotImplementedError('Not implemented: find_trade_signal')
 
     def spin(self, broker, epic_list):
         logging.info("Strategy started to spin.")
