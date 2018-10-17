@@ -30,21 +30,33 @@ class Strategy:
             else:
                 logging.warn("Unable to retrieve open positions!")
 
-            # Start processing all the company in the epic list
-            logging.info("Started processing epic list of length: {}".format(len(epic_list)))
-            if len(epic_list) < 1:
-                logging.warn("Epic list is empty!")
+            # Check if the account has enough cash available to open new positions
+            percent_used = self.get_account_used_perc(broker)
+            if percent_used < self.max_account_usable:
+                logging.info("Ok to trade, {}% of account is used".format(str(percent_used)))
+                if len(epic_list) < 1:
+                    logging.warn("Epic list is empty!")
+                else:
+                    logging.info("Started processing epic list of length: {}".format(len(epic_list)))
+                    shuffle(epic_list)
+                    for epic in epic_list:
+                        try:
+                            if self.process_epic(broker, epic):
+                                # If there has been a trade check again account usage
+                                percent_used = self.get_account_used_perc(broker)
+                                if percent_used > self.max_account_usable:
+                                    logging.warn("Stop trading because {}% of account is used".format(str(percent_used)))
+                                    break
+                            time.sleep(self.timeout)
+                        except Exception as e:
+                            logging.warn(e)
+                            logging.warn(traceback.format_exc())
+                            logging.warn(sys.exc_info()[0])
+                            time.sleep(self.timeout)
+                            continue
             else:
-                shuffle(epic_list)
-                for epic in epic_list:
-                    try:
-                        self.process_epic(broker, epic)
-                    except Exception as e:
-                        logging.warn(e)
-                        logging.warn(traceback.format_exc())
-                        logging.warn(sys.exc_info()[0])
-                        time.sleep(self.timeout)
-                        continue
+                logging.warn("Will not trade, {}% of account balance is used."
+                                .format(str(percent_used)))
 
             # Define timeout until next iteration of strategy
             strategyInteval = 3600 # 1 hour in seconds
@@ -63,16 +75,12 @@ class Strategy:
     def process_epic(self, broker, epic):
         # Process the epic and find if we want to trade
         trade, limit, stop = self.find_trade_signal(broker, epic)
-
-        # In case of no trade return
-        if trade is TradeDirection.NONE:
-            time.sleep(self.timeout)
-            return
-        else:
+        # In case of no trade don't do anything
+        if trade is not TradeDirection.NONE:
             # Perform safety check for trade action
             if self.safe_to_trade(broker, epic, trade):
-                broker.trade(epic, trade.name, limit, stop)
-                time.sleep(self.timeout)
+                return broker.trade(epic, trade.name, limit, stop)
+        return False
 
 
     def safe_to_trade(self, broker, epic, trade):
@@ -87,16 +95,10 @@ class Strategy:
         else:
             logging.warn("Unable to retrieve open positions! Avoid trading this epic")
             return False
-
-        # Check if the account has enough cash available to open new positions
-        balance, deposit = broker.get_account_balances()
-        percent_used = percentage(deposit, balance)
-        if percent_used > self.max_account_usable:
-            logging.warn("Will not trade, {}% of account balance is used."
-                            .format(str(percent_used)))
-            return False
-        else:
-            logging.info("Ok to trade, {}% of account is used"
-                            .format(str(percent_used)))
-
         return True
+
+    def get_account_used_perc(self, broker):
+        balance, deposit = broker.get_account_balances()
+        if balace is None or deposit is None:
+            return 9999999 # This will block the trading
+        return percentage(deposit, balance)

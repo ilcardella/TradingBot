@@ -149,10 +149,13 @@ class IGInterface():
             if str(d['reason']) != "SUCCESS":
                 logging.warn("Trade {} of {} has failed!".format(trade_direction,epic_id))
                 time.sleep(1)
+                return False
             else:
                 logging.info("Order {} for {} opened with limit={} and stop={}".format(trade_direction,
                             epic_id, limit, stop))
                 time.sleep(1)
+                return True
+        return False
 
     def http_get(self, url):
         auth_r = requests.get(url, headers=self.authenticated_headers)
