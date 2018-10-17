@@ -16,8 +16,6 @@
         "order_currency": "GBP",
         "order_force_open": true,
         "use_g_stop": true,
-        "api_key": "",
-        "account_id": "",
         "use_demo_account": true,
         "controlled_risk": true
     },
