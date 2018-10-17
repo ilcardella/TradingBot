@@ -14,43 +14,38 @@ class IGInterface():
 
     def read_configuration(self, config):
         self.useDemo = config['ig_interface']['use_demo_account']
-        self.accountId = config['ig_interface']['account_id']
         self.orderType = config['ig_interface']['order_type']
         self.orderSize = config['ig_interface']['order_size']
         self.orderExpiry = config['ig_interface']['order_expiry']
         self.useGStop = config['ig_interface']['use_g_stop']
         self.orderCurrency = config['ig_interface']['order_currency']
         self.orderForceOpen = config['ig_interface']['order_force_open']
-        self.apiKey = config['ig_interface']['api_key']
 
-    def authenticate(self, username, password):
-        credentials = {"identifier": username, "password": password}
+    def authenticate(self, credentials):
+        data = {"identifier": credentials['username'], "password": credentials['password']}
         headers = {'Content-Type': 'application/json; charset=utf-8',
                         'Accept': 'application/json; charset=utf-8',
-                        'X-IG-API-KEY': self.apiKey,
+                        'X-IG-API-KEY': credentials['api_key'],
                         'Version': '2'
                         }
         url = self.apiBaseURL + '/session'
         response = requests.post(url,
-                                data=json.dumps(credentials),
+                                data=json.dumps(data),
                                 headers=headers)
         headers_json = dict(response.headers)
         try:
             CST_token = headers_json["CST"]
             x_sec_token = headers_json["X-SECURITY-TOKEN"]
         except:
-            logging.warn("Authentication failed")
             return False
 
-        logging.debug(R"CST: {}".format(CST_token))
-        logging.debug(R"X-SECURITY-TOKEN: {}".format(x_sec_token))
         self.authenticated_headers = {'Content-Type': 'application/json; charset=utf-8',
                                 'Accept': 'application/json; charset=utf-8',
-                                'X-IG-API-KEY': self.apiKey,
+                                'X-IG-API-KEY': credentials['api_key'],
                                 'CST': CST_token,
                                 'X-SECURITY-TOKEN': x_sec_token}
 
-        self.set_default_account(self.accountId)
+        self.set_default_account(credentials['account_id'])
         return True
 
     def set_default_account(self, accountId):

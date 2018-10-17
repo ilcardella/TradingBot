@@ -45,14 +45,17 @@ class StocksAutoTrader:
         return is_between(str(now_time), ("07:55", "16:35"))
 
     def start(self, argv):
-        if len(argv) != 3: # the first argument is the script name
-            logging.error("Wrong number of arguments. Provide username and password`")
+        # Read credentials file
+        try:
+            with open('../config/.credentials', 'r') as file:
+                credentials = json.load(file)
+        except IOError:
+            logging.error("Credentials file not found!")
             return
-        username = sys.argv[1]
-        password = sys.argv[2]
 
         # Init the broker interface
-        if not self.IG.authenticate(username, password):
+        if not self.IG.authenticate(credentials):
+            logging.warn("Authentication failed")
             return
 
         # Read list of company epic ids

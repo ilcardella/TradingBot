@@ -98,5 +98,5 @@ class Strategy:
         else:
             logging.info("Ok to trade, {}% of account is used"
                             .format(str(percent_used)))
-            return True
 
+        return True

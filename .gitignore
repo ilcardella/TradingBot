@@ -99,4 +99,7 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# App specific
 epic_ids.txt
+.credentials
