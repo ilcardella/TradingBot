@@ -49,3 +49,16 @@ From the project root folder:
 cd scripts
 python3 main.py
 ```
+
+# Automate
+You can set up the crontab job to run and kill TradinBot at specific times. To do so a script that start and stop the process is available in the `cron` folder.
+The only configuration required is to edit the crontab file adding the preferred schedule:
+```
+crontab -e
+```
+As an example this will start TradingBot at 8:00 in the morning and will stop it at 16:35 in the afternoon, every week day (Mon to Fri):
+```
+00 08 * * 1-5 /path/to/script/trading_bot_ctl start
+35 16 * * 1-5 /path/to/script/trading_bot_ctl stop
+```
+NOTE: Remember to set the correct installation path and to set the correct timezone in your machine!
