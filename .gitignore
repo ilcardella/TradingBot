@@ -103,3 +103,5 @@ ENV/
 # App specific
 epic_ids.txt
 .credentials
+log.txt
+pid.txt

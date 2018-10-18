@@ -1,0 +1,17 @@
+#! /bin/bash
+
+WORKSPACE_PATH=/installation/path
+
+start()
+{
+  nohup /usr/bin/python3 -u ${WORKSPACE_PATH}/TradingBot/scripts/main.py > log.txt 2>&1 & echo $! > pid.txt
+}
+
+stop()
+{
+  cat pid.txt | xargs kill
+}
+
+case $1 in 
+  start|stop) "$1" ;;
+esac
