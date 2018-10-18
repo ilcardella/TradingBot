@@ -90,9 +90,9 @@ class Strategy:
         # Check if we got another position open for same epic and same direction
         if self.positionMap is not None:
             for key, dealSize in self.positionMap.items():
-                epic = key.split('-')[0]
+                epicOwned = key.split('-')[0]
                 direction = key.split('-')[1]
-                if trade.name == direction:
+                if epicOwned == epic and trade.name == direction:
                     logging.warn("There is already an open position for this epic, skip trade")
                     return False
         else:
