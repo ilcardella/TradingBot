@@ -103,7 +103,7 @@ class IGInterface():
         if d is not None and 'allowance' in d:
             remaining_allowance = d['allowance']['remainingAllowance']
             reset_time = humanize_time(int(d['allowance']['allowanceExpiry']))
-            if remaining_allowance < 50:
+            if remaining_allowance < 100:
                 logging.warn("Remaining API calls left: {}".format(str(remaining_allowance)))
                 logging.warn("Time to API Key reset: {}".format(str(reset_time)))
         return d if d is not None else None
@@ -164,6 +164,7 @@ class IGInterface():
         logging.debug(auth_r.text)
         d = json.loads(auth_r.text)
         if 'errorCode' in d:
+            logging.error(d['errorCode'])
             return None
         else:
             return d
