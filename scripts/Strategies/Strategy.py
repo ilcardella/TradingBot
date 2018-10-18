@@ -102,6 +102,6 @@ class Strategy:
 
     def get_account_used_perc(self, broker):
         balance, deposit = broker.get_account_balances()
-        if balace is None or deposit is None:
+        if balance is None or deposit is None:
             return 9999999 # This will block the trading
         return percentage(deposit, balance)
