@@ -24,7 +24,7 @@ class SimpleMACD(Strategy):
         stop = None
 
         # Collect data from the broker interface
-        prices = broker.get_prices(epic_id, self.interval, 30)
+        prices = broker.get_prices(epic_id, self.interval, 26)
         market = broker.get_market_info(epic_id)
 
         # Safety checks before processing the epic
