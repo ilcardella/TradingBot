@@ -14,9 +14,10 @@ import logging
 import sys
 import json
 import datetime as dt
+import os
 
 from StocksAutoTrader import StocksAutoTrader
-
+from pathlib import Path
 
 if __name__ == '__main__':
 
@@ -38,7 +39,9 @@ if __name__ == '__main__':
         log_filename = config['general']['log_file']
         time_str = dt.datetime.now().isoformat()
         time_suffix = time_str.replace(':', '_').replace('.', '_')
-        log_filename = log_filename.replace('{t}', time_suffix)
+        home = str(Path.home())
+        log_filename = log_filename.replace('{timestamp}', time_suffix).replace('{home}', home)
+        os.makedirs(os.path.dirname(log_filename), exist_ok=True)
         logging.basicConfig(filename=log_filename,
                         level=debugLevel,
                         format="[%(asctime)s] %(levelname)s: %(message)s")
