@@ -59,7 +59,7 @@ class SimpleMACD(Strategy):
         px['macd'] = (px['12_ema'] - px['26_ema'])
         px['macd_signal'] = px['macd'].rolling(9).mean()
         px['positions'] = 0
-        px.loc('positions', 9:) = np.where(px.loc('macd', 9:) >= px.loc('macd_signal', 9:) , 1, 0)
+        px.loc[9:, 'positions'] = np.where(px.loc[9:, 'macd'] >= px.loc[9:, 'macd_signal'] , 1, 0)
         px['signals']=px['positions'].diff()
 
         # Identify the trade direction looking at the last signal
