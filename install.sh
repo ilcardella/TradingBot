@@ -1,5 +1,5 @@
-#! /bin/bash
-INSTALL_DIR=/opt/TradingBot
+#!/bin/bash
+INSTALL_DIR=/usr/local/TradingBot
 
 echo Installing TradingBot in $INSTALL_DIR...
 
