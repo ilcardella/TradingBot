@@ -157,6 +157,21 @@ class IGInterface():
                 return True
         return False
 
+    def close_position(self, epic):
+        raise NotImplementedError("Not implemented")
+        pass
+
+    def close_all_positions(self):
+        positionMap = self.get_open_positions()
+        if self.positionMap is not None:
+            for key, dealSize in self.positionMap.items():
+                epic = key.split('-')[0]
+                direction = key.split('-')[1]
+                self.trade(epic, direction, 0, 0)
+        else:
+            logging.warn("Unable to retrieve open positions!")
+
+
     def http_get(self, url):
         auth_r = requests.get(url, headers=self.authenticated_headers)
         logging.debug(auth_r.status_code)
