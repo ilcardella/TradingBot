@@ -1,17 +1,17 @@
 #! /bin/bash
 
-WORKSPACE_PATH=/installation/path
+INSTALLATION_DIR=/usr/local/TradingBot
 
 start()
 {
-  nohup /usr/bin/python3 -u ${WORKSPACE_PATH}/TradingBot/scripts/main.py > log.txt 2>&1 & echo $! > pid.txt
+  nohup /usr/bin/python3 -u ${INSTALLATION_DIR}/scripts/trading_bot.py > ${INSTALLATION_DIR}/log.txt 2>&1 & echo $! > ${INSTALLATION_DIR}/pid.txt
 }
 
 stop()
 {
-  cat pid.txt | xargs kill
+  cat ${INSTALLATION_DIR}/pid.txt | xargs kill
 }
 
-case $1 in 
+case $1 in
   start|stop) "$1" ;;
 esac
