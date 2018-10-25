@@ -12,6 +12,7 @@ class IGInterface():
         self.apiBaseURL = 'https://' + demoPrefix + 'api.ig.com/gateway/deal'
         self.authenticated_headers = ''
 
+
     def read_configuration(self, config):
         self.useDemo = config['ig_interface']['use_demo_account']
         self.orderType = config['ig_interface']['order_type']
@@ -20,6 +21,7 @@ class IGInterface():
         self.useGStop = config['ig_interface']['use_g_stop']
         self.orderCurrency = config['ig_interface']['order_currency']
         self.orderForceOpen = config['ig_interface']['order_force_open']
+
 
     def authenticate(self, credentials):
         data = {"identifier": credentials['username'], "password": credentials['password']}
@@ -48,6 +50,7 @@ class IGInterface():
         self.set_default_account(credentials['account_id'])
         return True
 
+
     def set_default_account(self, accountId):
         url = self.apiBaseURL + '/session'
         data = {"accountId": accountId, "defaultAccount": "True"}
@@ -56,6 +59,7 @@ class IGInterface():
                             headers=self.authenticated_headers)
         logging.info('Using default account: {}'.format(accountId))
         return True
+
 
     def get_account_balances(self):
         base_url = self.apiBaseURL + "/accounts"
@@ -69,10 +73,15 @@ class IGInterface():
         else:
             return None, None
 
+
     def get_open_positions(self):
-        positionMap = {}
         base_url = self.apiBaseURL + "/positions"
-        position_json = self.http_get(base_url)
+        return self.http_get(base_url)
+
+
+    def get_positions_map(self):
+        positionMap = {}
+        position_json = self.get_open_positions()
         if position_json is not None:
             for item in position_json['positions']:
                 direction = item['position']['direction']
@@ -137,7 +146,29 @@ class IGInterface():
         deal_ref = d['dealReference']
         time.sleep(1)
 
+        return self.confirm_order(deal_ref)
         # Confirm market order
+        # base_url = self.apiBaseURL + '/confirms/' + deal_ref
+        # d = self.http_get(base_url)
+        # if d is not None:
+        #     DEAL_ID = d['dealId']
+        #     logging.debug(d)
+        #     logging.info("Deal id {} has status {} with reason {}".format(str(DEAL_ID),
+        #                                                                     d['dealStatus'],
+        #                                                                     d['reason']))
+        #     if str(d['reason']) != "SUCCESS":
+        #         logging.warn("Trade {} of {} has failed!".format(trade_direction,epic_id))
+        #         time.sleep(1)
+        #         return False
+        #     else:
+        #         logging.info("Order {} for {} opened with limit={} and stop={}".format(trade_direction,
+        #                     epic_id, limit, stop))
+        #         time.sleep(1)
+        #         return True
+        # return False
+
+
+    def confirm_order(self, dealRef):
         base_url = self.apiBaseURL + '/confirms/' + deal_ref
         d = self.http_get(base_url)
         if d is not None:
@@ -151,29 +182,76 @@ class IGInterface():
                 time.sleep(1)
                 return False
             else:
-                logging.info("Order {} for {} opened with limit={} and stop={}".format(trade_direction,
+                logging.info("Order {} for {} confirmed with limit={} and stop={}".format(trade_direction,
                             epic_id, limit, stop))
                 time.sleep(1)
                 return True
         return False
 
-    def close_position(self, epic):
-        raise NotImplementedError("Not implemented")
-        pass
+
+    def close_position(self, position):
+        # To close we need the opposite direction
+        direction = TradeDirection.NONE
+        if position['position']['direction'] == TradeDirection.BUY.name:
+            direction = TradeDirection.SELL.name
+        elif position['position']['direction'] == TradeDirection.SELL.name:
+            direction = TradeDirection.BUY.name
+        else:
+            logging.error("Wrong position direction!")
+            return False
+
+        base_url = self.apiBaseURL + '/positions/otc'
+        data = {
+            "dealId": position['position']['dealId'],
+            "epic": None,
+            "expiry": position['market']['expiry'],
+            "direction": direction,
+            "size": "1",
+            "level": None,
+            "orderType": "MARKET",
+            "timeInForce": None,
+            "quoteId": None
+        }
+        r = self.http_delete(url, data)
+        d = json.loads(r.text)
+        deal_ref = d['dealReference']
+        time.sleep(1)
+        return self.confirm_order(deal_ref)
+
 
     def close_all_positions(self):
-        positionMap = self.get_open_positions()
-        if self.positionMap is not None:
-            for key, dealSize in self.positionMap.items():
-                epic = key.split('-')[0]
-                direction = key.split('-')[1]
-                self.trade(epic, direction, 0, 0)
+        positions = self.get_open_positions()
+        if positions is not None:
+            for p in positions['positions']:
+                if self.close_position(p):
+                    logging.info("Closed {} position")
+                else:
+                    logging.error("Unable to close {} position")
         else:
             logging.warn("Unable to retrieve open positions!")
 
 
     def http_get(self, url):
+        """Perform an HTTP GET request to the url.
+        Return the json object returned from the API if 200 is received
+        Return None if an error is received from the API"""
         auth_r = requests.get(url, headers=self.authenticated_headers)
+        logging.debug(auth_r.status_code)
+        logging.debug(auth_r.reason)
+        logging.debug(auth_r.text)
+        d = json.loads(auth_r.text)
+        if 'errorCode' in d:
+            logging.error(d['errorCode'])
+            return None
+        else:
+            return d
+
+
+    def http_delete(self, url, data):
+        """Perform an HTTP DELETE request to the url with the given body"""
+        auth_r = requests.delete(url,
+                                data=json.dumps(data),
+                                headers=self.authenticated_headers)
         logging.debug(auth_r.status_code)
         logging.debug(auth_r.reason)
         logging.debug(auth_r.text)
