@@ -25,7 +25,7 @@ class Strategy:
         try:
             # Fetch open positions and process them first
             logging.info("Processing open positions.")
-            self.positionMap = broker.get_open_positions()
+            self.positionMap = broker.get_positions_map()
             if self.positionMap is not None:
                 for key, dealSize in self.positionMap.items():
                     epic = key.split('-')[0]
