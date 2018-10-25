@@ -147,25 +147,6 @@ class IGInterface():
         time.sleep(1)
 
         return self.confirm_order(deal_ref)
-        # Confirm market order
-        # base_url = self.apiBaseURL + '/confirms/' + deal_ref
-        # d = self.http_get(base_url)
-        # if d is not None:
-        #     DEAL_ID = d['dealId']
-        #     logging.debug(d)
-        #     logging.info("Deal id {} has status {} with reason {}".format(str(DEAL_ID),
-        #                                                                     d['dealStatus'],
-        #                                                                     d['reason']))
-        #     if str(d['reason']) != "SUCCESS":
-        #         logging.warn("Trade {} of {} has failed!".format(trade_direction,epic_id))
-        #         time.sleep(1)
-        #         return False
-        #     else:
-        #         logging.info("Order {} for {} opened with limit={} and stop={}".format(trade_direction,
-        #                     epic_id, limit, stop))
-        #         time.sleep(1)
-        #         return True
-        # return False
 
 
     def confirm_order(self, dealRef):
