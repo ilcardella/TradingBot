@@ -95,6 +95,9 @@ class Strategy:
                 if epicOwned == epic and trade.name == direction:
                     logging.warn("There is already an open position for this epic, skip trade")
                     return False
+                elif epicOwned == epic and trade.name != direction and trade is not TradeDirection.NONE:
+                    logging.info("Closing position for {}".format(epic))
+                    broker.close_position(#TODO)
         else:
             logging.warn("Unable to retrieve open positions! Avoid trading this epic")
             return False
