@@ -8,7 +8,7 @@ from Utils import *
 
 class Strategy:
     def __init__(self, config):
-        self.positionMap = {}
+        self.positions = {}
         # Define common settings in strategies
         self.order_size = config['ig_interface']['order_size']
         self.max_account_usable = config['general']['max_account_usable']
@@ -25,11 +25,10 @@ class Strategy:
         try:
             # Fetch open positions and process them first
             logging.info("Processing open positions.")
-            self.positionMap = broker.get_positions_map()
-            if self.positionMap is not None:
-                for key, dealSize in self.positionMap.items():
-                    epic = key.split('-')[0]
-                    self.process_epic(broker, epic)
+            self.positions = broker.get_open_positions()
+            if self.positions is not None:
+                for item in position_json['positions']:
+                    self.process_epic(broker, item['market']['epic'])
             else:
                 logging.warn("Unable to retrieve open positions!")
 
@@ -76,29 +75,26 @@ class Strategy:
 
 
     def process_epic(self, broker, epic):
+        logging.info("Processing {}".format(epic))
         # Process the epic and find if we want to trade
         trade, limit, stop = self.find_trade_signal(broker, epic)
         # In case of no trade don't do anything
         if trade is not TradeDirection.NONE:
-            # Perform safety check for trade action
-            if self.safe_to_trade(broker, epic, trade):
-                return broker.trade(epic, trade.name, limit, stop)
+            if self.positions is not None:
+                for item in position_json['positions']:
+                    # If a same direction trade already exist, don't trade
+                    if item['market']['epic'] == epic and trade.name == item['position']['direction']:
+                        logging.warn("There is already an open position for this epic, skip trade")
+                        return False
+                    # If a trade in opposite direction exist, close the position
+                    elif item['market']['epic'] == epic and trade.name != item['position']['direction']:
+                        return broker.close_position(item)
+                    else:
+                        return broker.trade(epic, trade.name, limit, stop)
+            else:
+                logging.error("Unable to retrieve open positions! Avoid trading this epic")
         return False
 
-
-    def safe_to_trade(self, broker, epic, trade):
-        # Check if we got another position open for same epic and same direction
-        if self.positionMap is not None:
-            for key, dealSize in self.positionMap.items():
-                epicOwned = key.split('-')[0]
-                direction = key.split('-')[1]
-                if epicOwned == epic and trade.name == direction:
-                    logging.warn("There is already an open position for this epic, skip trade")
-                    return False
-        else:
-            logging.warn("Unable to retrieve open positions! Avoid trading this epic")
-            return False
-        return True
 
     def get_account_used_perc(self, broker):
         balance, deposit = broker.get_account_balances()
