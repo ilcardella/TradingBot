@@ -27,7 +27,7 @@ class Strategy:
             logging.info("Processing open positions.")
             self.positions = broker.get_open_positions()
             if self.positions is not None:
-                for item in position_json['positions']:
+                for item in self.positions['positions']:
                     self.process_epic(broker, item['market']['epic'])
             else:
                 logging.warn("Unable to retrieve open positions!")
@@ -81,7 +81,7 @@ class Strategy:
         # In case of no trade don't do anything
         if trade is not TradeDirection.NONE:
             if self.positions is not None:
-                for item in position_json['positions']:
+                for item in self.positions['positions']:
                     # If a same direction trade already exist, don't trade
                     if item['market']['epic'] == epic and trade.name == item['position']['direction']:
                         logging.warn("There is already an open position for this epic, skip trade")

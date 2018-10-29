@@ -146,11 +146,17 @@ class IGInterface():
         deal_ref = d['dealReference']
         time.sleep(1)
 
-        return self.confirm_order(deal_ref)
+        if self.confirm_order(deal_ref):
+            logging.info("Order {} for {} confirmed with limit={} and stop={}".format(trade_direction,
+                            epic_id, limit, stop))
+            return True
+        else:
+            logging.warn("Trade {} of {} has failed!".format(trade_direction, epic_id))
+            return False
 
 
     def confirm_order(self, dealRef):
-        base_url = self.apiBaseURL + '/confirms/' + deal_ref
+        base_url = self.apiBaseURL + '/confirms/' + dealRef
         d = self.http_get(base_url)
         if d is not None:
             DEAL_ID = d['dealId']
@@ -159,12 +165,9 @@ class IGInterface():
                                                                             d['dealStatus'],
                                                                             d['reason']))
             if str(d['reason']) != "SUCCESS":
-                logging.warn("Trade {} of {} has failed!".format(trade_direction,epic_id))
                 time.sleep(1)
                 return False
             else:
-                logging.info("Order {} for {} confirmed with limit={} and stop={}".format(trade_direction,
-                            epic_id, limit, stop))
                 time.sleep(1)
                 return True
         return False
@@ -193,11 +196,16 @@ class IGInterface():
             "timeInForce": None,
             "quoteId": None
         }
-        r = self.http_delete(url, data)
+        r = self.http_delete(base_url, data)
         d = json.loads(r.text)
         deal_ref = d['dealReference']
         time.sleep(1)
-        return self.confirm_order(deal_ref)
+        if self.confirm_order(deal_ref):
+            logging.info("Position  for {} closed".format(epic_id))
+            return True
+        else:
+            logging.error("Could not close position for {}".format(epic_id))
+            return False
 
 
     def close_all_positions(self):
