@@ -17,7 +17,7 @@
         "order_force_open": true,
         "use_g_stop": true,
         "use_demo_account": true,
-        "controlled_risk": true
+        "controlled_risk": false
     },
     "strategies": {
         "faig": {
@@ -25,7 +25,8 @@
             "too_high_margin": 100
         },
         "simple_macd": {
-            "interval": "HOUR_4"
+            "interval": "HOUR_4",
+            "use_av_api": true
         }
     }
 

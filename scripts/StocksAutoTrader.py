@@ -62,7 +62,7 @@ class StocksAutoTrader:
         main_epic_ids = self.get_epic_ids()
 
         while True:
-            if not self.isMarketOpen(self.time_zone):
+            if self.isMarketOpen(self.time_zone):
                 logging.info("Market is closed! Wait...")
                 time.sleep(60)
                 continue
