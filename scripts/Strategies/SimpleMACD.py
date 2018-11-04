@@ -14,7 +14,16 @@ class SimpleMACD(Strategy):
     def read_configuration(self, config):
         self.interval = config['strategies']['simple_macd']['interval']
         self.controlledRisk = config['ig_interface']['controlled_risk']
-        self.timeout = 1
+        self.use_av_api = config['strategies']['simple_macd']['use_av_api']
+        self.timeout = 1 # Delay between each find_trade_signal() call
+        if self.use_av_api:
+            try:
+                with open('../config/.credentials', 'r') as file:
+                    credentials = json.load(file)
+                    AV_API_KEY = credentials['av_api_key']
+            except IOError:
+                logging.error("Credentials file not found!")
+                return
 
 
     # TODO  possibly split in more smaller ones
@@ -23,37 +32,56 @@ class SimpleMACD(Strategy):
         limit = None
         stop = None
 
-        # Collect data from the broker interface
-        prices = broker.get_prices(epic_id, self.interval, 26)
+        # Fetch current market data
         market = broker.get_market_info(epic_id)
-
         # Safety checks before processing the epic
-        if (prices is None or 'prices' not in prices
-            or market is None or 'markets' in market
+        if (market is None
+            or 'markets' in market
             or market['snapshot']['bid'] is None):
             logging.warn('Strategy can`t process {}'.format(epic_id))
             return TradeDirection.NONE, None, None
 
         # Extract market data to calculate stop and limit values
-        key = 'minNormalStopOrLimitDistance'
+        stop_perc = max([market['dealingRules']['minNormalStopOrLimitDistance']['value'], 5])
         if self.controlledRisk:
-            key = 'minControlledRiskStopDistance'
-        stop_perc = market['dealingRules'][key]['value'] + 1 # +1 to avoid rejection
+            stop_perc = market['dealingRules']['minControlledRiskStopDistance']['value'] + 1 # +1 to avoid rejection
         current_bid = market['snapshot']['bid']
         current_offer = market['snapshot']['offer']
 
-        # Create a list of close prices
-        data = []
-        prevBid = 0
-        for p in prices['prices']:
-            if p['closePrice']['bid'] is None:
-                data.append(prevBid)
-            else:
-                data.append(p['closePrice']['bid'])
-            prevBid = p['closePrice']['bid']
+        # Fetch historic prices and build a list with them ordered cronologically
+        hist_data = []
+        if self.use_av_api:
+             # Extract market Id
+            marketId = market['instrument']['marketId']
+            # Convert the string for alpha vantage
+            marketIdAV = '{}:{}'.format('LON', marketId.split('-')[0])
+            prices = self.get_av_historic_price(marketIdAV, 'TIME_SERIES_INTRADAY', '60min', AV_API_KEY)
+            # Safety check
+            if 'Error Message' in prices or 'Information' in prices:
+                logging.warn('Strategy can`t process {}'.format(epic_id))
+                return TradeDirection.NONE, None, None
+            prevBid = 0
+            for ts, values in prices['Time Series (60min)'].items():
+                if values['4. close'] == 0.0:
+                    hist_data.insert(0, prevBid)
+                else:
+                    hist_data.insert(0, values['4. close'])
+                    prevBid = values['4. close']
+        else:
+            prices = broker.get_prices(epic_id, self.interval, 26)
+            prevBid = 0
+            for p in prices['prices']:
+                if p['closePrice']['bid'] is None:
+                    hist_data.append(prevBid)
+                else:
+                    hist_data.append(p['closePrice']['bid'])
+                    prevBid = p['closePrice']['bid']
+            if prices is None or 'prices' not in prices:
+                logging.warn('Strategy can`t process {}'.format(epic_id))
+                return TradeDirection.NONE, None, None
 
         # Calculate the MACD indicator and find signals where macd cross its sma(9) average
-        px = pd.DataFrame({'close': data})
+        px = pd.DataFrame({'close': hist_data})
         px['26_ema'] = pd.DataFrame.ewm(px['close'], span=26).mean()
         px['12_ema'] = pd.DataFrame.ewm(px['close'], span=12).mean()
         px['macd'] = (px['12_ema'] - px['26_ema'])
@@ -81,3 +109,12 @@ class SimpleMACD(Strategy):
             logging.info("SimpleMACD says: {} {}".format(tradeDirection, epic_id))
 
         return tradeDirection, limit, stop
+
+
+    def get_av_historic_price(self, marketId, function, interval, apiKey):
+        intParam = '&interval={}'.format(interval)
+        if interval == '1day':
+            intParam = ''
+        url = 'https://www.alphavantage.co/query?function={}&symbol={}{}&outputsize=full&apikey={}'.format(function, marketId, intParam, apiKey)
+        data = requests.get(url)
+        return json.loads(data.text)
