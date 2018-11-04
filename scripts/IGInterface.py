@@ -11,6 +11,8 @@ class IGInterface():
         demoPrefix = 'demo-' if self.useDemo else ''
         self.apiBaseURL = 'https://' + demoPrefix + 'api.ig.com/gateway/deal'
         self.authenticated_headers = ''
+        if self.paperTrading:
+            logging.info('Paper trading is active')
 
 
     def read_configuration(self, config):
@@ -21,6 +23,7 @@ class IGInterface():
         self.useGStop = config['ig_interface']['use_g_stop']
         self.orderCurrency = config['ig_interface']['order_currency']
         self.orderForceOpen = config['ig_interface']['order_force_open']
+        self.paperTrading = config['ig_interface']['paper_trading']
 
 
     def authenticate(self, credentials):
@@ -119,6 +122,10 @@ class IGInterface():
 
 
     def trade(self, epic_id, trade_direction, limit, stop):
+        if self.paperTrading:
+            logging.info('Paper trade: {} {} with limit={} and stop={}'.format(trade_direction,epic_id,limit,stop))
+            return True
+
         base_url = self.apiBaseURL + '/positions/otc'
         data = {
             "direction": trade_direction,
@@ -174,6 +181,9 @@ class IGInterface():
 
 
     def close_position(self, position):
+        if self.paperTrading:
+            logging.info('Paper trade: close {} position'.format(position['market']['instrumentName']))
+            return True
         # To close we need the opposite direction
         direction = TradeDirection.NONE
         if position['position']['direction'] == TradeDirection.BUY.name:

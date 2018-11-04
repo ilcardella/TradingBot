@@ -17,7 +17,8 @@
         "order_force_open": true,
         "use_g_stop": true,
         "use_demo_account": true,
-        "controlled_risk": false
+        "controlled_risk": false,
+        "paper_trading": true
     },
     "strategies": {
         "faig": {
