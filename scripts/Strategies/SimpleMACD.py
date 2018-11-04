@@ -1,6 +1,8 @@
 import logging
 import numpy as np
 import pandas as pd
+import requests
+import json
 
 from .Strategy import Strategy
 from Utils import *
@@ -20,7 +22,8 @@ class SimpleMACD(Strategy):
             try:
                 with open('../config/.credentials', 'r') as file:
                     credentials = json.load(file)
-                    AV_API_KEY = credentials['av_api_key']
+                    self.AV_API_KEY = credentials['av_api_key']
+                    self.timeout = 10
             except IOError:
                 logging.error("Credentials file not found!")
                 return
@@ -48,20 +51,21 @@ class SimpleMACD(Strategy):
         current_bid = market['snapshot']['bid']
         current_offer = market['snapshot']['offer']
 
+        # Extract market Id
+        marketId = market['instrument']['marketId']
+
         # Fetch historic prices and build a list with them ordered cronologically
         hist_data = []
         if self.use_av_api:
-             # Extract market Id
-            marketId = market['instrument']['marketId']
             # Convert the string for alpha vantage
             marketIdAV = '{}:{}'.format('LON', marketId.split('-')[0])
-            prices = self.get_av_historic_price(marketIdAV, 'TIME_SERIES_INTRADAY', '60min', AV_API_KEY)
+            prices = self.get_av_historic_price(marketIdAV, 'TIME_SERIES_DAILY', '1day', self.AV_API_KEY)
             # Safety check
             if 'Error Message' in prices or 'Information' in prices:
-                logging.warn('Strategy can`t process {}'.format(epic_id))
+                logging.warn('Strategy can`t process {}'.format(marketId))
                 return TradeDirection.NONE, None, None
             prevBid = 0
-            for ts, values in prices['Time Series (60min)'].items():
+            for ts, values in prices['Time Series (Daily)'].items():
                 if values['4. close'] == 0.0:
                     hist_data.insert(0, prevBid)
                 else:
@@ -77,7 +81,7 @@ class SimpleMACD(Strategy):
                     hist_data.append(p['closePrice']['bid'])
                     prevBid = p['closePrice']['bid']
             if prices is None or 'prices' not in prices:
-                logging.warn('Strategy can`t process {}'.format(epic_id))
+                logging.warn('Strategy can`t process {}'.format(marketId))
                 return TradeDirection.NONE, None, None
 
         # Calculate the MACD indicator and find signals where macd cross its sma(9) average
@@ -106,7 +110,7 @@ class SimpleMACD(Strategy):
 
         # Log only tradable epics
         if tradeDirection is not TradeDirection.NONE:
-            logging.info("SimpleMACD says: {} {}".format(tradeDirection, epic_id))
+            logging.info("SimpleMACD says: {} {}".format(tradeDirection.name, marketId))
 
         return tradeDirection, limit, stop
 
