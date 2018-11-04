@@ -55,20 +55,14 @@ class SimpleMACD(Strategy):
         # Fetch historic prices and build a list with them ordered cronologically
         hist_data = []
         if self.use_av_api:
-            # Convert the string for alpha vantage
+            # Convert the marketId for alpha vantage
             marketIdAV = '{}:{}'.format('LON', marketId.split('-')[0])
-            # ****************** OLD WAY *******************
-            # hist_data = self.av.get_price_series_close(marketIdAV, AVTimeSeries.TIME_SERIES_DAILY, AVIntervals.DAILY)
-            # # Safety check
-            # if hist_data is None:
-            #     logging.warn('Strategy can`t process {}'.format(marketId))
-            #     return TradeDirection.NONE, None, None
-            # **********************************************
-            px = pd.DataFrame()
+            # Fetch MACD data
             macdJson = self.av.get_macd_series_raw(marketIdAV, AVIntervals.DAILY)
-            for ts, values in macdJson['Technical Analysis: MACD'].items():
-               px.append(values, ignore_index=True)
-            print(px)
+            # Build the dataframe from the data
+            px = pd.DataFrame.from_dict(macdJson['Technical Analysis: MACD'], orient='index', dtype=float)
+            # Replace the index column with integer numbers
+            px.index = range(len(px))
         else:
             prices = broker.get_prices(epic_id, self.interval, 26)
             prevBid = 0
