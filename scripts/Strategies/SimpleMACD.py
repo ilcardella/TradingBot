@@ -6,7 +6,7 @@ import json
 
 from AVInterface import AVInterface, AVIntervals, AVPriceType, AVTimeSeries
 from .Strategy import Strategy
-from Utils import *
+from Utils import Utils, TradeDirection
 
 class SimpleMACD(Strategy):
     def __init__(self, config):
@@ -106,11 +106,11 @@ class SimpleMACD(Strategy):
         limit = None
         stop = None
         if tradeDirection == TradeDirection.BUY:
-            limit = current_offer + percentage_of(limit_perc, current_offer)
-            stop = current_bid - percentage_of(stop_perc, current_bid)
+            limit = current_offer + Utils.percentage_of(limit_perc, current_offer)
+            stop = current_bid - Utils.percentage_of(stop_perc, current_bid)
         elif tradeDirection == TradeDirection.SELL:
-            limit = current_bid - percentage_of(limit_perc, current_bid)
-            stop = current_offer + percentage_of(stop_perc, current_offer)
+            limit = current_bid - Utils.percentage_of(limit_perc, current_bid)
+            stop = current_offer + Utils.percentage_of(stop_perc, current_offer)
 
         return limit, stop
 

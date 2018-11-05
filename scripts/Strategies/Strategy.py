@@ -6,7 +6,7 @@ import pytz
 import datetime
 from random import shuffle
 
-from Utils import *
+from Utils import Utils, TradeDirection
 
 class Strategy:
     def __init__(self, config):
@@ -127,10 +127,10 @@ class Strategy:
         balance, deposit = broker.get_account_balances()
         if balance is None or deposit is None:
             return 9999999 # This will block the trading
-        return percentage(deposit, balance)
+        return Utils.percentage(deposit, balance)
 
 
     def isMarketOpen(self, timezone):
         tz = pytz.timezone(timezone)
         now_time = datetime.datetime.now(tz=tz).strftime('%H:%M')
-        return is_between(str(now_time), ("07:55", "16:35"))
+        return Utils.is_between(str(now_time), ("07:55", "16:35"))

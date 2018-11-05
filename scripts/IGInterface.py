@@ -3,7 +3,7 @@ import json
 import logging
 import time
 
-from Utils import *
+from Utils import Utils, TradeDirection
 
 class IGInterface():
     def __init__(self, config):
@@ -114,7 +114,7 @@ class IGInterface():
         d = self.http_get(base_url)
         if d is not None and 'allowance' in d:
             remaining_allowance = d['allowance']['remainingAllowance']
-            reset_time = humanize_time(int(d['allowance']['allowanceExpiry']))
+            reset_time = Utils.humanize_time(int(d['allowance']['allowanceExpiry']))
             if remaining_allowance < 100:
                 logging.warn("Remaining API calls left: {}".format(str(remaining_allowance)))
                 logging.warn("Time to API Key reset: {}".format(str(reset_time)))
