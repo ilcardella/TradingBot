@@ -18,7 +18,6 @@ class SimpleMACD(Strategy):
         self.spin_interval = config['strategies']['simple_macd']['spin_interval']
         self.controlledRisk = config['ig_interface']['controlled_risk']
         self.use_av_api = config['strategies']['simple_macd']['use_av_api']
-        self.timeout = 1 # Delay between each find_trade_signal() call
         if self.use_av_api:
             try:
                 with open('../config/.credentials', 'r') as file:

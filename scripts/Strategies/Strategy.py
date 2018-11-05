@@ -2,6 +2,8 @@ import logging
 import time
 import sys
 import traceback
+import pytz
+import datetime
 from random import shuffle
 
 from Utils import *
@@ -9,11 +11,16 @@ from Utils import *
 class Strategy:
     def __init__(self, config):
         self.positions = {}
-        # Define common settings in strategies
+
+        self.time_zone = config['general']['time_zone']
         self.order_size = config['ig_interface']['order_size']
         self.max_account_usable = config['general']['max_account_usable']
         self.spin_interval = config['strategies']['spin_interval'] # This can be overwritten in children class
+        self.timeout = 1 # Delay between each find_trade_signal() call
+
+        # This must be the last operation of this function to override possible values in children class
         self.read_configuration(config)
+
 
 #############################################################
 # OVERRIDE THESE FUNCTIONS IN STRATEGY IMPLEMENTATION
@@ -30,6 +37,17 @@ class Strategy:
 
 ##############################################################
 ##############################################################
+
+
+    def start(self, broker, epic_list):
+        while True:
+            if not self.isMarketOpen(self.time_zone):
+                logging.info("Market is closed! Wait 60 seconds...")
+                time.sleep(60)
+                continue
+            else:
+                self.spin(broker, epic_list)
+
 
     def spin(self, broker, epic_list):
         logging.info("Strategy started to spin.")
@@ -110,3 +128,9 @@ class Strategy:
         if balance is None or deposit is None:
             return 9999999 # This will block the trading
         return percentage(deposit, balance)
+
+
+    def isMarketOpen(self, timezone):
+        tz = pytz.timezone(timezone)
+        now_time = datetime.datetime.now(tz=tz).strftime('%H:%M')
+        return is_between(str(now_time), ("07:55", "16:35"))
