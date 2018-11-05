@@ -20,25 +20,27 @@ class AVPriceType(Enum):
 
 
 class AVInterface():
-    def __init__(self, config, apiKey):
-        self.read_configuration(config)
-        self.API_KEY = apiKey
-        self.apiBaseURL = 'https://www.alphavantage.co/query?'
+    API_KEY = ''
+    apiBaseURL = 'https://www.alphavantage.co/query?'
 
-    def read_configuration(self, config):
-        pass
+    def __init__(self, apiKey):
+        API_KEY = apiKey
 
+
+    @staticmethod
     def get_price_series_raw(self, marketId, function, interval):
         intParam = '&interval={}'.format(interval.value)
         if interval == AVIntervals.DAILY:
             intParam = ''
-        url = '{}function={}&symbol={}{}&outputsize=full&apikey={}'.format(self.apiBaseURL, function.value, marketId, intParam, self.API_KEY)
+        url = '{}function={}&symbol={}{}&outputsize=full&apikey={}'.format(apiBaseURL, function.value, marketId, intParam, API_KEY)
         data = requests.get(url)
         if 'Error Message' in data or 'Information' in data:
             logging.error("AlphaVantage wrong api call for {}".format(marketId))
             return None
         return json.loads(data.text)
 
+
+    @staticmethod
     def get_price_series_close(self, marketId, function, interval):
         hist_data = []
         priceType = AVPriceType.CLOSE.value
@@ -57,23 +59,17 @@ class AVInterface():
         else:
             return None
 
+
+    @staticmethod
     def get_macd_series_raw(self, marketId, interval):
         intParam = 'daily'
         if interval == AVIntervals.DAILY:
             intParam = 'daily'
         elif interval == AVIntervals.HOURLY:
             intParam = '60min'
-        url = '{}function=MACD&symbol={}&interval={}&series_type=close&apikey={}'.format(self.apiBaseURL, marketId, intParam, self.API_KEY)
+        url = '{}function=MACD&symbol={}&interval={}&series_type=close&apikey={}'.format(apiBaseURL, marketId, intParam, API_KEY)
         data = requests.get(url)
         if 'Error Message' in data or 'Information' in data:
             logging.error("AlphaVantage wrong api call for {}".format(marketId))
             return None
         return json.loads(data.text)
-
-    def get_macd_crossings(self, marketId, interval):
-        data = self.get_macd_series_raw(marketId, interval)
-        if data is not None:
-            for ts, value in data['Technical Analysis: MACD'].items():
-                pass # Return a list of 1/0 where 1 means crossing
-        else:
-            return None

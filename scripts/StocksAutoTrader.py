@@ -2,6 +2,7 @@ import logging
 import json
 
 from IGInterface import IGInterface
+from AVInterface import AVInterface
 from Strategies.SimpleMACD import SimpleMACD
 
 class StocksAutoTrader:
@@ -46,6 +47,9 @@ class StocksAutoTrader:
         if not self.IG.authenticate(credentials):
             logging.warn("Authentication failed")
             return
+
+        # Init AlphaVantage interface
+        AV = AVInterface(credentials['av_api_key'])
 
         # Read list of company epic ids
         main_epic_ids = self.get_epic_ids()

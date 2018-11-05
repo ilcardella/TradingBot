@@ -4,7 +4,7 @@ import pandas as pd
 import requests
 import json
 
-from AVInterface import AVInterface, AVIntervals, AVPriceType, AVTimeSeries
+from AVInterface import AVInterface as AV, AVIntervals, AVPriceType, AVTimeSeries
 from .Strategy import Strategy
 from Utils import Utils, TradeDirection
 
@@ -19,14 +19,7 @@ class SimpleMACD(Strategy):
         self.controlledRisk = config['ig_interface']['controlled_risk']
         self.use_av_api = config['strategies']['simple_macd']['use_av_api']
         if self.use_av_api:
-            try:
-                with open('../config/.credentials', 'r') as file:
-                    credentials = json.load(file)
-                    self.av = AVInterface(config, credentials['av_api_key'])
-                    self.timeout = 10
-            except IOError:
-                logging.error("Credentials file not found!")
-                return
+            self.timeout = 10 # AlphaVantage minimum delay between calls
 
 
     # TODO  possibly split in more smaller ones
@@ -57,7 +50,7 @@ class SimpleMACD(Strategy):
             # Convert the marketId for alpha vantage
             marketIdAV = '{}:{}'.format('LON', marketId.split('-')[0])
             # Fetch MACD data
-            macdJson = self.av.get_macd_series_raw(marketIdAV, AVIntervals.DAILY)
+            macdJson = AV.get_macd_series_raw(marketIdAV, AVIntervals.DAILY)
             # Build the dataframe from the data
             px = pd.DataFrame.from_dict(macdJson['Technical Analysis: MACD'], orient='index', dtype=float)
             # Replace the index column with integer numbers
