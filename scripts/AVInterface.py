@@ -24,15 +24,15 @@ class AVInterface():
     apiBaseURL = 'https://www.alphavantage.co/query?'
 
     def __init__(self, apiKey):
-        API_KEY = apiKey
+        AVInterface.API_KEY = apiKey
 
 
     @staticmethod
-    def get_price_series_raw(self, marketId, function, interval):
+    def get_price_series_raw(marketId, function, interval):
         intParam = '&interval={}'.format(interval.value)
         if interval == AVIntervals.DAILY:
             intParam = ''
-        url = '{}function={}&symbol={}{}&outputsize=full&apikey={}'.format(apiBaseURL, function.value, marketId, intParam, API_KEY)
+        url = '{}function={}&symbol={}{}&outputsize=full&apikey={}'.format(AVInterface.apiBaseURL, function.value, marketId, intParam, AVInterface.API_KEY)
         data = requests.get(url)
         if 'Error Message' in data or 'Information' in data:
             logging.error("AlphaVantage wrong api call for {}".format(marketId))
@@ -41,7 +41,7 @@ class AVInterface():
 
 
     @staticmethod
-    def get_price_series_close(self, marketId, function, interval):
+    def get_price_series_close(marketId, function, interval):
         hist_data = []
         priceType = AVPriceType.CLOSE.value
         # Fetch price series
@@ -61,13 +61,13 @@ class AVInterface():
 
 
     @staticmethod
-    def get_macd_series_raw(self, marketId, interval):
+    def get_macd_series_raw(marketId, interval):
         intParam = 'daily'
         if interval == AVIntervals.DAILY:
             intParam = 'daily'
         elif interval == AVIntervals.HOURLY:
             intParam = '60min'
-        url = '{}function=MACD&symbol={}&interval={}&series_type=close&apikey={}'.format(apiBaseURL, marketId, intParam, API_KEY)
+        url = '{}function=MACD&symbol={}&interval={}&series_type=close&apikey={}'.format(AVInterface.apiBaseURL, marketId, intParam, AVInterface.API_KEY)
         data = requests.get(url)
         if 'Error Message' in data or 'Information' in data:
             logging.error("AlphaVantage wrong api call for {}".format(marketId))
