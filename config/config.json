@@ -21,13 +21,15 @@
         "paper_trading": true
     },
     "strategies": {
+        "spin_interval": 3600,
         "faig": {
             "stop_loss_multiplier": 3,
             "too_high_margin": 100
         },
         "simple_macd": {
             "interval": "HOUR_4",
-            "use_av_api": true
+            "use_av_api": true,
+            "spin_interval": -1
         }
     }
 

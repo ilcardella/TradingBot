@@ -15,7 +15,7 @@ class SimpleMACD(Strategy):
 
 
     def read_configuration(self, config):
-        self.interval = config['strategies']['simple_macd']['interval']
+        self.spin_interval = config['strategies']['simple_macd']['spin_interval']
         self.controlledRisk = config['ig_interface']['controlled_risk']
         self.use_av_api = config['strategies']['simple_macd']['use_av_api']
         self.timeout = 1 # Delay between each find_trade_signal() call
@@ -64,7 +64,7 @@ class SimpleMACD(Strategy):
             # Replace the index column with integer numbers
             px.index = range(len(px))
         else:
-            prices = broker.get_prices(epic_id, self.interval, 26)
+            prices = broker.get_prices(epic_id, 'DAY', 26)
             prevBid = 0
             for p in prices['prices']:
                 if p['closePrice']['bid'] is None:
@@ -122,3 +122,8 @@ class SimpleMACD(Strategy):
         url = 'https://www.alphavantage.co/query?function={}&symbol={}{}&outputsize=full&apikey={}'.format(function, marketId, intParam, apiKey)
         data = requests.get(url)
         return json.loads(data.text)
+
+    def get_seconds_to_next_spin(self):
+        # We want to run this strategy once a day, at the beginning of the market hours
+        # Calculate the amount of seconds until the next market opening
+        return 3600

@@ -12,13 +12,24 @@ class Strategy:
         # Define common settings in strategies
         self.order_size = config['ig_interface']['order_size']
         self.max_account_usable = config['general']['max_account_usable']
+        self.spin_interval = config['strategies']['spin_interval'] # This can be overwritten in children class
         self.read_configuration(config)
+
+#############################################################
+# OVERRIDE THESE FUNCTIONS IN STRATEGY IMPLEMENTATION
+#############################################################
 
     def read_configuration(self, config):
         raise NotImplementedError('Not implemented: read_configuration')
 
     def find_trade_signal(self, broker, epic_id):
         raise NotImplementedError('Not implemented: find_trade_signal')
+
+    def get_seconds_to_next_spin(self):
+        raise NotImplementedError('Not implemented: get_seconds_to_next_spin')
+
+##############################################################
+##############################################################
 
     def spin(self, broker, epic_list):
         logging.info("Strategy started to spin.")
@@ -60,12 +71,10 @@ class Strategy:
                 logging.warn("Will not trade, {}% of account balance is used."
                                 .format(str(percent_used)))
 
-            # Define timeout until next iteration of strategy
-            strategyInteval = 3600 # 1 hour in seconds
-            if self.interval == 'HOUR_4':
-                strategyInterval = 60 * 60 * 4
-            logging.info("Epics analysis complete. Wait for {} seconds".format(strategyInterval))
-            time.sleep(strategyInterval)
+            # If interval is set to -1 in config file then the strategy should provide its own interval
+            seconds = self.get_seconds_to_next_spin() if self.spin_interval < 0 else self.spin_interval
+            logging.info("Epics analysis complete. Wait for {} seconds".format(seconds))
+            time.sleep(seconds)
         except Exception as e:
                 logging.warn(e)
                 logging.warn(traceback.format_exc())
