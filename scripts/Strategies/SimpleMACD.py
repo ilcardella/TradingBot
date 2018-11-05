@@ -4,7 +4,7 @@ import pandas as pd
 import requests
 import json
 
-from AVInterface import AVInterface as AV, AVIntervals, AVPriceType, AVTimeSeries
+from AVInterface import AVInterface as AV, AVIntervals
 from .Strategy import Strategy
 from Utils import Utils, TradeDirection
 
