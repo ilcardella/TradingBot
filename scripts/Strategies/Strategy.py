@@ -2,6 +2,8 @@ import logging
 import time
 import sys
 import traceback
+import pytz
+import datetime
 from random import shuffle
 
 from Utils import *
@@ -9,16 +11,43 @@ from Utils import *
 class Strategy:
     def __init__(self, config):
         self.positions = {}
-        # Define common settings in strategies
+
+        self.time_zone = config['general']['time_zone']
         self.order_size = config['ig_interface']['order_size']
         self.max_account_usable = config['general']['max_account_usable']
+        self.spin_interval = config['strategies']['spin_interval'] # This can be overwritten in children class
+        self.timeout = 1 # Delay between each find_trade_signal() call
+
+        # This must be the last operation of this function to override possible values in children class
         self.read_configuration(config)
+
+
+#############################################################
+# OVERRIDE THESE FUNCTIONS IN STRATEGY IMPLEMENTATION
+#############################################################
 
     def read_configuration(self, config):
         raise NotImplementedError('Not implemented: read_configuration')
 
     def find_trade_signal(self, broker, epic_id):
         raise NotImplementedError('Not implemented: find_trade_signal')
+
+    def get_seconds_to_next_spin(self):
+        raise NotImplementedError('Not implemented: get_seconds_to_next_spin')
+
+##############################################################
+##############################################################
+
+
+    def start(self, broker, epic_list):
+        while True:
+            if not self.isMarketOpen(self.time_zone):
+                logging.info("Market is closed! Wait 60 seconds...")
+                time.sleep(60)
+                continue
+            else:
+                self.spin(broker, epic_list)
+
 
     def spin(self, broker, epic_list):
         logging.info("Strategy started to spin.")
@@ -60,12 +89,10 @@ class Strategy:
                 logging.warn("Will not trade, {}% of account balance is used."
                                 .format(str(percent_used)))
 
-            # Define timeout until next iteration of strategy
-            strategyInteval = 3600 # 1 hour in seconds
-            if self.interval == 'HOUR_4':
-                strategyInterval = 60 * 60 * 4
-            logging.info("Epics analysis complete. Wait for {} seconds".format(strategyInterval))
-            time.sleep(strategyInterval)
+            # If interval is set to -1 in config file then the strategy should provide its own interval
+            seconds = self.get_seconds_to_next_spin() if self.spin_interval < 0 else self.spin_interval
+            logging.info("Epics analysis complete. Wait for {} seconds".format(seconds))
+            time.sleep(seconds)
         except Exception as e:
                 logging.warn(e)
                 logging.warn(traceback.format_exc())
@@ -101,3 +128,9 @@ class Strategy:
         if balance is None or deposit is None:
             return 9999999 # This will block the trading
         return percentage(deposit, balance)
+
+
+    def isMarketOpen(self, timezone):
+        tz = pytz.timezone(timezone)
+        now_time = datetime.datetime.now(tz=tz).strftime('%H:%M')
+        return is_between(str(now_time), ("07:55", "16:35"))
