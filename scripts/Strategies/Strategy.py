@@ -41,7 +41,7 @@ class Strategy:
 
     def start(self, broker, epic_list):
         while True:
-            if self.isMarketOpen(self.time_zone):
+            if not self.isMarketOpen(self.time_zone):
                 logging.info("Market is closed! Wait 60 seconds...")
                 time.sleep(60)
                 continue
