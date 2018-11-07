@@ -116,6 +116,5 @@ class SimpleMACD(Strategy):
         return json.loads(data.text)
 
     def get_seconds_to_next_spin(self):
-        # We want to run this strategy once a day, at the beginning of the market hours
-        # Calculate the amount of seconds until the next market opening
-        return 3600
+        # Run this strategy at market opening
+        return Utils.get_seconds_to_market_opening()

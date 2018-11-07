@@ -14,6 +14,7 @@ who is the creator of the first script version and gave me a good starting point
 - requests
 - json
 - logging
+- govuk_bank_holidays (https://github.com/ministryofjustice/govuk-bank-holidays)
 - others...
 
 # Install
