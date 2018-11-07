@@ -116,8 +116,7 @@ class Strategy:
                     # If a trade in opposite direction exist, close the position
                     elif item['market']['epic'] == epic and trade.name != item['position']['direction']:
                         return broker.close_position(item)
-                    else:
-                        return broker.trade(epic, trade.name, limit, stop)
+                return broker.trade(epic, trade.name, limit, stop)
             else:
                 logging.error("Unable to retrieve open positions! Avoid trading this epic")
         return False

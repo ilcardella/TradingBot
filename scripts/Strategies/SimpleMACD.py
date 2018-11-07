@@ -51,6 +51,9 @@ class SimpleMACD(Strategy):
             marketIdAV = '{}:{}'.format('LON', marketId.split('-')[0])
             # Fetch MACD data
             macdJson = AV.get_macd_series_raw(marketIdAV, AVIntervals.DAILY)
+            if macdJson is None:
+                logging.warn("Strategy can't process {}: AV error".format(marketId))
+                return TradeDirection.NONE, None, None
             # Build the dataframe from the data
             px = pd.DataFrame.from_dict(macdJson['Technical Analysis: MACD'], orient='index', dtype=float)
             # Replace the index column with integer numbers

@@ -34,7 +34,7 @@ class AVInterface():
             intParam = ''
         url = '{}function={}&symbol={}{}&outputsize=full&apikey={}'.format(AVInterface.apiBaseURL, function.value, marketId, intParam, AVInterface.API_KEY)
         data = requests.get(url)
-        if 'Error Message' in data or 'Information' in data:
+        if 'Error Message' in data or 'Information' in data or 'Note' in data:
             logging.error("AlphaVantage wrong api call for {}".format(marketId))
             return None
         return json.loads(data.text)
@@ -69,7 +69,7 @@ class AVInterface():
             intParam = '60min'
         url = '{}function=MACD&symbol={}&interval={}&series_type=close&apikey={}'.format(AVInterface.apiBaseURL, marketId, intParam, AVInterface.API_KEY)
         data = requests.get(url)
-        if 'Error Message' in data or 'Information' in data:
+        if 'Error Message' in data or 'Information' in data or 'Note' in data:
             logging.error("AlphaVantage wrong api call for {}".format(marketId))
             return None
         return json.loads(data.text)
