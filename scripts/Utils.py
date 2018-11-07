@@ -3,6 +3,8 @@
 import logging
 import json
 from enum import Enum
+from datetime import datetime
+from govuk_bank_holidays.bank_holidays import BankHolidays
 
 class TradeDirection(Enum):
     NONE = "NONE",
@@ -42,3 +44,14 @@ class Utils:
         mins, secs = divmod(secs, 60)
         hours, mins = divmod(mins, 60)
         return '%02d:%02d:%02d' % (hours, mins, secs)
+
+    @staticmethod
+    def get_seconds_to_market_opening():
+        """Return the amount of seconds from now to the next market opening,
+        taking into account UK bank holidays and weekends"""
+        now = datetime.now()
+        # Get next working day
+        nextWorkDate = BankHolidays().get_next_work_day()
+        nextMarketOpening = datetime(year=nextWorkDate.year, month=nextWorkDate.month, day=nextWorkDate.day, hour=8, minute=0, second=0, microsecond=0)
+        # Calculate the delta from now to the next market opening
+        return (nextMarketOpening - now).total_seconds()
