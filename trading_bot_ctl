@@ -1,0 +1,27 @@
+#!/bin/bash
+
+start()
+{
+  echo Starting TradingBot...
+  cd scripts
+  python3 trading_bot.py & echo $! > pid.txt
+}
+
+stop()
+{
+  echo Stopping TradingBot...
+  cd scripts
+  cat pid.txt | xargs kill
+  rm pid.txt
+}
+
+close-positions()
+{
+  echo Starting TradingBot to close positions...
+  cd scripts
+  python3 trading_bot.py --close-positions & echo $! > pid.txt
+}
+
+case $1 in
+  start|stop) "$1" ;;
+esac
