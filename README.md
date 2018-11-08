@@ -84,6 +84,15 @@ To stop instead:
 ```
 ./trading_bot_ctl stop
 ```
+# Test
+
+The unit test depend on `pytest` package
+
+```
+pip3 install pytest
+```
+
+To run the test just use the `pytest` command from the project root.
 
 # Create your own strategy
 
