@@ -15,6 +15,7 @@ class StocksAutoTrader:
 
     def read_configuration(self, config):
         self.epic_ids_filepath = config['general']['epic_ids_filepath']
+        self.credentials_filepath = config['general']['credentials_filepath']
 
     def get_epic_ids(self):
         # define empty list
@@ -37,7 +38,7 @@ class StocksAutoTrader:
     def start(self, argv):
         # Read credentials file
         try:
-            with open('../config/.credentials', 'r') as file:
+            with open(self.credentials_filepath, 'r') as file:
                 credentials = json.load(file)
         except IOError:
             logging.error("Credentials file not found!")
