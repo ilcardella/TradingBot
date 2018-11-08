@@ -19,7 +19,7 @@ class SimpleMACD(Strategy):
         self.controlledRisk = config['ig_interface']['controlled_risk']
         self.use_av_api = config['strategies']['simple_macd']['use_av_api']
         if self.use_av_api:
-            self.timeout = 10 # AlphaVantage minimum delay between calls
+            self.timeout = 12 # AlphaVantage limits to 5 calls per minute
 
 
     # TODO  possibly split in more smaller ones
