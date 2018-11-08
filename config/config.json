@@ -3,11 +3,12 @@
         "year": 2018,
         "max_account_usable": 50,
         "esma_stocks_margin_perc": 20,
-        "debug_log": false,
         "time_zone": "Europe/London",
+        "enable_log": true,
         "log_file": "{home}/.TradingBot/log/trading_bot_{timestamp}.log",
-        "enable_log": false,
-        "epic_ids_filepath": "../data/epic_ids.txt"
+        "debug_log": false,
+        "epic_ids_filepath": "../data/epic_ids.txt",
+        "credentials_filepath": "../data/.credentials"
     },
     "ig_interface" : {
         "order_type": "MARKET",
