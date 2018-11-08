@@ -27,7 +27,6 @@
             "too_high_margin": 100
         },
         "simple_macd": {
-            "interval": "HOUR_4",
             "use_av_api": true,
             "spin_interval": -1
         }
