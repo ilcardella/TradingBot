@@ -106,3 +106,4 @@ epic_ids.txt
 log.txt
 pid.txt
 markets_db/
+.pytest_cache
