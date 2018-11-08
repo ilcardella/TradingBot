@@ -30,7 +30,7 @@ class SimpleMACD(Strategy):
         if (market is None
             or 'markets' in market
             or market['snapshot']['bid'] is None):
-            logging.warn('Strategy can`t process {}'.format(epic_id))
+            logging.warn('Strategy can`t process {}: IG error'.format(epic_id))
             return TradeDirection.NONE, None, None
 
         # Extract market data to calculate stop and limit values
@@ -51,7 +51,7 @@ class SimpleMACD(Strategy):
             marketIdAV = '{}:{}'.format('LON', marketId.split('-')[0])
             # Fetch MACD data
             macdJson = AV.get_macd_series_raw(marketIdAV, AVIntervals.DAILY)
-            if macdJson is None:
+            if macdJson is None or 'Technical Analysis: MACD' not in macdJson:
                 logging.warn("Strategy can't process {}: AV error".format(marketId))
                 return TradeDirection.NONE, None, None
             # Build the dataframe from the data
