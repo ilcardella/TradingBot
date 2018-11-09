@@ -1,4 +1,4 @@
-# TradingBot
+# TradingBot    [![Build Status](https://travis-ci.com/ilcardella/TradingBot.svg?branch=master)](https://travis-ci.com/ilcardella/TradingBot)
 This is an attempt to create an autonomous market trading script using the IG
 REST API and any other available data source for market prices.
 
