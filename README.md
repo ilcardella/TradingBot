@@ -26,11 +26,6 @@ starting point for this project. Thank you.
 - requests
 - govuk_bank_holidays (https://github.com/ministryofjustice/govuk-bank-holidays)
 
-Run
-```
-pip install -r requirements.txt
-```
-
 # Install
 TODO (Still need to be properly configured)
 
@@ -40,8 +35,7 @@ This will install the script in `/usr/local/TradingBot` folder
 # Setup
 Install dependencies with pip
 ```
-sudo apt-get install python3-pip -y
-pip3 install 'package1' 'package2' ...
+pip install -r requirements.txt
 ```
 
 Login to your IG Dashboard
