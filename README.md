@@ -24,10 +24,12 @@ starting point for this project. Thank you.
 - matplotlib
 - pytz
 - requests
-- json
-- logging
 - govuk_bank_holidays (https://github.com/ministryofjustice/govuk-bank-holidays)
-- others...
+
+Run
+```
+pip install -r requirements.txt
+```
 
 # Install
 TODO (Still need to be properly configured)
@@ -108,6 +110,18 @@ After that, if you want TradingBot to use your strategy, just edit the
 
 Please if you create new strategies I would be really happy if you
 could share it with me creating a pull request.
+
+# Documentation
+To build the documentation you need to install `sphinx` on your machine
+http://www.sphinx-doc.org/en/master/usage/installation.html
+
+After that you can execute these commands:
+```
+cd doc
+make html
+open doc/_build/indext.html
+
+```
 
 # Automate
 You can set up the crontab job to run and kill TradinBot at specific times.
