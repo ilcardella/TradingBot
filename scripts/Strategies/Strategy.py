@@ -58,6 +58,7 @@ class Strategy:
             if self.positions is not None:
                 for item in self.positions['positions']:
                     self.process_epic(broker, item['market']['epic'])
+                    time.sleep(self.timeout)
             else:
                 logging.warn("Unable to retrieve open positions!")
 
