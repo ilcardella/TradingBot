@@ -111,6 +111,18 @@ After that, if you want TradingBot to use your strategy, just edit the
 Please if you create new strategies I would be really happy if you
 could share it with me creating a pull request.
 
+# Documentation
+To build the documentation you need to install `sphinx` on your machine
+http://www.sphinx-doc.org/en/master/usage/installation.html
+
+After that you can execute these commands:
+```
+cd doc
+make html
+open doc/_build/indext.html
+
+```
+
 # Automate
 You can set up the crontab job to run and kill TradinBot at specific times.
 The only configuration required is to edit the crontab file adding the preferred schedule:
