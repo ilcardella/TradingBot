@@ -32,7 +32,7 @@ class Utils:
 
     @staticmethod
     def is_between(time, time_range):
-        """Return True if time is between the time_range. time must be a datetime obj.
+        """Return True if time is between the time_range. time must be a string.
         time_range must be a tuple (a,b) where a and b are strings in format 'HH:MM'"""
         if time_range[1] < time_range[0]:
             return time >= time_range[0] or time <= time_range[1]
