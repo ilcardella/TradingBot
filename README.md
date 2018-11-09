@@ -24,10 +24,12 @@ starting point for this project. Thank you.
 - matplotlib
 - pytz
 - requests
-- json
-- logging
 - govuk_bank_holidays (https://github.com/ministryofjustice/govuk-bank-holidays)
-- others...
+
+Run
+```
+pip install -r requirements.txt
+```
 
 # Install
 TODO (Still need to be properly configured)
