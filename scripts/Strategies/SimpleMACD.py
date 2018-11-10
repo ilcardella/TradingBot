@@ -3,8 +3,15 @@ import numpy as np
 import pandas as pd
 import requests
 import json
+import os
+import inspect
+import sys
 
-from AVInterface import AVInterface as AV, AVIntervals
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+sys.path.insert(0,parentdir)
+
+from Interfaces.AVInterface import AVInterface as AV, AVIntervals
 from .Strategy import Strategy
 from Utils import Utils, TradeDirection
 
