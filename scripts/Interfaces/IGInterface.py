@@ -13,6 +13,9 @@ sys.path.insert(0,parentdir)
 from Utils import Utils, TradeDirection
 
 class IGInterface():
+    """
+    IG broker interface class, provides functions to use the IG REST API
+    """
     def __init__(self, config):
         self.read_configuration(config)
         demoPrefix = 'demo-' if self.useDemo else ''
@@ -23,6 +26,9 @@ class IGInterface():
 
 
     def read_configuration(self, config):
+        """
+        Read the configuration from the config json
+        """
         self.useDemo = config['ig_interface']['use_demo_account']
         self.orderType = config['ig_interface']['order_type']
         self.orderSize = config['ig_interface']['order_size']
@@ -34,6 +40,12 @@ class IGInterface():
 
 
     def authenticate(self, credentials):
+        """
+        Authenticate the IGInterface instance with the given credentials
+
+            - **credentials**: json object containing username, passowrd, default account and api key
+            - Returns **False** if an error occurs otherwise True
+        """
         data = {"identifier": credentials['username'], "password": credentials['password']}
         headers = {'Content-Type': 'application/json; charset=utf-8',
                         'Accept': 'application/json; charset=utf-8',
@@ -62,6 +74,12 @@ class IGInterface():
 
 
     def set_default_account(self, accountId):
+        """
+        Sets the IG account to use
+
+            - **accountId**: String representing the accound id to use
+            - Returns **False** if an error occurs otherwise True
+        """
         url = self.apiBaseURL + '/session'
         data = {"accountId": accountId, "defaultAccount": "True"}
         auth_r = requests.put(url,
@@ -72,6 +90,11 @@ class IGInterface():
 
 
     def get_account_balances(self):
+        """
+        Returns a tuple (balance, deposit) for the account in use
+
+            - Returns **(None,None)** if an error occurs otherwise (balance, deposit)
+        """
         base_url = self.apiBaseURL + "/accounts"
         d = self.http_get(base_url)
         if d is not None:
@@ -85,11 +108,23 @@ class IGInterface():
 
 
     def get_open_positions(self):
+        """
+        Returns the account open positions in an json object
+
+            - Returns the json object returned by the IG API
+        """
         base_url = self.apiBaseURL + "/positions"
         return self.http_get(base_url)
 
 
     def get_positions_map(self):
+        """
+        Returns a *dict* containing the account open positions in the form
+        {string: int} where the string is defined as 'marketId-tradeDirection' and
+        the int is the trade size
+
+            - Returns **None** if an error occurs otherwise a dict(string:int)
+        """
         positionMap = {}
         position_json = self.get_open_positions()
         if position_json is not None:
@@ -108,12 +143,26 @@ class IGInterface():
 
 
     def get_market_info(self, epic_id):
+        """
+        Returns info for the given market including a price snapshot
+
+            - **epic_id**: market epic as string
+            - Returns **None** if an error occurs otherwise the json returned by IG API
+        """
         base_url = self.apiBaseURL + '/markets/' + str(epic_id)
         market = self.http_get(base_url)
         return market if market is not None else None
 
 
     def get_prices(self, epic_id, resolution, range):
+        """
+        Returns past prices for the given epic
+
+            - **epic_id**: market epic as string
+            - **resolution**: resolution of the time series: minute, hours, etc.
+            - **range**: amount of datapoint to fetch
+            - Returns **None** if an error occurs otherwise the json object returned by IG API
+        """
         # Price resolution (MINUTE, MINUTE_2, MINUTE_3, MINUTE_5,
         # MINUTE_10, MINUTE_15, MINUTE_30, HOUR, HOUR_2, HOUR_3,
         # HOUR_4, DAY, WEEK, MONTH)
@@ -129,6 +178,15 @@ class IGInterface():
 
 
     def trade(self, epic_id, trade_direction, limit, stop):
+        """
+        Try to open a new trade for the given epic
+
+            - **epic_id**: market epic as string
+            - **trade_direction**: BUY or SELL
+            - **limit**: limit level
+            - **stop**: stop level
+            - Returns **False** if an error occurs otherwise True
+        """
         if self.paperTrading:
             logging.info('Paper trade: {} {} with limit={} and stop={}'.format(trade_direction,epic_id,limit,stop))
             return True
@@ -170,6 +228,12 @@ class IGInterface():
 
 
     def confirm_order(self, dealRef):
+        """
+        Confirm an order from a dealing reference
+
+            - **dealRef**: dealing reference to confirm
+            - Returns **False** if an error occurs otherwise True
+        """
         base_url = self.apiBaseURL + '/confirms/' + dealRef
         d = self.http_get(base_url)
         if d is not None:
@@ -188,6 +252,12 @@ class IGInterface():
 
 
     def close_position(self, position):
+        """
+        Close the given market position
+
+            - **position**: position json object obtained from IG API
+            - Returns **False** if an error occurs otherwise True
+        """
         if self.paperTrading:
             logging.info('Paper trade: close {} position'.format(position['market']['instrumentName']))
             return True
@@ -226,6 +296,11 @@ class IGInterface():
 
 
     def close_all_positions(self):
+        """
+        Close all account open positions
+
+            - Returns **False** if an error occurs otherwise True
+        """
         positions = self.get_open_positions()
         if positions is not None:
             for p in positions['positions']:
@@ -235,6 +310,7 @@ class IGInterface():
                     logging.error("Unable to close {} position")
         else:
             logging.warn("Unable to retrieve open positions!")
+        return True
 
 
     def http_get(self, url):

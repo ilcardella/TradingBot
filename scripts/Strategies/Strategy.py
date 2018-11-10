@@ -15,6 +15,10 @@ sys.path.insert(0,parentdir)
 from Utils import Utils, TradeDirection
 
 class Strategy:
+    """
+    Generic strategy template to use as a parent class for custom strategies.
+    Provide safety checks for new trades and handling of open positions.
+    """
     def __init__(self, config):
         self.positions = {}
 
@@ -33,12 +37,21 @@ class Strategy:
 #############################################################
 
     def read_configuration(self, config):
+        """
+        Must override
+        """
         raise NotImplementedError('Not implemented: read_configuration')
 
     def find_trade_signal(self, broker, epic_id):
+        """
+        Must override
+        """
         raise NotImplementedError('Not implemented: find_trade_signal')
 
     def get_seconds_to_next_spin(self):
+        """
+        Must override
+        """
         raise NotImplementedError('Not implemented: get_seconds_to_next_spin')
 
 ##############################################################
@@ -46,6 +59,13 @@ class Strategy:
 
 
     def start(self, broker, epic_list):
+        """
+        Start the strategy processing the given list of epic ids. Wait until the
+        market is open to start processing.
+
+            - **epic_list**: list of epic ids
+            - **broker**: broker interface instance
+        """
         while True:
             if not self.isMarketOpen(self.time_zone):
                 logging.info("Market is closed! Wait 60 seconds...")
@@ -56,6 +76,13 @@ class Strategy:
 
 
     def spin(self, broker, epic_list):
+        """
+        Process the epic list one by one handling new trades and closing
+        open positions if necessary
+
+            - **epic_list**: list of epic ids
+            - **broker**: broker interface instance
+        """
         logging.info("Strategy started to spin.")
         try:
             # Fetch open positions and process them first
@@ -109,6 +136,13 @@ class Strategy:
 
 
     def process_epic(self, broker, epic):
+        """
+        process the given epic using the given broker interface
+
+            - **broker**: broker interface instance
+            - **epic**: market epic as string
+            - Returns **False** if an error occurs otherwise True
+        """
         logging.info("Processing {}".format(epic))
         # Process the epic and find if we want to trade
         trade, limit, stop = self.find_trade_signal(broker, epic)
@@ -130,6 +164,12 @@ class Strategy:
 
 
     def get_account_used_perc(self, broker):
+        """
+        Fetch the percentage of available balance is currently used
+
+            - **broker**: broker interface instance
+            - Returns the percentage of account used over total value available
+        """
         balance, deposit = broker.get_account_balances()
         if balance is None or deposit is None:
             return 9999999 # This will block the trading
@@ -137,6 +177,11 @@ class Strategy:
 
 
     def isMarketOpen(self, timezone):
+        """
+        Return True if the market is open, false otherwise
+
+            - **timezone**: string representing the timezone
+        """
         tz = pytz.timezone(timezone)
         now_time = datetime.datetime.now(tz=tz).strftime('%H:%M')
         return Utils.is_between(str(now_time), ("07:55", "16:35"))
