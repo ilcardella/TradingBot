@@ -1,8 +1,8 @@
 import logging
 import json
 
-from IGInterface import IGInterface
-from AVInterface import AVInterface
+from Interfaces.IGInterface import IGInterface
+from Interfaces.AVInterface import AVInterface
 from Strategies.SimpleMACD import SimpleMACD
 
 class StocksAutoTrader:

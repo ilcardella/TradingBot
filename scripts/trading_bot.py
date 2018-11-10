@@ -51,5 +51,4 @@ if __name__ == '__main__':
 
 
 
-    robot = StocksAutoTrader(config)
-    robot.start(sys.argv)
+    StocksAutoTrader(config).start(sys.argv)

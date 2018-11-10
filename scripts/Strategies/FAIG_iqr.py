@@ -5,6 +5,13 @@ from scipy import stats
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import math
+import os
+import inspect
+import sys
+
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+sys.path.insert(0,parentdir)
 
 from .Strategy import Strategy
 from Utils import *
