@@ -6,6 +6,10 @@ from Interfaces.AVInterface import AVInterface
 from Strategies.SimpleMACD import SimpleMACD
 
 class StocksAutoTrader:
+    """
+    Class that initialise and hold references of main components like the
+    broker interface, the strategy or the epic_ids list
+    """
     def __init__(self, config):
         self.read_configuration(config)
         # Create IG interface
@@ -14,10 +18,18 @@ class StocksAutoTrader:
         self.strategy = SimpleMACD(config)
 
     def read_configuration(self, config):
+        """
+        Read the configuration from the config json
+        """
         self.epic_ids_filepath = config['general']['epic_ids_filepath']
         self.credentials_filepath = config['general']['credentials_filepath']
 
     def get_epic_ids(self):
+        """
+        Read a file from filesystem containing a list of epic ids.
+        The filepath is defined in config.json file
+        Returns a 'list' of strings where each string is a market epic
+        """
         # define empty list
         epic_ids = []
         try:
@@ -36,6 +48,10 @@ class StocksAutoTrader:
         return epic_ids
 
     def start(self, argv):
+        """
+        Reads the user credentials authenticating the broker interface, builds
+        the epic list and start the strategy
+        """
         # Read credentials file
         try:
             with open(self.credentials_filepath, 'r') as file:

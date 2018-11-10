@@ -7,11 +7,18 @@ from datetime import datetime
 from govuk_bank_holidays.bank_holidays import BankHolidays
 
 class TradeDirection(Enum):
+    """
+    Enumeration that represents the trade direction in the market: NONE means
+    no action to take.
+    """
     NONE = "NONE",
     BUY = "BUY",
     SELL = "SELL"
 
 class Utils:
+    """
+    Utility class containing static methods to perform simple general actions
+    """
     def __init__(self):
         pass
 

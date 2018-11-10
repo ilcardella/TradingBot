@@ -16,12 +16,21 @@ from .Strategy import Strategy
 from Utils import Utils, TradeDirection
 
 class SimpleMACD(Strategy):
+    """
+    Strategy that use the MACD technical indicator of a market to decide whether
+    to buy, sell or hold.
+    Buy when the MACD cross over the MACD signal.
+    Sell when the MACD cross below the MACD signal.
+    """
     def __init__(self, config):
         super().__init__(config)
         logging.info('Simple MACD strategy initialised.')
 
 
     def read_configuration(self, config):
+        """
+        Read the json configuration
+        """
         self.spin_interval = config['strategies']['simple_macd']['spin_interval']
         self.controlledRisk = config['ig_interface']['controlled_risk']
         self.use_av_api = config['strategies']['simple_macd']['use_av_api']
@@ -31,6 +40,14 @@ class SimpleMACD(Strategy):
 
     # TODO  possibly split in more smaller ones
     def find_trade_signal(self, broker, epic_id):
+        """
+        Calculate the MACD of the previous days and find a cross between MACD
+        and MACD signal
+
+            - **broker**: broker interface instance
+            - **epic_id**: market epic as string
+            - Returns TradeDirection, limit_level, stop_level or TradeDirection.NONE, None, None
+        """
         # Fetch current market data
         market = broker.get_market_info(epic_id)
         # Safety checks before processing the epic
@@ -106,6 +123,9 @@ class SimpleMACD(Strategy):
         return tradeDirection, limit, stop
 
     def calculate_stop_limit(self, tradeDirection, current_offer, current_bid, limit_perc, stop_perc):
+        """
+        Calculate the stop and limit levels
+        """
         limit = None
         stop = None
         if tradeDirection == TradeDirection.BUY:
@@ -117,14 +137,10 @@ class SimpleMACD(Strategy):
 
         return limit, stop
 
-    def get_av_historic_price(self, marketId, function, interval, apiKey):
-        intParam = '&interval={}'.format(interval)
-        if interval == '1day':
-            intParam = ''
-        url = 'https://www.alphavantage.co/query?function={}&symbol={}{}&outputsize=full&apikey={}'.format(function, marketId, intParam, apiKey)
-        data = requests.get(url)
-        return json.loads(data.text)
 
     def get_seconds_to_next_spin(self):
+        """
+        Calculate the amount of seconds to wait for between each strategy spin
+        """
         # Run this strategy at market opening
         return Utils.get_seconds_to_market_opening()
