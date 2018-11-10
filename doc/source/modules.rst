@@ -1,13 +1,10 @@
 Modules
 =======
 
-TODO add general description of how modules are distributed
+TradingBot is composed by different modules organised by their nature.
+Each section of this document provide a description of the module meaning
+along with the documentation of its internal members.
 
-Main
-^^^^
-
-.. automodule:: trading_bot
-   :members:
 
 StockAutoTrader
 ^^^^^^^^^^^^^^^
@@ -20,7 +17,9 @@ StockAutoTrader
 Interfaces
 ^^^^^^^^^^
 
-TODO add description of module and what it contains
+The ``Interfaces`` module contains all those interfaces with external
+services used by TradingBot.
+Ideally these interfaces should be completely independent and reusable.
 
 IGInterface
 """""""""""
@@ -41,7 +40,10 @@ AVInterface
 Strategies
 ^^^^^^^^^^
 
-TODO add description of module and what it contains
+The ``Strategies`` module contains the strategies used by TradingBot to
+analyse the markets. The ``Strategy`` class is the parent from where
+any custom strategy **must** inherit from.
+The other modules described here are strategies available in TradingBot.
 
 Strategy
 """"""""
