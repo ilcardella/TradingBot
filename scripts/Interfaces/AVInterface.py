@@ -3,6 +3,10 @@ import json
 import logging
 from enum import Enum
 
+from alpha_vantage.timeseries import TimeSeries
+from alpha_vantage.techindicators import TechIndicators
+
+
 class AVTimeSeries(Enum):
     """
     AlphaVantage time series types: Daily, Intraday, etc.
@@ -35,10 +39,14 @@ class AVInterface():
     """
     API_KEY = ''
     apiBaseURL = 'https://www.alphavantage.co/query?'
+    TS = None  # TimeSeries
+    TI = None  # TechIndicators
 
     def __init__(self, apiKey):
         AVInterface.API_KEY = apiKey
-
+        AVInterface.TS = TimeSeries(
+            key=apiKey, output_format='pandas', indexing_type='integer', treat_info_as_error=True)
+        AVInterface.TI = TechIndicators(key=apiKey, output_format='pandas')
 
     @staticmethod
     def get_price_series_raw(marketId, function, interval):
@@ -53,13 +61,14 @@ class AVInterface():
         intParam = '&interval={}'.format(interval.value)
         if interval == AVIntervals.DAILY:
             intParam = ''
-        url = '{}function={}&symbol={}{}&outputsize=full&apikey={}'.format(AVInterface.apiBaseURL, function.value, marketId, intParam, AVInterface.API_KEY)
+        url = '{}function={}&symbol={}{}&outputsize=full&apikey={}'.format(
+            AVInterface.apiBaseURL, function.value, marketId, intParam, AVInterface.API_KEY)
         data = requests.get(url)
         if 'Error Message' in data or 'Information' in data or 'Note' in data:
-            logging.error("AlphaVantage wrong api call for {}".format(marketId))
+            logging.error(
+                "AlphaVantage wrong api call for {}".format(marketId))
             return None
         return json.loads(data.text)
-
 
     @staticmethod
     def get_price_series_close(marketId, function, interval):
@@ -88,7 +97,6 @@ class AVInterface():
         else:
             return None
 
-
     @staticmethod
     def get_macd_series_raw(marketId, interval):
         """
@@ -103,9 +111,43 @@ class AVInterface():
             intParam = 'daily'
         elif interval == AVIntervals.HOURLY:
             intParam = '60min'
-        url = '{}function=MACD&symbol={}&interval={}&series_type=close&apikey={}'.format(AVInterface.apiBaseURL, marketId, intParam, AVInterface.API_KEY)
+        url = '{}function=MACD&symbol={}&interval={}&series_type=close&apikey={}'.format(
+            AVInterface.apiBaseURL, marketId, intParam, AVInterface.API_KEY)
         data = requests.get(url)
         if 'Error Message' in data or 'Information' in data or 'Note' in data:
-            logging.error("AlphaVantage wrong api call for {}".format(marketId))
+            logging.error(
+                "AlphaVantage wrong api call for {}".format(marketId))
             return None
         return json.loads(data.text)
+
+    @staticmethod
+    def macdext(marketId, interval):
+        """
+        Calls AlphaVantage API and return the MACDEXT tech indicator series for the given market
+
+            - **marketId**: string representing an AlphaVantage compatible market id
+            - **interval**: string representing an AlphaVantage interval type
+            - Returns **None** if an error occurs otherwise the pandas dataframe
+        """
+        intParam = 'daily'
+        if interval == AVIntervals.DAILY:
+            intParam = 'daily'
+        elif interval == AVIntervals.HOURLY:
+            intParam = '60min'
+
+        try:
+            data, meta_data = AVInterface.TI.get_macdext(AVInterface._format_market_id(marketId), interval=intParam, series_type='close',
+                                                         fastperiod=12, slowperiod=26, signalperiod=9, fastmatype=2,
+                                                         slowmatype=1, signalmatype=0)
+            return data
+        except:
+            logging.error(
+                "AlphaVantage wrong api call for {}".format(marketId))
+        return None
+
+    def _format_market_id(marketId):
+        """
+        Convert a standard market id to be compatible with AlphaVantage API.
+        Adds the market exchange prefix (i.e. London is LON:)
+        """
+        return '{}:{}'.format('LON', marketId.split('-')[0])
