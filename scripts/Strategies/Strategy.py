@@ -21,8 +21,8 @@ class Strategy:
     """
     def __init__(self, config, services):
         self.positions = {}
-        self.broker = self.services['broker']
-        self.AV = self.services['alpha_vantage']
+        self.broker = services['broker']
+        self.AV = services['alpha_vantage']
 
         self.time_zone = config['general']['time_zone']
         self.order_size = config['ig_interface']['order_size']
@@ -68,7 +68,7 @@ class Strategy:
             - **epic_list**: list of epic ids
         """
         while True:
-            if self.isMarketOpen(self.time_zone):
+            if not self.isMarketOpen(self.time_zone):
                 self.spin(epic_list)
             else:
                 logging.info("Market is closed! Wait 60 seconds...")

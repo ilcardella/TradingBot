@@ -1,6 +1,6 @@
 from Utils import Utils, TradeDirection
 from .Strategy import Strategy
-#from Interfaces.AVInterface import AVInterface as AV, AVIntervals
+from Interfaces.AVInterface import AVIntervals
 import logging
 import numpy as np
 import pandas as pd
@@ -23,8 +23,8 @@ class SimpleMACD(Strategy):
     Sell when the MACD cross below the MACD signal.
     """
 
-    def __init__(self, config):
-        super().__init__(config)
+    def __init__(self, config, services):
+        super().__init__(config, services)
         logging.info('Simple MACD strategy initialised.')
 
     def read_configuration(self, config):
@@ -39,17 +39,16 @@ class SimpleMACD(Strategy):
 
     # TODO  possibly split in more smaller ones
 
-    def find_trade_signal(self, broker, epic_id):
+    def find_trade_signal(self, epic_id):
         """
         Calculate the MACD of the previous days and find a cross between MACD
         and MACD signal
 
-            - **broker**: broker interface instance
             - **epic_id**: market epic as string
             - Returns TradeDirection, limit_level, stop_level or TradeDirection.NONE, None, None
         """
         # Fetch current market data
-        market = broker.get_market_info(epic_id)
+        market = self.broker.get_market_info(epic_id)
         # Safety checks before processing the epic
         if (market is None
             or 'markets' in market
@@ -79,7 +78,7 @@ class SimpleMACD(Strategy):
                 return TradeDirection.NONE, None, None
             px.index = range(len(px))
         else:
-            prices = broker.get_prices(epic_id, 'DAY', 26)
+            prices = self.broker.get_prices(epic_id, 'DAY', 26)
             prevBid = 0
             for p in prices['prices']:
                 if p['closePrice']['bid'] is None:

@@ -30,7 +30,7 @@ class AVInterface():
             key=apiKey, output_format='pandas', indexing_type='integer', treat_info_as_error=True)
         self.TI = TechIndicators(key=apiKey, output_format='pandas')
 
-    def daily(marketId):
+    def daily(self, marketId):
         """
         Calls AlphaVantage API and return the Daily time series for the given market
 
@@ -47,7 +47,7 @@ class AVInterface():
                 "AlphaVantage wrong api call for {}".format(marketId))
         return None
 
-    def intraday(marketId, interval):
+    def intraday(self, marketId, interval):
         """
         Calls AlphaVantage API and return the Intraday time series for the given market
 
@@ -69,7 +69,7 @@ class AVInterface():
                 "AlphaVantage wrong api call for {}".format(marketId))
         return None
 
-    def macdext(marketId, interval):
+    def macdext(self, marketId, interval):
         """
         Calls AlphaVantage API and return the MACDEXT tech indicator series for the given market
 
@@ -77,7 +77,7 @@ class AVInterface():
             - **interval**: string representing an AlphaVantage interval type
             - Returns **None** if an error occurs otherwise the pandas dataframe
         """
-        market = _format_market_id(marketId)
+        market = self._format_market_id(marketId)
         try:
             data, meta_data = self.TI.get_macdext(market, interval=interval, series_type='close',
                                                   fastperiod=12, slowperiod=26, signalperiod=9, fastmatype=2,
@@ -88,7 +88,7 @@ class AVInterface():
                 "AlphaVantage wrong api call for {}".format(marketId))
         return None
 
-    def _format_market_id(marketId):
+    def _format_market_id(self, marketId):
         """
         Convert a standard market id to be compatible with AlphaVantage API.
         Adds the market exchange prefix (i.e. London is LON:)
