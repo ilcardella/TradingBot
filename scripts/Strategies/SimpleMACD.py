@@ -1,11 +1,10 @@
 from Utils import Utils, TradeDirection
 from .Strategy import Strategy
-from Interfaces.AVInterface import AVInterface as AV, AVIntervals
+#from Interfaces.AVInterface import AVInterface as AV, AVIntervals
 import logging
 import numpy as np
 import pandas as pd
 import requests
-import json
 import os
 import inspect
 import sys
@@ -74,7 +73,7 @@ class SimpleMACD(Strategy):
         # Fetch historic prices and build a list with them ordered cronologically
         hist_data = []
         if self.use_av_api:
-            px = AV.macdext(marketId, AVIntervals.DAILY)
+            px = self.AV.macdext(marketId, AVIntervals.DAILY)
             if px is None:
                 logging.warn('Strategy can`t process {}'.format(marketId))
                 return TradeDirection.NONE, None, None

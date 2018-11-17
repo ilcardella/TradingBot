@@ -19,8 +19,10 @@ class Strategy:
     Generic strategy template to use as a parent class for custom strategies.
     Provide safety checks for new trades and handling of open positions.
     """
-    def __init__(self, config):
+    def __init__(self, config, services):
         self.positions = {}
+        self.broker = self.services['broker']
+        self.AV = self.services['alpha_vantage']
 
         self.time_zone = config['general']['time_zone']
         self.order_size = config['ig_interface']['order_size']
@@ -42,7 +44,7 @@ class Strategy:
         """
         raise NotImplementedError('Not implemented: read_configuration')
 
-    def find_trade_signal(self, broker, epic_id):
+    def find_trade_signal(self, epic_id):
         """
         Must override
         """
@@ -58,45 +60,43 @@ class Strategy:
 ##############################################################
 
 
-    def start(self, broker, epic_list):
+    def start(self, epic_list):
         """
         Start the strategy processing the given list of epic ids. Wait until the
         market is open to start processing.
 
             - **epic_list**: list of epic ids
-            - **broker**: broker interface instance
         """
         while True:
             if self.isMarketOpen(self.time_zone):
-                self.spin(broker, epic_list)
+                self.spin(epic_list)
             else:
                 logging.info("Market is closed! Wait 60 seconds...")
                 time.sleep(60)
                 continue
 
 
-    def spin(self, broker, epic_list):
+    def spin(self, epic_list):
         """
         Process the epic list one by one handling new trades and closing
         open positions if necessary
 
             - **epic_list**: list of epic ids
-            - **broker**: broker interface instance
         """
         logging.info("Strategy started to spin.")
         try:
             # Fetch open positions and process them first
             logging.info("Processing open positions.")
-            self.positions = broker.get_open_positions()
+            self.positions = self.broker.get_open_positions()
             if self.positions is not None:
                 for item in self.positions['positions']:
-                    self.process_epic(broker, item['market']['epic'])
+                    self.process_epic(item['market']['epic'])
                     time.sleep(self.timeout)
             else:
                 logging.warn("Unable to retrieve open positions!")
 
             # Check if the account has enough cash available to open new positions
-            percent_used = self.get_account_used_perc(broker)
+            percent_used = self.get_account_used_perc()
             if percent_used < self.max_account_usable:
                 logging.info("Ok to trade, {}% of account is used".format(str(percent_used)))
                 if len(epic_list) < 1:
@@ -106,17 +106,17 @@ class Strategy:
                     shuffle(epic_list)
                     for epic in epic_list:
                         try:
-                            if self.process_epic(broker, epic):
+                            if self.process_epic(epic):
                                 # If there has been a trade check again account usage
-                                percent_used = self.get_account_used_perc(broker)
+                                percent_used = self.get_account_used_perc()
                                 if percent_used > self.max_account_usable:
                                     logging.warn("Stop trading because {}% of account is used".format(str(percent_used)))
                                     break
                             time.sleep(self.timeout)
                         except Exception as e:
-                            logging.warn(e)
-                            logging.warn(traceback.format_exc())
-                            logging.warn(sys.exc_info()[0])
+                            logging.error(e)
+                            logging.error(traceback.format_exc())
+                            logging.error(sys.exc_info()[0])
                             time.sleep(self.timeout)
                             continue
             else:
@@ -128,24 +128,23 @@ class Strategy:
             logging.info("Epics analysis complete. Wait for {} seconds".format(seconds))
             time.sleep(seconds)
         except Exception as e:
-                logging.warn(e)
-                logging.warn(traceback.format_exc())
-                logging.warn(sys.exc_info()[0])
-                logging.warn("Something fucked up.")
+                logging.error(e)
+                logging.error(traceback.format_exc())
+                logging.error(sys.exc_info()[0])
+                logging.error("Something fucked up.")
                 time.sleep(self.timeout)
 
 
-    def process_epic(self, broker, epic):
+    def process_epic(self, epic):
         """
-        process the given epic using the given broker interface
+        process the given epic
 
-            - **broker**: broker interface instance
             - **epic**: market epic as string
             - Returns **False** if an error occurs otherwise True
         """
         logging.info("Processing {}".format(epic))
         # Process the epic and find if we want to trade
-        trade, limit, stop = self.find_trade_signal(broker, epic)
+        trade, limit, stop = self.find_trade_signal(epic)
         # In case of no trade don't do anything
         if trade is not TradeDirection.NONE:
             if self.positions is not None:
@@ -156,21 +155,20 @@ class Strategy:
                         return False
                     # If a trade in opposite direction exist, close the position
                     elif item['market']['epic'] == epic and trade.name != item['position']['direction']:
-                        return broker.close_position(item)
-                return broker.trade(epic, trade.name, limit, stop)
+                        return self.broker.close_position(item)
+                return self.broker.trade(epic, trade.name, limit, stop)
             else:
                 logging.error("Unable to retrieve open positions! Avoid trading this epic")
         return False
 
 
-    def get_account_used_perc(self, broker):
+    def get_account_used_perc(self):
         """
         Fetch the percentage of available balance is currently used
 
-            - **broker**: broker interface instance
             - Returns the percentage of account used over total value available
         """
-        balance, deposit = broker.get_account_balances()
+        balance, deposit = self.broker.get_account_balances()
         if balance is None or deposit is None:
             return 9999999 # This will block the trading
         return Utils.percentage(deposit, balance)

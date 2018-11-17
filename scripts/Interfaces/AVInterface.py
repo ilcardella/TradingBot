@@ -24,15 +24,12 @@ class AVInterface():
     AlphaVantage interface class, provides methods to call AlphaVantage API
     and return the result in useful format handling possible errors.
     """
-    TS = None  # TimeSeries
-    TI = None  # TechIndicators
 
     def __init__(self, apiKey):
-        AVInterface.TS = TimeSeries(
+        self.TS = TimeSeries(
             key=apiKey, output_format='pandas', indexing_type='integer', treat_info_as_error=True)
-        AVInterface.TI = TechIndicators(key=apiKey, output_format='pandas')
+        self.TI = TechIndicators(key=apiKey, output_format='pandas')
 
-    @staticmethod
     def daily(marketId):
         """
         Calls AlphaVantage API and return the Daily time series for the given market
@@ -42,7 +39,7 @@ class AVInterface():
         """
         market = _format_market_id(marketId)
         try:
-            data, meta_data = AVInterface.TS.get_daily(
+            data, meta_data = self.TS.get_daily(
                 symbol=market, outputsize='full')
             return data
         except:
@@ -50,7 +47,6 @@ class AVInterface():
                 "AlphaVantage wrong api call for {}".format(marketId))
         return None
 
-    @staticmethod
     def intraday(marketId, interval):
         """
         Calls AlphaVantage API and return the Intraday time series for the given market
@@ -60,11 +56,12 @@ class AVInterface():
             - Returns **None** if an error occurs otherwise the pandas dataframe
         """
         if (interval is AVIntervals.DAILY):
-            logging.error("AlphaVantage Intraday does not support DAILY interval")
+            logging.error(
+                "AlphaVantage Intraday does not support DAILY interval")
             return None
         market = _format_market_id(marketId)
         try:
-            data, meta_data = AVInterface.TS.get_intraday(
+            data, meta_data = self.TS.get_intraday(
                 symbol=market, interval=interval, outputsize='full')
             return data
         except:
@@ -72,7 +69,6 @@ class AVInterface():
                 "AlphaVantage wrong api call for {}".format(marketId))
         return None
 
-    @staticmethod
     def macdext(marketId, interval):
         """
         Calls AlphaVantage API and return the MACDEXT tech indicator series for the given market
@@ -83,9 +79,9 @@ class AVInterface():
         """
         market = _format_market_id(marketId)
         try:
-            data, meta_data = AVInterface.TI.get_macdext(market, interval=interval, series_type='close',
-                                                         fastperiod=12, slowperiod=26, signalperiod=9, fastmatype=2,
-                                                         slowmatype=1, signalmatype=0)
+            data, meta_data = self.TI.get_macdext(market, interval=interval, series_type='close',
+                                                  fastperiod=12, slowperiod=26, signalperiod=9, fastmatype=2,
+                                                  slowmatype=1, signalmatype=0)
             return data
         except:
             logging.error(
