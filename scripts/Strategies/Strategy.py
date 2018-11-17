@@ -68,7 +68,7 @@ class Strategy:
             - **epic_list**: list of epic ids
         """
         while True:
-            if not self.isMarketOpen(self.time_zone):
+            if self.isMarketOpen(self.time_zone):
                 self.spin(epic_list)
             else:
                 logging.info("Market is closed! Wait 60 seconds...")

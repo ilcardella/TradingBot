@@ -29,6 +29,7 @@ class AVInterface():
         self.TS = TimeSeries(
             key=apiKey, output_format='pandas', indexing_type='integer', treat_info_as_error=True)
         self.TI = TechIndicators(key=apiKey, output_format='pandas')
+        logging.info('AlphaVantage initialised.')
 
     def daily(self, marketId):
         """
@@ -62,7 +63,7 @@ class AVInterface():
         market = _format_market_id(marketId)
         try:
             data, meta_data = self.TS.get_intraday(
-                symbol=market, interval=interval, outputsize='full')
+                symbol=market, interval=interval.value, outputsize='full')
             return data
         except:
             logging.error(
@@ -79,9 +80,27 @@ class AVInterface():
         """
         market = self._format_market_id(marketId)
         try:
-            data, meta_data = self.TI.get_macdext(market, interval=interval, series_type='close',
+            data, meta_data = self.TI.get_macdext(market, interval=interval.value, series_type='close',
                                                   fastperiod=12, slowperiod=26, signalperiod=9, fastmatype=2,
                                                   slowmatype=1, signalmatype=0)
+            return data
+        except:
+            logging.error(
+                "AlphaVantage wrong api call for {}".format(marketId))
+        return None
+
+    def macd(self, marketId, interval):
+        """
+        Calls AlphaVantage API and return the MACDEXT tech indicator series for the given market
+
+            - **marketId**: string representing an AlphaVantage compatible market id
+            - **interval**: string representing an AlphaVantage interval type
+            - Returns **None** if an error occurs otherwise the pandas dataframe
+        """
+        market = self._format_market_id(marketId)
+        try:
+            data, meta_data = self.TI.get_macd(market, interval=interval.value, series_type='close',
+                                               fastperiod=12, slowperiod=26, signalperiod=9)
             return data
         except:
             logging.error(

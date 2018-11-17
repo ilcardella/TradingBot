@@ -53,19 +53,19 @@ class StocksAutoTrader:
                             format="[%(asctime)s] %(levelname)s: %(message)s")
 
         # Create IG interface
-        self.IG = IGInterface(config)
+        IG = IGInterface(config)
         # Init the IG interface
-        if not self.IG.authenticate(credentials):
+        if not IG.authenticate(credentials):
             logging.error("Authentication failed")
             exit()
 
         # Init AlphaVantage interface
-        self.AV = AVInterface(credentials['av_api_key'])
+        AV = AVInterface(credentials['av_api_key'])
 
         # Create dict of services
         services = {
-            "broker": self.IG,
-            "alpha_vantage": self.AV
+            "broker": IG,
+            "alpha_vantage": AV
         }
 
         # Define the strategy to use here
