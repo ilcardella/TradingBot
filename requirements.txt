@@ -9,3 +9,4 @@ requests>=2.20.0
 scipy>=1.1.0
 sphinx
 sphinx_rtd_theme
+alpha-vantage>=2.1.0
