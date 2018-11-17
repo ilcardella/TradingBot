@@ -68,11 +68,11 @@ class Strategy:
         """
         while True:
             if self.isMarketOpen(self.time_zone):
+                self.spin(broker, epic_list)
+            else:
                 logging.info("Market is closed! Wait 60 seconds...")
                 time.sleep(60)
                 continue
-            else:
-                self.spin(broker, epic_list)
 
 
     def spin(self, broker, epic_list):
