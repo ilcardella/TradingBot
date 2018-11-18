@@ -136,7 +136,6 @@ class SimpleMACD(Strategy):
             limit = current_bid - Utils.percentage_of(limit_perc, current_bid)
             stop = current_offer + \
                 Utils.percentage_of(stop_perc, current_offer)
-
         return limit, stop
 
     def get_seconds_to_next_spin(self):
