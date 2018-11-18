@@ -10,7 +10,15 @@
 ###############################################################################
 
 from StocksAutoTrader import StocksAutoTrader
-import sys
+import argparse
 
 if __name__ == '__main__':
-    StocksAutoTrader().start(sys.argv)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-c", "--close_positions",
+                        help="Close all the open positions", action="store_true")
+    args = parser.parse_args()
+
+    if args.close_positions:
+        StocksAutoTrader().close_open_posistions()
+    else:
+        StocksAutoTrader().start(args)

@@ -19,9 +19,9 @@ close-positions()
 {
   echo Starting TradingBot to close positions...
   cd scripts
-  python3 trading_bot.py --close-positions & echo $! > pid.txt
+  python3 trading_bot.py -c & echo $! > pid.txt
 }
 
 case $1 in
-  start|stop) "$1" ;;
+  start|stop|close-positions) "$1" ;;
 esac

@@ -23,6 +23,7 @@ class IGInterface():
         self.authenticated_headers = ''
         if self.paperTrading:
             logging.info('Paper trading is active')
+        logging.info("IG initialised.")
 
 
     def read_configuration(self, config):
@@ -288,10 +289,10 @@ class IGInterface():
         deal_ref = d['dealReference']
         time.sleep(1)
         if self.confirm_order(deal_ref):
-            logging.info("Position  for {} closed".format(epic_id))
+            logging.info("Position  for {} closed".format(position['market']['instrumentName']))
             return True
         else:
-            logging.error("Could not close position for {}".format(epic_id))
+            logging.error("Could not close position for {}".format(position['market']['instrumentName']))
             return False
 
 
@@ -301,15 +302,17 @@ class IGInterface():
 
             - Returns **False** if an error occurs otherwise True
         """
-        positions = self.get_open_positions()
-        if positions is not None:
-            for p in positions['positions']:
-                if self.close_position(p):
-                    logging.info("Closed {} position")
-                else:
-                    logging.error("Unable to close {} position")
-        else:
-            logging.warn("Unable to retrieve open positions!")
+        try:
+            positions = self.get_open_positions()
+            if positions is not None:
+                for p in positions['positions']:
+                    self.close_position(p)
+            else:
+                logging.error("Unable to retrieve open positions!")
+                return False
+        except:
+            logging.error("Error during close all positions")
+            return False
         return True
 
 
