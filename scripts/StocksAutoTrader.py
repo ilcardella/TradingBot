@@ -53,19 +53,19 @@ class StocksAutoTrader:
                             format="[%(asctime)s] %(levelname)s: %(message)s")
 
         # Create IG interface
-        IG = IGInterface(config)
+        self.IG = IGInterface(config)
         # Init the IG interface
-        if not IG.authenticate(credentials):
+        if not self.IG.authenticate(credentials):
             logging.error("Authentication failed")
             exit()
 
         # Init AlphaVantage interface
-        AV = AVInterface(credentials['av_api_key'])
+        self.AV = AVInterface(credentials['av_api_key'])
 
         # Create dict of services
         services = {
-            "broker": IG,
-            "alpha_vantage": AV
+            "broker": self.IG,
+            "alpha_vantage": self.AV
         }
 
         # Define the strategy to use here
@@ -106,7 +106,17 @@ class StocksAutoTrader:
 
     def start(self, argv):
         """
-        Read the epic ids list and start the strategy
+        Starts the strategy
         """
         # Read list of company epic ids and start the strategy
         self.strategy.start(self.get_epic_ids())
+
+    def close_open_posistions(self):
+        """
+        Closes all the open positions in the account
+        """
+        logging.info("Closing all the open positions...")
+        if self.IG.close_all_positions():
+            logging.info("All the posisions have been closed.")
+        else:
+            logging.error("Impossible to close all open positions, retry.")
