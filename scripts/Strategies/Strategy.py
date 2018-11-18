@@ -1,4 +1,3 @@
-from Utils import Utils, TradeDirection
 import logging
 import time
 import traceback
@@ -13,6 +12,8 @@ currentdir = os.path.dirname(os.path.abspath(
     inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir)
+
+from Utils import Utils, TradeDirection
 
 
 class Strategy:
