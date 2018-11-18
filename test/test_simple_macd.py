@@ -63,7 +63,7 @@ def config():
         exit()
     return config
 
-def test_find_trade_signal(config):
+def test_find_trade_signal_buy(config):
     services = {
         'broker': MockBroker('test/test_data/mock_ig_market_info.json'),
         'alpha_vantage': MockAV('test/test_data/mock_macdext_buy.json')
@@ -76,3 +76,31 @@ def test_find_trade_signal(config):
     assert stop is not None
 
     assert tradeDir.value == TradeDirection.BUY.value
+
+def test_find_trade_signal_sell(config):
+    services = {
+        'broker': MockBroker('test/test_data/mock_ig_market_info.json'),
+        'alpha_vantage': MockAV('test/test_data/mock_macdext_sell.json')
+    }
+    strategy = SimpleMACD(config, services)
+    tradeDir, limit, stop = strategy.find_trade_signal('MOCK')
+
+    assert tradeDir is not None
+    assert limit is not None
+    assert stop is not None
+
+    assert tradeDir.value == TradeDirection.SELL.value
+
+def test_find_trade_signal_hold(config):
+    services = {
+        'broker': MockBroker('test/test_data/mock_ig_market_info.json'),
+        'alpha_vantage': MockAV('test/test_data/mock_macdext_hold.json')
+    }
+    strategy = SimpleMACD(config, services)
+    tradeDir, limit, stop = strategy.find_trade_signal('MOCK')
+
+    assert tradeDir is not None
+    assert limit is None
+    assert stop is None
+
+    assert tradeDir.value == TradeDirection.NONE.value
