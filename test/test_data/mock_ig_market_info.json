@@ -1,0 +1,107 @@
+{
+    "instrument": {
+        "epic": "KA.D.GSK.DAILY.IP",
+        "expiry": "DFB",
+        "name": "GlaxoSmithKline PLC",
+        "forceOpenAllowed": true,
+        "stopsLimitsAllowed": true,
+        "lotSize": 1.0,
+        "unit": "AMOUNT",
+        "type": "SHARES",
+        "controlledRiskAllowed": true,
+        "streamingPricesAvailable": false,
+        "marketId": "GSK-UK",
+        "currencies": [{
+            "code": "GBP",
+            "symbol": "£",
+            "baseExchangeRate": 1.0,
+            "exchangeRate": 1.0,
+            "isDefault": true
+        }],
+        "sprintMarketsMinimumExpiryTime": null,
+        "sprintMarketsMaximumExpiryTime": null,
+        "marginDepositBands": [{
+            "min": 0,
+            "max": 800,
+            "margin": 20,
+            "currency": "GBP"
+        }, {
+            "min": 800,
+            "max": 3800,
+            "margin": 20,
+            "currency": "GBP"
+        }, {
+            "min": 3800,
+            "max": 15200,
+            "margin": 40,
+            "currency": "GBP"
+        }, {
+            "min": 15200,
+            "max": null,
+            "margin": 75,
+            "currency": "GBP"
+        }],
+        "marginFactor": 20,
+        "marginFactorUnit": "PERCENTAGE",
+        "slippageFactor": {
+            "unit": "pct",
+            "value": 100.0
+        },
+        "limitedRiskPremium": {
+            "value": 1,
+            "unit": "PERCENTAGE"
+        },
+        "openingHours": null,
+        "expiryDetails": {
+            "lastDealingDate": "2029-04-06T15:30",
+            "settlementInfo": "DFBs settle on the Last Dealing Day at the closing market bid/offer price of the share, plus or minus half the IG spread. "
+        },
+        "rolloverDetails": null,
+        "newsCode": "GSK.L",
+        "chartCode": "GSK",
+        "country": "GB",
+        "valueOfOnePip": null,
+        "onePipMeans": null,
+        "contractSize": null,
+        "specialInfo": ["DEFAULT KNOCK OUT LEVEL DISTANCE", "MAX KNOCK OUT LEVEL DISTANCE"]
+    },
+    "dealingRules": {
+        "minStepDistance": {
+            "unit": "PERCENTAGE",
+            "value": 1.0
+        },
+        "minDealSize": {
+            "unit": "POINTS",
+            "value": 0.5
+        },
+        "minControlledRiskStopDistance": {
+            "unit": "PERCENTAGE",
+            "value": 5.0
+        },
+        "minNormalStopOrLimitDistance": {
+            "unit": "PERCENTAGE",
+            "value": 2.0
+        },
+        "maxStopOrLimitDistance": {
+            "unit": "PERCENTAGE",
+            "value": 75.0
+        },
+        "marketOrderPreference": "AVAILABLE_DEFAULT_OFF",
+        "trailingStopsPreference": "AVAILABLE"
+    },
+    "snapshot": {
+        "marketStatus": "EDITS_ONLY",
+        "netChange": -0.6,
+        "percentageChange": -0.04,
+        "updateTime": "16:30:00",
+        "delayTime": 0,
+        "bid": 1562.0,
+        "offer": 1565.8,
+        "high": 1580.0,
+        "low": 1541.1,
+        "binaryOdds": null,
+        "decimalPlacesFactor": 1,
+        "scalingFactor": 1,
+        "controlledRiskExtraSpread": 0
+    }
+}

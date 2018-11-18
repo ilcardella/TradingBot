@@ -1,6 +1,3 @@
-from Utils import Utils, TradeDirection
-from .Strategy import Strategy
-from Interfaces.AVInterface import AVIntervals
 import logging
 import numpy as np
 import pandas as pd
@@ -13,6 +10,10 @@ currentdir = os.path.dirname(os.path.abspath(
     inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir)
+
+from Utils import Utils, TradeDirection
+from .Strategy import Strategy
+from Interfaces.AVInterface import AVIntervals
 
 
 class SimpleMACD(Strategy):
@@ -53,7 +54,7 @@ class SimpleMACD(Strategy):
         if (market is None
             or 'markets' in market
                 or market['snapshot']['bid'] is None):
-            logging.warn('Strategy can`t process {}: IG error'.format(epic_id))
+            logging.warning('Strategy can`t process {}: IG error'.format(epic_id))
             return TradeDirection.NONE, None, None
 
         # Extract market data to calculate stop and limit values
@@ -74,7 +75,7 @@ class SimpleMACD(Strategy):
         if self.use_av_api:
             px = self.AV.macdext(marketId, AVIntervals.DAILY)
             if px is None:
-                logging.warn('Strategy can`t process {}'.format(marketId))
+                logging.warning('Strategy can`t process {}'.format(marketId))
                 return TradeDirection.NONE, None, None
             px.index = range(len(px))
         else:
@@ -87,7 +88,7 @@ class SimpleMACD(Strategy):
                     hist_data.append(p['closePrice']['bid'])
                     prevBid = p['closePrice']['bid']
             if prices is None or 'prices' not in prices:
-                logging.warn('Strategy can`t process {}'.format(marketId))
+                logging.warning('Strategy can`t process {}'.format(marketId))
                 return TradeDirection.NONE, None, None
             # Calculate the MACD indicator
             px = pd.DataFrame({'close': hist_data})
