@@ -7,10 +7,10 @@ import pandas as pd
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
-sys.path.insert(0,parentdir)
+sys.path.insert(0,parentdir + '/scripts')
 
-from scripts.Strategies.SimpleMACD import SimpleMACD
-from scripts.Utils import TradeDirection
+from Strategies.SimpleMACD import SimpleMACD
+from Utils import TradeDirection
 
 class MockBroker:
     """
@@ -75,7 +75,7 @@ def test_find_trade_signal_buy(config):
     assert limit is not None
     assert stop is not None
 
-    assert tradeDir.value == TradeDirection.BUY.value
+    assert tradeDir == TradeDirection.BUY
 
 def test_find_trade_signal_sell(config):
     services = {
@@ -89,7 +89,7 @@ def test_find_trade_signal_sell(config):
     assert limit is not None
     assert stop is not None
 
-    assert tradeDir.value == TradeDirection.SELL.value
+    assert tradeDir == TradeDirection.SELL
 
 def test_find_trade_signal_hold(config):
     services = {
@@ -103,4 +103,23 @@ def test_find_trade_signal_hold(config):
     assert limit is None
     assert stop is None
 
-    assert tradeDir.value == TradeDirection.NONE.value
+    assert tradeDir == TradeDirection.NONE
+
+def test_calculate_stop_limit(config):
+    services = {
+        'broker': MockBroker('test/test_data/mock_ig_market_info.json'),
+        'alpha_vantage': MockAV('test/test_data/mock_macdext_hold.json')
+    }
+    strategy = SimpleMACD(config, services)
+
+    limit, stop = strategy.calculate_stop_limit(TradeDirection.BUY, 100, 100, 10, 10)
+    assert limit == 110
+    assert stop == 90
+
+    limit, stop = strategy.calculate_stop_limit(TradeDirection.SELL, 100, 100, 10, 10)
+    assert limit == 90
+    assert stop == 110
+
+    limit, stop = strategy.calculate_stop_limit(TradeDirection.NONE, 100, 100, 10, 10)
+    assert limit is None
+    assert stop is None
