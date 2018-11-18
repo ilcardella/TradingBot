@@ -71,6 +71,7 @@ with the preferred options:
 TODO (Explain each configuration parameter)
 
 # Run
+
 Open a new terminal and type:
 ```
 ./trading_bot_ctl start
@@ -80,6 +81,12 @@ To stop instead:
 ```
 ./trading_bot_ctl stop
 ```
+
+To close all the currently open positions:
+```
+./trading_bot_ctl close-positions
+```
+
 # Test
 
 The unit test depend on `pytest` package
