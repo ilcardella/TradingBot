@@ -276,7 +276,7 @@ class IGInterface():
         data = {
             "dealId": position['position']['dealId'],
             "epic": None,
-            "expiry": position['market']['expiry'],
+            "expiry": None,
             "direction": direction,
             "size": "1",
             "level": None,

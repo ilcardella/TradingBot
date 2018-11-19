@@ -11,9 +11,9 @@ currentdir = os.path.dirname(os.path.abspath(
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir)
 
-from Utils import Utils, TradeDirection
-from .Strategy import Strategy
 from Interfaces.AVInterface import AVIntervals
+from .Strategy import Strategy
+from Utils import Utils, TradeDirection
 
 
 class SimpleMACD(Strategy):
@@ -48,27 +48,9 @@ class SimpleMACD(Strategy):
             - **epic_id**: market epic as string
             - Returns TradeDirection, limit_level, stop_level or TradeDirection.NONE, None, None
         """
-        # Fetch current market data
-        market = self.broker.get_market_info(epic_id)
-        # Safety checks before processing the epic
-        if (market is None
-            or 'markets' in market
-                or market['snapshot']['bid'] is None):
-            logging.warning('Strategy can`t process {}: IG error'.format(epic_id))
-            return TradeDirection.NONE, None, None
-
-        # Extract market data to calculate stop and limit values
-        limit_perc = 10
-        stop_perc = max(
-            [market['dealingRules']['minNormalStopOrLimitDistance']['value'], 5])
-        if self.controlledRisk:
-            # +1 to avoid rejection
-            stop_perc = market['dealingRules']['minControlledRiskStopDistance']['value'] + 1
-        current_bid = market['snapshot']['bid']
-        current_offer = market['snapshot']['offer']
-
-        # Extract market Id
-        marketId = market['instrument']['marketId']
+        # Fetch data for the market
+        marketId, current_bid, current_offer, limit_perc, stop_perc = self.get_market_snapshot(
+            epic_id)
 
         # Fetch historic prices and build a list with them ordered cronologically
         hist_data = []
@@ -124,7 +106,7 @@ class SimpleMACD(Strategy):
 
     def calculate_stop_limit(self, tradeDirection, current_offer, current_bid, limit_perc, stop_perc):
         """
-        Calculate the stop and limit levels
+        Calculate the stop and limit levels from the given percentages
         """
         limit = None
         stop = None
@@ -144,3 +126,34 @@ class SimpleMACD(Strategy):
         """
         # Run this strategy at market opening
         return Utils.get_seconds_to_market_opening()
+
+    def get_market_snapshot(self, epic_id):
+        """
+        Fetch a market snapshot from the given epic id, and returns
+        the **marketId** and the bid/offer prices
+
+            - **epic_id**: market epic as string
+            - Returns marketId, bidPrice, offerPrice
+        """
+        # Fetch current market data
+        market = self.broker.get_market_info(epic_id)
+        # Safety checks
+        if (market is None
+            or 'markets' in market  # means that epic_id is wrong
+                or market['snapshot']['bid'] is None
+                or market['snapshot']['offer'] is None):
+            raise Exception
+
+        # TODO make limit and stop configurable or depending on market data
+        limit_perc = 15
+        stop_perc = max(
+            [market['dealingRules']['minNormalStopOrLimitDistance']['value'], 8])
+        if self.controlledRisk:
+            # +1 to avoid rejection
+            stop_perc = market['dealingRules']['minControlledRiskStopDistance']['value'] + 1
+        # Extract market Id
+        marketId = market['instrument']['marketId']
+        current_bid = market['snapshot']['bid']
+        current_offer = market['snapshot']['offer']
+
+        return marketId, current_bid, current_offer, limit_perc, stop_perc
