@@ -123,3 +123,7 @@ def test_calculate_stop_limit(config):
     limit, stop = strategy.calculate_stop_limit(TradeDirection.NONE, 100, 100, 10, 10)
     assert limit is None
     assert stop is None
+
+def test_find_trade_signal_exception(config):
+    #TODO provide wrong data and assert exception thrown
+    assert True
