@@ -38,7 +38,6 @@ class SimpleMACD(Strategy):
         if self.use_av_api:
             self.timeout = 12  # AlphaVantage limits to 5 calls per minute
 
-    # TODO  possibly split in more smaller ones
 
     def find_trade_signal(self, epic_id):
         """
@@ -53,46 +52,14 @@ class SimpleMACD(Strategy):
             epic_id)
 
         # Fetch historic prices and build a list with them ordered cronologically
-        hist_data = []
-        if self.use_av_api:
-            px = self.AV.macdext(marketId, AVIntervals.DAILY)
-            if px is None:
-                logging.warning('Strategy can`t process {}'.format(marketId))
-                return TradeDirection.NONE, None, None
-            px.index = range(len(px))
-        else:
-            prices = self.broker.get_prices(epic_id, 'DAY', 26)
-            prevBid = 0
-            for p in prices['prices']:
-                if p['closePrice']['bid'] is None:
-                    hist_data.append(prevBid)
-                else:
-                    hist_data.append(p['closePrice']['bid'])
-                    prevBid = p['closePrice']['bid']
-            if prices is None or 'prices' not in prices:
-                logging.warning('Strategy can`t process {}'.format(marketId))
-                return TradeDirection.NONE, None, None
-            # Calculate the MACD indicator
-            px = pd.DataFrame({'close': hist_data})
-            px['26_ema'] = pd.DataFrame.ewm(px['close'], span=26).mean()
-            px['12_ema'] = pd.DataFrame.ewm(px['close'], span=12).mean()
-            px['MACD'] = (px['12_ema'] - px['26_ema'])
-            px['MACD_Signal'] = px['MACD'].rolling(9).mean()
-            px['MACD_Hist'] = (px['MACD'] - px['MACD_Signal'])
+        # TODO unify marketId and epic_id
+        px = self.get_dataframe_from_historic_prices(marketId, epic_id)
 
         # Find where macd and signal cross each other
-        px['positions'] = 0
-        #px.loc[9:, 'positions'] = np.where(px.loc[9:, 'MACD'] >= px.loc[9:, 'MACD_Signal'] , 1, 0)
-        px.loc[9:, 'positions'] = np.where(px.loc[9:, 'MACD_Hist'] >= 0, 1, 0)
-        # Highlight the direction of the crossing
-        px['signals'] = px['positions'].diff()
+        px = self.generate_signals_from_dataframe(px)
 
         # Identify the trade direction looking at the last signal
-        tradeDirection = TradeDirection.NONE
-        if len(px['signals']) > 0 and px['signals'].iloc[-1] > 0:
-            tradeDirection = TradeDirection.BUY
-        elif len(px['signals']) > 0 and px['signals'].iloc[-1] < 0:
-            tradeDirection = TradeDirection.SELL
+        tradeDirection = self.get_trade_direction_from_signals(px)
         # Log only tradable epics
         if tradeDirection is not TradeDirection.NONE:
             logging.info("SimpleMACD says: {} {}".format(
@@ -101,8 +68,8 @@ class SimpleMACD(Strategy):
         # Calculate stop and limit distances
         limit, stop = self.calculate_stop_limit(
             tradeDirection, current_offer, current_bid, limit_perc, stop_perc)
-
         return tradeDirection, limit, stop
+
 
     def calculate_stop_limit(self, tradeDirection, current_offer, current_bid, limit_perc, stop_perc):
         """
@@ -120,12 +87,14 @@ class SimpleMACD(Strategy):
                 Utils.percentage_of(stop_perc, current_offer)
         return limit, stop
 
+
     def get_seconds_to_next_spin(self):
         """
         Calculate the amount of seconds to wait for between each strategy spin
         """
         # Run this strategy at market opening
         return Utils.get_seconds_to_market_opening()
+
 
     def get_market_snapshot(self, epic_id):
         """
@@ -157,3 +126,54 @@ class SimpleMACD(Strategy):
         current_offer = market['snapshot']['offer']
 
         return marketId, current_bid, current_offer, limit_perc, stop_perc
+
+
+    def compute_macd_from_timeseries(self, prices):
+        prevBid = 0
+        hist_data = []
+        for p in prices['prices']:
+            if p['closePrice']['bid'] is None:
+                hist_data.append(prevBid)
+            else:
+                hist_data.append(p['closePrice']['bid'])
+                prevBid = p['closePrice']['bid']
+        # Calculate the MACD indicator
+        px = pd.DataFrame({'close': hist_data})
+        px['26_ema'] = pd.DataFrame.ewm(px['close'], span=26).mean()
+        px['12_ema'] = pd.DataFrame.ewm(px['close'], span=12).mean()
+        px['MACD'] = (px['12_ema'] - px['26_ema'])
+        px['MACD_Signal'] = px['MACD'].rolling(9).mean()
+        px['MACD_Hist'] = (px['MACD'] - px['MACD_Signal'])
+        return px
+
+
+    def get_dataframe_from_historic_prices(self, marketId, epic_id):
+        if self.use_av_api:
+            px = self.AV.macdext(marketId, AVIntervals.DAILY)
+            if px is None:
+                return None
+            px.index = range(len(px))
+        else:
+            prices = self.broker.get_prices(epic_id, 'DAY', 26)
+            if prices is None:
+                return None
+            px = self.compute_macd_from_timeseries(prices)
+        return px
+
+
+    def generate_signals_from_dataframe(self, dataframe):
+        dataframe['positions'] = 0
+        #px.loc[9:, 'positions'] = np.where(px.loc[9:, 'MACD'] >= px.loc[9:, 'MACD_Signal'] , 1, 0)
+        dataframe.loc[9:, 'positions'] = np.where(dataframe.loc[9:, 'MACD_Hist'] >= 0, 1, 0)
+        # Highlight the direction of the crossing
+        dataframe['signals'] = dataframe['positions'].diff()
+        return dataframe
+
+
+    def get_trade_direction_from_signals(self, dataframe):
+        tradeDirection = TradeDirection.NONE
+        if len(dataframe['signals']) > 0 and dataframe['signals'].iloc[-1] > 0:
+            tradeDirection = TradeDirection.BUY
+        elif len(dataframe['signals']) > 0 and dataframe['signals'].iloc[-1] < 0:
+            tradeDirection = TradeDirection.SELL
+        return tradeDirection

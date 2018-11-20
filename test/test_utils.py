@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
-sys.path.insert(0,parentdir + '/scripts')
+sys.path.insert(0,'{}/scripts'.format(parentdir))
 
 from Utils import Utils
 
