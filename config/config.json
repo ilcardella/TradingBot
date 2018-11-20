@@ -19,7 +19,7 @@
         "use_g_stop": true,
         "use_demo_account": true,
         "controlled_risk": false,
-        "paper_trading": true
+        "paper_trading": false
     },
     "strategies": {
         "spin_interval": 3600,

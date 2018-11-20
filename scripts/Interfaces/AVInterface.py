@@ -18,11 +18,11 @@ class AVIntervals(Enum):
     """
     AlphaVantage interval types: '1min', '5min', '15min', '30min', '60min'
     """
-    DAILY = 'daily',
-    MIN_60 = '60min',
-    MIN_30 = '30min',
-    MIN_15 = '15min',
-    MIN_5 = '5min',
+    DAILY = 'daily'
+    MIN_60 = '60min'
+    MIN_30 = '30min'
+    MIN_15 = '15min'
+    MIN_5 = '5min'
     MIN_1 = '1min'
 
 
