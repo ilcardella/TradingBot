@@ -114,16 +114,26 @@ Please if you create new strategies I would be really happy if you
 could share it with me creating a pull request.
 
 # Documentation
-To build the documentation you need to install `sphinx` on your machine
-http://www.sphinx-doc.org/en/master/usage/installation.html
+Read the documentation at:
 
-After that you can execute these commands:
+https://tradingbot.readthedocs.io
+
+To build it locally you need to install `sphinx` on your machine
+http://www.sphinx-doc.org/en/master/usage/installation.html
+The `requirements.txt` includes `sphinx` already.
+
+After that you can execute these commands from the project root:
+```
+sphinx-build -b html doc doc/_build/html
+```
+or
+
 ```
 cd doc
 make html
-open doc/_build/indext.html
-
 ```
+
+The generated html files will be under `doc/_build/html`.
 
 # Automate
 You can set up the crontab job to run and kill TradinBot at specific times.
