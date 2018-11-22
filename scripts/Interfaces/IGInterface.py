@@ -317,7 +317,10 @@ class IGInterface():
             positions = self.get_open_positions()
             if positions is not None:
                 for p in positions['positions']:
-                    self.close_position(p)
+                    try:
+                        self.close_position(p)
+                    except:
+                        logging.error('Error closing position for {}'.format(p['market']['instrumentName']))
             else:
                 logging.error("Unable to retrieve open positions!")
                 return False
