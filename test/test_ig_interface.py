@@ -134,12 +134,12 @@ def test_set_default_account_fail(ig, credentials, requests_mock):
     assert result == False
 
 
-def test_get_account_balance(ig, requests_mock):
+def test_get_account_balances(ig, requests_mock):
     data = read_json('test/test_data/mock_ig_account_details.json')
-    requests_mock.put(ig.apiBaseURL+'/session', status_code=200, json=data)
-    balance, deposit = ig.get_account_balance()
+    requests_mock.get(ig.apiBaseURL+'/accounts', status_code=200, json=data)
+    balance, deposit = ig.get_account_balances()
 
     assert balance is not None
     assert deposit is not None
-    assert balace == 16093.12
+    assert balance == 16093.12
     assert deposit == 0.0
