@@ -1,0 +1,31 @@
+{
+    "accountType": "SPREADBET",
+    "accountInfo": {
+        "balance": 16093.12,
+        "deposit": 0.0,
+        "profitLoss": 0.0,
+        "available": 16093.12
+    },
+    "currencyIsoCode": "GBP",
+    "currencySymbol": "£",
+    "currentAccountId": "AAAAA",
+    "lightstreamerEndpoint": "https://demo-apd.marketdatasystems.com",
+    "accounts": [{
+        "accountId": "AAAAA",
+        "accountName": "Demo-cfd",
+        "preferred": false,
+        "accountType": "CFD"
+    }, {
+        "accountId": "AAAAAA",
+        "accountName": "Demo-SpreadBet",
+        "preferred": true,
+        "accountType": "SPREADBET"
+    }],
+    "clientId": "123456789",
+    "timezoneOffset": 0,
+    "hasActiveDemoAccounts": true,
+    "hasActiveLiveAccounts": true,
+    "trailingStopsEnabled": false,
+    "reroutingEnvironment": null,
+    "dealingEnabled": true
+}
