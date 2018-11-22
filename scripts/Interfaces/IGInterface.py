@@ -163,19 +163,19 @@ class IGInterface():
         return market if market is not None else None
 
 
-    def get_prices(self, epic_id, resolution, range):
+    def get_prices(self, epic_id, resolution, interval):
         """
         Returns past prices for the given epic
 
             - **epic_id**: market epic as string
             - **resolution**: resolution of the time series: minute, hours, etc.
-            - **range**: amount of datapoint to fetch
+            - **interval**: amount of datapoint to fetch
             - Returns **None** if an error occurs otherwise the json object returned by IG API
         """
         # Price resolution (MINUTE, MINUTE_2, MINUTE_3, MINUTE_5,
         # MINUTE_10, MINUTE_15, MINUTE_30, HOUR, HOUR_2, HOUR_3,
         # HOUR_4, DAY, WEEK, MONTH)
-        base_url = self.apiBaseURL + "/prices/" + str(epic_id) + "/" + str(resolution) + "/" + str(range)
+        base_url = self.apiBaseURL + "/prices/" + str(epic_id) + "/" + str(resolution) + "/" + str(interval)
         d = self.http_get(base_url)
         if d is not None and 'allowance' in d:
             remaining_allowance = d['allowance']['remainingAllowance']
@@ -339,32 +339,44 @@ class IGInterface():
 
 
     def http_get(self, url):
-        """Perform an HTTP GET request to the url.
+        """
+        Perform an HTTP GET request to the url.
         Return the json object returned from the API if 200 is received
-        Return None if an error is received from the API"""
-        auth_r = requests.get(url, headers=self.authenticated_headers)
-        logging.debug(auth_r.status_code)
-        logging.debug(auth_r.reason)
-        logging.debug(auth_r.text)
-        d = json.loads(auth_r.text)
-        if 'errorCode' in d:
-            logging.error(d['errorCode'])
+        Return None if an error is received from the API
+        """
+        try:
+            response = requests.get(url, headers=self.authenticated_headers)
+            if response.status_code != 200:
+                return None
+
+            data = json.loads(response.text)
+
+            if 'errorCode' in data:
+                logging.error(data['errorCode'])
+                return None
+            else:
+                return data
+        except:
             return None
-        else:
-            return d
 
 
     def http_delete(self, url, data):
-        """Perform an HTTP DELETE request to the url with the given body"""
-        auth_r = requests.delete(url,
-                                data=json.dumps(data),
-                                headers=self.authenticated_headers)
-        logging.debug(auth_r.status_code)
-        logging.debug(auth_r.reason)
-        logging.debug(auth_r.text)
-        d = json.loads(auth_r.text)
-        if 'errorCode' in d:
-            logging.error(d['errorCode'])
+        """
+        Perform an HTTP DELETE request to the url with the given body
+        """
+        try:
+            response = requests.delete(url,
+                                    data=json.dumps(data),
+                                    headers=self.authenticated_headers)
+            if response.status_code != 200:
+                return None
+
+            data = json.loads(response.text)
+
+            if 'errorCode' in data:
+                logging.error(data['errorCode'])
+                return None
+            else:
+                return data
+        except:
             return None
-        else:
-            return d
