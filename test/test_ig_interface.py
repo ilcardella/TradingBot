@@ -142,3 +142,64 @@ def test_get_account_balances(ig, requests_mock):
     assert deposit is not None
     assert balance == 16093.12
     assert deposit == 0.0
+
+def test_get_account_balances_fail(ig, requests_mock):
+    data = read_json('test/test_data/mock_ig_account_details.json')
+    requests_mock.get(ig.apiBaseURL+'/accounts', status_code=401, json=data)
+    balance, deposit = ig.get_account_balances()
+
+    assert balance is None
+    assert deposit is None
+
+def test_get_open_positions(ig, requests_mock):
+    data = read_json('test/test_data/mock_ig_positions.json')
+    requests_mock.get(ig.apiBaseURL+'/positions', status_code=200, json=data)
+
+    positions = ig.get_open_positions()
+
+    assert positions is not None
+    assert 'positions' in positions
+
+def test_get_open_positions_fail(ig, requests_mock):
+    data = read_json('test/test_data/mock_ig_positions.json')
+    requests_mock.get(ig.apiBaseURL+'/positions', status_code=401, json=data)
+
+    positions = ig.get_open_positions()
+
+    assert positions is None
+
+def test_get_market_info(ig, requests_mock):
+    data = read_json('test/test_data/mock_ig_market_info.json')
+    requests_mock.get(ig.apiBaseURL+'/markets/mock', status_code=200, json=data)
+
+    info = ig.get_market_info('mock')
+
+    assert info is not None
+    assert 'instrument' in info
+    assert 'snapshot' in info
+    assert 'dealingRules' in info
+
+def test_get_market_info_fail(ig, requests_mock):
+    data = read_json('test/test_data/mock_ig_market_info.json')
+    requests_mock.get(ig.apiBaseURL+'/markets/mock', status_code=401, json=data)
+
+    info = ig.get_market_info('mock')
+
+    assert info is None
+
+def test_get_prices(ig, requests_mock):
+    data = read_json('test/test_data/mock_ig_historic_price.json')
+    requests_mock.get(ig.apiBaseURL+'/prices/mock/mock/mock', status_code=200, json=data)
+
+    p = ig.get_prices('mock','mock','mock')
+
+    assert p is not None
+    assert 'prices' in p
+
+def test_get_prices_fail(ig, requests_mock):
+    data = read_json('test/test_data/mock_ig_historic_price.json')
+    requests_mock.get(ig.apiBaseURL+'/prices/mock/mock/mock', status_code=401, json=data)
+
+    p = ig.get_prices('mock','mock','mock')
+
+    assert p is None
