@@ -57,6 +57,10 @@ class IGInterface():
         response = requests.post(url,
                                 data=json.dumps(data),
                                 headers=headers)
+
+        if response.status_code != 200:
+            return False
+
         headers_json = dict(response.headers)
         try:
             CST_token = headers_json["CST"]
@@ -83,9 +87,13 @@ class IGInterface():
         """
         url = self.apiBaseURL + '/session'
         data = {"accountId": accountId, "defaultAccount": "True"}
-        auth_r = requests.put(url,
+        response = requests.put(url,
                             data=json.dumps(data),
                             headers=self.authenticated_headers)
+
+        if response.status_code != 200:
+            return False
+
         logging.info('Using default account: {}'.format(accountId))
         return True
 
