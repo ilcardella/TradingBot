@@ -45,7 +45,6 @@ def credentials():
         "av_api_key": "12345"
     }
 
-
 @pytest.fixture
 def ig(config):
     """
