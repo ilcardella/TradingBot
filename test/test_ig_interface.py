@@ -64,6 +64,7 @@ def test_authenticate(ig, credentials, requests_mock):
             'CST':'mock',
             'X-SECURITY-TOKEN':'mock'
             }
+    # TODO create mock json file to load and return instead of text
     requests_mock.post(ig.apiBaseURL+'/session', text='Success', headers=mock_headers)
     requests_mock.put(ig.apiBaseURL+'/session', text='Success')
 
@@ -91,17 +92,25 @@ def test_authenticate_fail(ig, credentials, requests_mock):
     assert result == False
 
 def test_set_default_account(ig, credentials, requests_mock):
+    # TODO create mock json file to load and return instead of text
     requests_mock.put(ig.apiBaseURL+'/session', status_code=200, text='Success')
+
     result = ig.set_default_account(credentials['account_id'])
+
     assert result == True
 
 def test_set_default_account_fail(ig, credentials, requests_mock):
     requests_mock.put(ig.apiBaseURL+'/session', status_code=403, text='Success')
-    result = ig.set_default_account(credentials['account_id'])
-    assert result == False
-    result = ig.authenticate(credentials)
 
-    # Assert results
-    assert ig.authenticated_headers['CST'] == mock_headers['CST']
-    assert ig.authenticated_headers['X-SECURITY-TOKEN'] == mock_headers['X-SECURITY-TOKEN']
-    assert result == True
+    result = ig.set_default_account(credentials['account_id'])
+
+    assert result == False
+
+def test_get_account_balance(ig, requests_mock):
+    # TODO create mock json file to load and return instead of text
+    requests_mock.put(ig.apiBaseURL+'/session', status_code=200, text='Success')
+    balance, deposit = ig.get_account_balance()
+
+    assert balance is not None
+    assert deposit is not None
+    # TODO assert values are == in mock json file
