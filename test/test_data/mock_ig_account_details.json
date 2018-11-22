@@ -1,0 +1,35 @@
+{
+    "accounts": [{
+        "accountId": "AAAAA",
+        "accountName": "Demo-cfd",
+        "accountAlias": null,
+        "status": "ENABLED",
+        "accountType": "CFD",
+        "preferred": false,
+        "balance": {
+            "balance": 5385.28,
+            "deposit": 0.0,
+            "profitLoss": 0.0,
+            "available": 5385.28
+        },
+        "currency": "GBP",
+        "canTransferFrom": true,
+        "canTransferTo": true
+    }, {
+        "accountId": "AAAAA",
+        "accountName": "Demo-SpreadBet",
+        "accountAlias": null,
+        "status": "ENABLED",
+        "accountType": "SPREADBET",
+        "preferred": true,
+        "balance": {
+            "balance": 16093.12,
+            "deposit": 0.0,
+            "profitLoss": 0.0,
+            "available": 16093.12
+        },
+        "currency": "GBP",
+        "canTransferFrom": true,
+        "canTransferTo": true
+    }]
+}
