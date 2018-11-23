@@ -219,20 +219,17 @@ class IGInterface():
             data=json.dumps(data),
             headers=self.authenticated_headers)
 
-        logging.debug(r.status_code)
-        logging.debug(r.reason)
-        logging.debug(r.text)
+        if r.status_code != 200:
+            return False
 
         d = json.loads(r.text)
         deal_ref = d['dealReference']
-        time.sleep(1)
-
         if self.confirm_order(deal_ref):
             logging.info("Order {} for {} confirmed with limit={} and stop={}".format(trade_direction,
                             epic_id, limit, stop))
             return True
         else:
-            logging.warn("Trade {} of {} has failed!".format(trade_direction, epic_id))
+            logging.warning("Trade {} of {} has failed!".format(trade_direction, epic_id))
             return False
 
 
@@ -245,13 +242,9 @@ class IGInterface():
         """
         base_url = self.apiBaseURL + '/confirms/' + dealRef
         d = self.http_get(base_url)
+
         if d is not None:
-            DEAL_ID = d['dealId']
-            logging.debug(d)
-            logging.info("Deal id {} has status {} with reason {}".format(str(DEAL_ID),
-                                                                            d['dealStatus'],
-                                                                            d['reason']))
-            if str(d['reason']) != "SUCCESS":
+            if d['reason'] != "SUCCESS":
                 time.sleep(1)
                 return False
             else:
