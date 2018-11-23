@@ -11,7 +11,6 @@ sys.path.insert(0, '{}/scripts'.format(parentdir))
 
 from Interfaces.IGInterface import IGInterface
 
-
 @pytest.fixture
 def config():
     """
@@ -44,6 +43,7 @@ def credentials():
         "account_id": "12345",
         "av_api_key": "12345"
     }
+
 
 @pytest.fixture
 def ig(config):
@@ -143,6 +143,7 @@ def test_get_account_balances(ig, requests_mock):
     assert balance == 16093.12
     assert deposit == 0.0
 
+
 def test_get_account_balances_fail(ig, requests_mock):
     data = read_json('test/test_data/mock_ig_account_details.json')
     requests_mock.get(ig.apiBaseURL+'/accounts', status_code=401, json=data)
@@ -150,6 +151,7 @@ def test_get_account_balances_fail(ig, requests_mock):
 
     assert balance is None
     assert deposit is None
+
 
 def test_get_open_positions(ig, requests_mock):
     data = read_json('test/test_data/mock_ig_positions.json')
@@ -160,6 +162,7 @@ def test_get_open_positions(ig, requests_mock):
     assert positions is not None
     assert 'positions' in positions
 
+
 def test_get_open_positions_fail(ig, requests_mock):
     data = read_json('test/test_data/mock_ig_positions.json')
     requests_mock.get(ig.apiBaseURL+'/positions', status_code=401, json=data)
@@ -168,9 +171,11 @@ def test_get_open_positions_fail(ig, requests_mock):
 
     assert positions is None
 
+
 def test_get_market_info(ig, requests_mock):
     data = read_json('test/test_data/mock_ig_market_info.json')
-    requests_mock.get(ig.apiBaseURL+'/markets/mock', status_code=200, json=data)
+    requests_mock.get(ig.apiBaseURL+'/markets/mock',
+                      status_code=200, json=data)
 
     info = ig.get_market_info('mock')
 
@@ -179,27 +184,122 @@ def test_get_market_info(ig, requests_mock):
     assert 'snapshot' in info
     assert 'dealingRules' in info
 
+
 def test_get_market_info_fail(ig, requests_mock):
     data = read_json('test/test_data/mock_ig_market_info.json')
-    requests_mock.get(ig.apiBaseURL+'/markets/mock', status_code=401, json=data)
+    requests_mock.get(ig.apiBaseURL+'/markets/mock',
+                      status_code=401, json=data)
 
     info = ig.get_market_info('mock')
 
     assert info is None
 
+
 def test_get_prices(ig, requests_mock):
     data = read_json('test/test_data/mock_ig_historic_price.json')
-    requests_mock.get(ig.apiBaseURL+'/prices/mock/mock/mock', status_code=200, json=data)
+    requests_mock.get(ig.apiBaseURL+'/prices/mock/mock/mock',
+                      status_code=200, json=data)
 
-    p = ig.get_prices('mock','mock','mock')
+    p = ig.get_prices('mock', 'mock', 'mock')
 
     assert p is not None
     assert 'prices' in p
 
+
 def test_get_prices_fail(ig, requests_mock):
     data = read_json('test/test_data/mock_ig_historic_price.json')
-    requests_mock.get(ig.apiBaseURL+'/prices/mock/mock/mock', status_code=401, json=data)
+    requests_mock.get(ig.apiBaseURL+'/prices/mock/mock/mock',
+                      status_code=401, json=data)
 
-    p = ig.get_prices('mock','mock','mock')
+    p = ig.get_prices('mock', 'mock', 'mock')
 
     assert p is None
+
+
+def test_trade(ig, requests_mock):
+    data = {
+        "dealReference": "123456789"
+    }
+    requests_mock.post(ig.apiBaseURL+'/positions/otc',
+                      status_code=200, json=data)
+    data = {
+        "dealId": "123456789",
+        "dealStatus": "SUCCESS",
+        "reason": "SUCCESS"
+    }
+    requests_mock.get(ig.apiBaseURL+'/confirms/123456789',
+                      status_code=200, json=data)
+
+    result = ig.trade('mock', 'BUY', 0, 0)
+
+    assert result
+
+def test_trade_fail(ig, requests_mock):
+    data = {
+        "dealReference": "123456789"
+    }
+    requests_mock.post(ig.apiBaseURL+'/positions/otc',
+                      status_code=401, json=data)
+    data = {
+        "dealId": "123456789",
+        "dealStatus": "SUCCESS",
+        "reason": "SUCCESS"
+    }
+    requests_mock.get(ig.apiBaseURL+'/confirms/123456789',
+                      status_code=200, json=data)
+
+    result = ig.trade('mock', 'BUY', 0, 0)
+
+    assert result == False
+
+def test_confirm_order(ig, requests_mock):
+    data = {
+        "dealId": "123456789",
+        "dealStatus": "SUCCESS",
+        "reason": "SUCCESS"
+    }
+    requests_mock.get(ig.apiBaseURL+'/confirms/123456789',
+                      status_code=200, json=data)
+
+    result = ig.confirm_order('123456789')
+
+    assert result
+
+def test_confirm_order_fail(ig, requests_mock):
+    data = {
+        "dealId": "123456789",
+        "dealStatus": "REJECTED",
+        "reason": "FAIL"
+    }
+    requests_mock.get(ig.apiBaseURL+'/confirms/123456789',
+                      status_code=200, json=data)
+    result = ig.confirm_order('123456789')
+    assert result == False
+
+    data = {
+        "dealId": "123456789",
+        "dealStatus": "MOCK",
+        "reason": "SUCCESS"
+    }
+    requests_mock.get(ig.apiBaseURL+'/confirms/123456789',
+                      status_code=401, json=data)
+    result = ig.confirm_order('123456789')
+    assert result == False
+
+def test_close_position(ig, requests_mock):
+    assert True
+
+def test_close_position_fail(ig, requests_mock):
+    assert True
+
+def test_close_all_positions(ig, requests_mock):
+    assert True
+
+def test_close_all_positions_fail(ig, requests_mock):
+    assert True
+
+def test_http_get(requests_mock):
+    assert True
+
+def test_http_delete(requests_mock):
+    assert True
