@@ -2,18 +2,20 @@
     "positions": [
         {
             "market": {
-
+                "instrumentName": "mock1"
             },
             "position": {
-
+                "direction": "BUY",
+                "dealId": "123456789"
             }
         },
         {
             "market": {
-
+                "instrumentName": "mock2"
             },
             "position": {
-
+                "direction": "SELL",
+                "dealId": "123456789"
             }
         }
     ]

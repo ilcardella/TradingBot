@@ -287,13 +287,74 @@ def test_confirm_order_fail(ig, requests_mock):
     assert result == False
 
 def test_close_position(ig, requests_mock):
-    assert True
+    data = {
+        "dealReference": "123456789"
+    }
+    requests_mock.post(ig.apiBaseURL+'/positions/otc',
+                      status_code=200, json=data)
+    data = {
+        "dealId": "123456789",
+        "dealStatus": "SUCCESS",
+        "reason": "SUCCESS"
+    }
+    requests_mock.get(ig.apiBaseURL+'/confirms/123456789',
+                      status_code=200, json=data)
+    pos = {
+        "market": {
+            "instrumentName": "mock"
+        },
+        "position": {
+            "direction": "BUY",
+            "dealId": "123456789"
+        }
+    }
+    result = ig.close_position(pos)
+    assert result
 
 def test_close_position_fail(ig, requests_mock):
-    assert True
+    data = {
+        "dealReference": "123456789"
+    }
+    requests_mock.post(ig.apiBaseURL+'/positions/otc',
+                      status_code=401, json=data)
+    data = {
+        "dealId": "123456789",
+        "dealStatus": "SUCCESS",
+        "reason": "SUCCESS"
+    }
+    requests_mock.get(ig.apiBaseURL+'/confirms/123456789',
+                      status_code=200, json=data)
+    pos = {
+        "market": {
+            "instrumentName": "mock"
+        },
+        "position": {
+            "direction": "BUY",
+            "dealId": "123456789"
+        }
+    }
+    result = ig.close_position(pos)
+    assert result == False
 
 def test_close_all_positions(ig, requests_mock):
-    assert True
+    data = read_json('test/test_data/mock_ig_positions.json')
+    requests_mock.get(ig.apiBaseURL+'/positions', status_code=200, json=data)
+    data = {
+        "dealReference": "123456789"
+    }
+    requests_mock.post(ig.apiBaseURL+'/positions/otc',
+                      status_code=200, json=data)
+    data = {
+        "dealId": "123456789",
+        "dealStatus": "SUCCESS",
+        "reason": "SUCCESS"
+    }
+    requests_mock.get(ig.apiBaseURL+'/confirms/123456789',
+                      status_code=200, json=data)
+
+
+    result = ig.close_all_positions()
+    assert result
 
 def test_close_all_positions_fail(ig, requests_mock):
     assert True

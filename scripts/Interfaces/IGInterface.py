@@ -245,10 +245,8 @@ class IGInterface():
 
         if d is not None:
             if d['reason'] != "SUCCESS":
-                time.sleep(1)
                 return False
             else:
-                time.sleep(1)
                 return True
         return False
 
@@ -285,21 +283,16 @@ class IGInterface():
             "timeInForce": None,
             "quoteId": None
         }
-        #r = self.http_delete(base_url, data)
-        del_headers = self.authenticated_headers
+        del_headers = dict(self.authenticated_headers)
         del_headers['_method'] = 'DELETE'
         r = requests.post(
             base_url,
             data=json.dumps(data),
             headers=del_headers)
-
-        logging.debug(r.status_code)
-        logging.debug(r.reason)
-        logging.debug(r.text)
-
+        if r.status_code != 200:
+            return False
         d = json.loads(r.text)
         deal_ref = d['dealReference']
-        time.sleep(1)
         if self.confirm_order(deal_ref):
             logging.info("Position  for {} closed".format(position['market']['instrumentName']))
             return True
