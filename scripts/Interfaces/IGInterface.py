@@ -5,6 +5,7 @@ import time
 import os
 import inspect
 import sys
+from enum import Enum
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
@@ -12,15 +13,30 @@ sys.path.insert(0,parentdir)
 
 from Utils import Utils, TradeDirection
 
+class IG_API_URL(Enum):
+    """
+    IG REST API urls
+    """
+    BASE_URI = 'https://@api.ig.com/gateway/deal'
+    DEMO_PREFIX = 'demo-'
+    SESSION = 'session'
+    ACCOUNTS = 'accounts'
+    POSITIONS = 'positions'
+    POSITIONS_OTC = 'positions/otc'
+    MARKETS = 'markets'
+    PRICES = 'prices'
+    CONFIRMS = 'confirms'
+
+
 class IGInterface():
     """
     IG broker interface class, provides functions to use the IG REST API
     """
     def __init__(self, config):
         self.read_configuration(config)
-        demoPrefix = 'demo-' if self.useDemo else ''
-        self.apiBaseURL = 'https://' + demoPrefix + 'api.ig.com/gateway/deal'
-        self.authenticated_headers = ''
+        demoPrefix = IG_API_URL.DEMO_PREFIX.value if self.useDemo else ''
+        self.apiBaseURL = IG_API_URL.BASE_URI.value.replace('@', demoPrefix)
+        self.authenticated_headers = {}
         if self.paperTrading:
             logging.info('Paper trading is active')
         logging.info("IG initialised.")
@@ -53,7 +69,7 @@ class IGInterface():
                         'X-IG-API-KEY': credentials['api_key'],
                         'Version': '2'
                         }
-        url = self.apiBaseURL + '/session'
+        url = '{}/{}'.format(self.apiBaseURL, IG_API_URL.SESSION.value)
         response = requests.post(url,
                                 data=json.dumps(data),
                                 headers=headers)
@@ -85,7 +101,7 @@ class IGInterface():
             - **accountId**: String representing the accound id to use
             - Returns **False** if an error occurs otherwise True
         """
-        url = self.apiBaseURL + '/session'
+        url = '{}/{}'.format(self.apiBaseURL, IG_API_URL.SESSION.value)
         data = {"accountId": accountId, "defaultAccount": "True"}
         response = requests.put(url,
                             data=json.dumps(data),
@@ -104,8 +120,8 @@ class IGInterface():
 
             - Returns **(None,None)** if an error occurs otherwise (balance, deposit)
         """
-        base_url = self.apiBaseURL + "/accounts"
-        d = self.http_get(base_url)
+        url = '{}/{}'.format(self.apiBaseURL, IG_API_URL.ACCOUNTS.value)
+        d = self.http_get(url)
         if d is not None:
             for i in d['accounts']:
                 if str(i['accountType']) == "SPREADBET":
@@ -122,8 +138,8 @@ class IGInterface():
 
             - Returns the json object returned by the IG API
         """
-        base_url = self.apiBaseURL + "/positions"
-        return self.http_get(base_url)
+        url = '{}/{}'.format(self.apiBaseURL, IG_API_URL.POSITIONS.value)
+        return self.http_get(url)
 
 
     def get_positions_map(self):
@@ -158,8 +174,8 @@ class IGInterface():
             - **epic_id**: market epic as string
             - Returns **None** if an error occurs otherwise the json returned by IG API
         """
-        base_url = self.apiBaseURL + '/markets/' + str(epic_id)
-        market = self.http_get(base_url)
+        url = '{}/{}/{}'.format(self.apiBaseURL, IG_API_URL.MARKETS.value, epic_id)
+        market = self.http_get(url)
         return market if market is not None else None
 
 
@@ -175,8 +191,8 @@ class IGInterface():
         # Price resolution (MINUTE, MINUTE_2, MINUTE_3, MINUTE_5,
         # MINUTE_10, MINUTE_15, MINUTE_30, HOUR, HOUR_2, HOUR_3,
         # HOUR_4, DAY, WEEK, MONTH)
-        base_url = self.apiBaseURL + "/prices/" + str(epic_id) + "/" + str(resolution) + "/" + str(interval)
-        d = self.http_get(base_url)
+        url = '{}/{}/{}/{}/{}'.format(self.apiBaseURL, IG_API_URL.PRICES.value, epic_id, resolution, interval)
+        d = self.http_get(url)
         if d is not None and 'allowance' in d:
             remaining_allowance = d['allowance']['remainingAllowance']
             reset_time = Utils.humanize_time(int(d['allowance']['allowanceExpiry']))
@@ -200,7 +216,7 @@ class IGInterface():
             logging.info('Paper trade: {} {} with limit={} and stop={}'.format(trade_direction,epic_id,limit,stop))
             return True
 
-        base_url = self.apiBaseURL + '/positions/otc'
+        url = '{}/{}'.format(self.apiBaseURL, IG_API_URL.POSITIONS_OTC.value)
         data = {
             "direction": trade_direction,
             "epic": epic_id,
@@ -215,7 +231,7 @@ class IGInterface():
         }
 
         r = requests.post(
-            base_url,
+            url,
             data=json.dumps(data),
             headers=self.authenticated_headers)
 
@@ -240,8 +256,8 @@ class IGInterface():
             - **dealRef**: dealing reference to confirm
             - Returns **False** if an error occurs otherwise True
         """
-        base_url = self.apiBaseURL + '/confirms/' + dealRef
-        d = self.http_get(base_url)
+        url = '{}/{}/{}'.format(self.apiBaseURL, IG_API_URL.CONFIRMS.value, dealRef)
+        d = self.http_get(url)
 
         if d is not None:
             if d['reason'] != "SUCCESS":
@@ -271,7 +287,7 @@ class IGInterface():
             logging.error("Wrong position direction!")
             return False
 
-        base_url = self.apiBaseURL + '/positions/otc'
+        url = '{}/{}'.format(self.apiBaseURL, IG_API_URL.POSITIONS_OTC.value)
         data = {
             "dealId": position['position']['dealId'],
             "epic": None,
@@ -286,7 +302,7 @@ class IGInterface():
         del_headers = dict(self.authenticated_headers)
         del_headers['_method'] = 'DELETE'
         r = requests.post(
-            base_url,
+            url,
             data=json.dumps(data),
             headers=del_headers)
         if r.status_code != 200:
