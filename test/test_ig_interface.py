@@ -357,10 +357,49 @@ def test_close_all_positions(ig, requests_mock):
     assert result
 
 def test_close_all_positions_fail(ig, requests_mock):
-    assert True
+    data = read_json('test/test_data/mock_ig_positions.json')
+    requests_mock.get(ig.apiBaseURL+'/positions', status_code=200, json=data)
+    data = {
+        "dealReference": "123456789"
+    }
+    requests_mock.post(ig.apiBaseURL+'/positions/otc',
+                      status_code=401, json=data)
+    data = {
+        "dealId": "123456789",
+        "dealStatus": "SUCCESS",
+        "reason": "SUCCESS"
+    }
+    requests_mock.get(ig.apiBaseURL+'/confirms/123456789',
+                      status_code=200, json=data)
+    result = ig.close_all_positions()
+    assert result == False
 
-def test_http_get(requests_mock):
-    assert True
+    data = read_json('test/test_data/mock_ig_positions.json')
+    requests_mock.get(ig.apiBaseURL+'/positions', status_code=200, json=data)
+    data = {
+        "dealReference": "123456789"
+    }
+    requests_mock.post(ig.apiBaseURL+'/positions/otc',
+                      status_code=200, json=data)
+    data = {
+        "dealId": "123456789",
+        "dealStatus": "FAIL",
+        "reason": "FAIL"
+    }
+    requests_mock.get(ig.apiBaseURL+'/confirms/123456789',
+                      status_code=200, json=data)
+    result = ig.close_all_positions()
+    assert result == False
 
-def test_http_delete(requests_mock):
-    assert True
+def test_http_get(ig, requests_mock):
+    data = {
+        "mock1": "mock",
+        "mock2": 2
+    }
+    requests_mock.get('http://www.mock.com',
+                      status_code=200, json=data)
+    response = ig.http_get('http://www.mock.com')
+
+    assert response is not None
+    assert isinstance(response, dict)
+    assert response == data
