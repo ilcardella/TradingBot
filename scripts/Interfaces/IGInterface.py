@@ -303,22 +303,24 @@ class IGInterface():
 
     def close_all_positions(self):
         """
-        Close all account open positions
+        Try to close all the account open positions.
 
             - Returns **False** if an error occurs otherwise True
         """
+        result = True
         try:
             positions = self.get_open_positions()
             if positions is not None:
                 for p in positions['positions']:
-                    self.close_position(p)
+                    if not self.close_position(p):
+                        result = False
             else:
                 logging.error("Unable to retrieve open positions!")
-                return False
+                result = False
         except:
             logging.error("Error during close all positions")
-            return False
-        return True
+            result = False
+        return result
 
 
     def http_get(self, url):
@@ -329,28 +331,6 @@ class IGInterface():
         """
         try:
             response = requests.get(url, headers=self.authenticated_headers)
-            if response.status_code != 200:
-                return None
-
-            data = json.loads(response.text)
-
-            if 'errorCode' in data:
-                logging.error(data['errorCode'])
-                return None
-            else:
-                return data
-        except:
-            return None
-
-
-    def http_delete(self, url, data):
-        """
-        Perform an HTTP DELETE request to the url with the given body
-        """
-        try:
-            response = requests.delete(url,
-                                    data=json.dumps(data),
-                                    headers=self.authenticated_headers)
             if response.status_code != 200:
                 return None
 
