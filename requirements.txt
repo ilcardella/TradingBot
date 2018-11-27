@@ -1,5 +1,4 @@
 govuk-bank-holidays
-matplotlib
 numpy
 panda
 pandas
