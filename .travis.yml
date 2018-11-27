@@ -3,7 +3,7 @@ python:
   - "3.3"
   - "3.4"
   - "3.6"
-cache: pip
+#cache: pip
 # command to install dependencies
 install:
   - pip install -r requirements.txt
