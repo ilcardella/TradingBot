@@ -1,8 +1,9 @@
-FROM python:3.6-alpine
+FROM ubuntu
 
-COPY . /spp
+COPY . /app
 WORKDIR /app
 
+RUN apt-get install -y python python-pip
 RUN pip install -r requirements.txt
 
 CMD ["pytest"]
