@@ -22,6 +22,12 @@ close-positions()
   python3 trading_bot.py -c & echo $! > pid.txt
 }
 
+test()
+{
+  echo Running unit test with pytest...
+  pytest
+}
+
 case $1 in
-  start|stop|close-positions) "$1" ;;
+  start|stop|close-positions|test) "$1" ;;
 esac
