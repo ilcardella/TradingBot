@@ -168,3 +168,7 @@ class Strategy:
                 logging.error(
                     "Unable to retrieve open positions! Avoid trading this epic")
         return False
+
+    def process_open_positions(self, positions):
+        logging.info("Processing open positions.")
+        # TODO

@@ -64,9 +64,11 @@ class MockStrategy(Strategy):
     """
     Mock strategy to test the parent class
     """
-    def __init__(self, config, services):
+    def __init__(self, config, services, trade_dir, fail):
         super().__init__(config, services)
         self.positions = self.broker.get_open_positions()
+        self.test_trade_dir = trade_dir
+        self.test_fail = fail
 
     def read_configuration(self, config):
         pass
@@ -75,7 +77,15 @@ class MockStrategy(Strategy):
         return 1
 
     def find_trade_signal(self, epic_id):
-        return TradeDirection.BUY, 100, 300
+        if self.test_fail:
+            return TradeDirection.NONE, None, None
+        if self.test_trade_dir == TradeDirection.BUY:
+            return TradeDirection.BUY, 100, 300
+        if self.test_trade_dir == TradeDirection.SELL:
+            return TradeDirection.SELL, 100, 300
+        if self.test_trade_dir == TradeDirection.NONE:
+            return TradeDirection.NONE, 100, 300
+
 
 
 @pytest.fixture
@@ -99,6 +109,18 @@ def test_process_epic(config):
         'alpha_vantage': None
     }
 
-    strategy = MockStrategy(config, services)
+    strategy = MockStrategy(config, services, TradeDirection.NONE, True)
+    result = strategy.process_epic('mock')
+    assert result == False
+
+    strategy = MockStrategy(config, services, TradeDirection.NONE, False)
+    result = strategy.process_epic('mock')
+    assert result == False
+
+    strategy = MockStrategy(config, services, TradeDirection.BUY, False)
+    result = strategy.process_epic('mock')
+    assert result
+
+    strategy = MockStrategy(config, services, TradeDirection.SELL, False)
     result = strategy.process_epic('mock')
     assert result
