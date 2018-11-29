@@ -3,6 +3,7 @@ import sys
 import inspect
 import pytest
 from datetime import datetime, timedelta
+import pytz
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
@@ -52,3 +53,13 @@ def test_get_seconds_to_market_opening():
     expected = opening.replace(hour=8,minute=0,second=2,microsecond=0)
     diff = expected - opening
     assert diff.seconds < 10
+
+def test_is_market_open():
+    timezone = 'Europe/London'
+    tz = pytz.timezone(timezone)
+    now_time = datetime.now(tz=tz).strftime('%H:%M')
+    expected = Utils.is_between(str(now_time), ("07:55", "16:35"))
+
+    result = Utils.is_market_open(timezone)
+
+    assert result == expected

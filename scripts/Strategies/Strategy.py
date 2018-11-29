@@ -1,8 +1,6 @@
 import logging
 import time
 import traceback
-import pytz
-import datetime
 from random import shuffle
 import os
 import inspect
@@ -71,7 +69,7 @@ class Strategy:
             - **epic_list**: list of epic ids
         """
         while True:
-            if self.isMarketOpen(self.time_zone):
+            if Utils.is_market_open(self.time_zone):
                 self.spin(epic_list)
             else:
                 seconds = Utils.get_seconds_to_market_opening()
@@ -100,7 +98,7 @@ class Strategy:
                 logging.warn("Unable to retrieve open positions!")
 
             # Check if the account has enough cash available to open new positions
-            percent_used = self.get_account_used_perc()
+            percent_used = self.broker.get_account_used_perc()
             if percent_used < self.max_account_usable:
                 logging.info(
                     "Ok to trade, {}% of account is used".format(str(percent_used)))
@@ -114,7 +112,7 @@ class Strategy:
                         try:
                             if self.process_epic(epic):
                                 # If there has been a trade check again account usage
-                                percent_used = self.get_account_used_perc()
+                                percent_used = self.broker.get_account_used_perc()
                                 if percent_used > self.max_account_usable:
                                     logging.warn(
                                         "Stop trading because {}% of account is used".format(str(percent_used)))
@@ -170,24 +168,3 @@ class Strategy:
                 logging.error(
                     "Unable to retrieve open positions! Avoid trading this epic")
         return False
-
-    def get_account_used_perc(self):
-        """
-        Fetch the percentage of available balance is currently used
-
-            - Returns the percentage of account used over total value available
-        """
-        balance, deposit = self.broker.get_account_balances()
-        if balance is None or deposit is None:
-            return 9999999  # This will block the trading
-        return Utils.percentage(deposit, balance)
-
-    def isMarketOpen(self, timezone):
-        """
-        Return True if the market is open, false otherwise
-
-            - **timezone**: string representing the timezone
-        """
-        tz = pytz.timezone(timezone)
-        now_time = datetime.datetime.now(tz=tz).strftime('%H:%M')
-        return Utils.is_between(str(now_time), ("07:55", "16:35"))

@@ -2,7 +2,8 @@
     "positions": [
         {
             "market": {
-                "instrumentName": "mock1"
+                "instrumentName": "mock1",
+                "epic": "mock2"
             },
             "position": {
                 "direction": "BUY",
@@ -11,7 +12,8 @@
         },
         {
             "market": {
-                "instrumentName": "mock2"
+                "instrumentName": "mock2",
+                "epic": "mock2"
             },
             "position": {
                 "direction": "SELL",
