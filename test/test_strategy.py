@@ -124,3 +124,29 @@ def test_process_epic(config):
     strategy = MockStrategy(config, services, TradeDirection.SELL, False)
     result = strategy.process_epic('mock')
     assert result
+
+def test_process_open_positions(config):
+    services = {
+        'broker': MockBroker('test/test_data/mock_ig_market_info.json',
+                                'test/test_data/mock_ig_historic_price.json')
+        ,
+        'alpha_vantage': None
+    }
+
+    # Read mock file
+    try:
+        with open('test/test_data/mock_ig_positions.json', 'r') as file:
+            mock = json.load(file)
+    except IOError:
+        exit()
+
+    strategy = MockStrategy(config, services, TradeDirection.BUY, False)
+    strategy.timeout = 0 # avoid waiting during test
+    result = strategy.process_open_positions(mock)
+    assert result
+
+    result = strategy.process_open_positions(None)
+    assert result == False
+
+    result = strategy.process_open_positions({"positions":[]})
+    assert result

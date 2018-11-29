@@ -87,15 +87,10 @@ class Strategy:
         """
         logging.info("Strategy started to spin.")
         try:
-            # Fetch open positions and process them first
-            logging.info("Processing open positions.")
+            # Fetch open positions
             self.positions = self.broker.get_open_positions()
-            if self.positions is not None:
-                for item in self.positions['positions']:
-                    self.process_epic(item['market']['epic'])
-                    time.sleep(self.timeout)
-            else:
-                logging.warn("Unable to retrieve open positions!")
+            # Process them first
+            self.process_open_positions(self.positions)
 
             # Check if the account has enough cash available to open new positions
             percent_used = self.broker.get_account_used_perc()
@@ -103,7 +98,7 @@ class Strategy:
                 logging.info(
                     "Ok to trade, {}% of account is used".format(str(percent_used)))
                 if len(epic_list) < 1:
-                    logging.warn("Epic list is empty!")
+                    logging.warning("Epic list is empty!")
                 else:
                     logging.info(
                         "Started processing epic list of length: {}".format(len(epic_list)))
@@ -114,7 +109,7 @@ class Strategy:
                                 # If there has been a trade check again account usage
                                 percent_used = self.broker.get_account_used_perc()
                                 if percent_used > self.max_account_usable:
-                                    logging.warn(
+                                    logging.warning(
                                         "Stop trading because {}% of account is used".format(str(percent_used)))
                                     break
                             time.sleep(self.timeout)
@@ -125,7 +120,7 @@ class Strategy:
                             time.sleep(self.timeout)
                             continue
             else:
-                logging.warn("Will not trade, {}% of account balance is used."
+                logging.warning("Will not trade, {}% of account balance is used."
                              .format(str(percent_used)))
 
             # If interval is set to -1 in config file then the strategy should provide its own interval
@@ -140,6 +135,7 @@ class Strategy:
             logging.error(sys.exc_info()[0])
             logging.error("Something fucked up.")
             time.sleep(self.timeout)
+
 
     def process_epic(self, epic):
         """
@@ -157,7 +153,7 @@ class Strategy:
                 for item in self.positions['positions']:
                     # If a same direction trade already exist, don't trade
                     if item['market']['epic'] == epic and trade.name == item['position']['direction']:
-                        logging.warn(
+                        logging.warning(
                             "There is already an open position for this epic, skip trade")
                         return False
                     # If a trade in opposite direction exist, close the position
@@ -166,9 +162,23 @@ class Strategy:
                 return self.broker.trade(epic, trade.name, limit, stop)
             else:
                 logging.error(
-                    "Unable to retrieve open positions! Avoid trading this epic")
+                    "Unable to fetch open positions! Avoid trading this epic")
         return False
 
+
     def process_open_positions(self, positions):
-        logging.info("Processing open positions.")
-        # TODO
+        """
+        process the open positions to find closing trades
+
+            - **positions**: json object containing open positions
+            - Returns **False** if an error occurs otherwise True
+        """
+        if positions is not None:
+            logging.info("Processing open positions.")
+            for item in positions['positions']:
+                self.process_epic(item['market']['epic'])
+                time.sleep(self.timeout)
+            return True
+        else:
+            logging.warning("Unable to fetch open positions!")
+        return False
