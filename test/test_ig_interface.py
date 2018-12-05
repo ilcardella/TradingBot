@@ -403,3 +403,18 @@ def test_http_get(ig, requests_mock):
     assert response is not None
     assert isinstance(response, dict)
     assert response == data
+
+def test_get_account_used_perc(ig, requests_mock):
+    data = read_json('test/test_data/mock_ig_account_details.json')
+    requests_mock.get(ig.apiBaseURL+'/accounts', status_code=200, json=data)
+    perc = ig.get_account_used_perc()
+
+    assert perc is not None
+    assert perc == 0
+
+def test_get_account_used_perc_fail(ig, requests_mock):
+    data = read_json('test/test_data/mock_ig_account_details.json')
+    requests_mock.get(ig.apiBaseURL+'/accounts', status_code=401, json=data)
+    perc = ig.get_account_used_perc()
+
+    assert perc is None

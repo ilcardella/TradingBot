@@ -2,6 +2,7 @@
 
 import logging
 import json
+import pytz
 from enum import Enum
 from datetime import datetime
 from govuk_bank_holidays.bank_holidays import BankHolidays
@@ -62,3 +63,14 @@ class Utils:
         nextMarketOpening = datetime(year=nextWorkDate.year, month=nextWorkDate.month, day=nextWorkDate.day, hour=8, minute=0, second=0, microsecond=0)
         # Calculate the delta from now to the next market opening
         return (nextMarketOpening - now).total_seconds()
+
+    @staticmethod
+    def is_market_open(timezone):
+        """
+        Return True if the market is open, false otherwise
+
+            - **timezone**: string representing the timezone
+        """
+        tz = pytz.timezone(timezone)
+        now_time = datetime.now(tz=tz).strftime('%H:%M')
+        return Utils.is_between(str(now_time), ("07:55", "16:35"))

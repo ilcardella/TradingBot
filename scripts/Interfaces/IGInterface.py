@@ -343,6 +343,18 @@ class IGInterface():
         return result
 
 
+    def get_account_used_perc(self):
+        """
+        Fetch the percentage of available balance is currently used
+
+            - Returns the percentage of account used over total available amount
+        """
+        balance, deposit = self.get_account_balances()
+        if balance is None or deposit is None:
+            return None
+        return Utils.percentage(deposit, balance)
+
+
     def http_get(self, url):
         """
         Perform an HTTP GET request to the url.

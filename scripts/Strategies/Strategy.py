@@ -1,8 +1,6 @@
 import logging
 import time
 import traceback
-import pytz
-import datetime
 from random import shuffle
 import os
 import inspect
@@ -71,7 +69,7 @@ class Strategy:
             - **epic_list**: list of epic ids
         """
         while True:
-            if self.isMarketOpen(self.time_zone):
+            if Utils.is_market_open(self.time_zone):
                 self.spin(epic_list)
             else:
                 seconds = Utils.get_seconds_to_market_opening()
@@ -89,23 +87,18 @@ class Strategy:
         """
         logging.info("Strategy started to spin.")
         try:
-            # Fetch open positions and process them first
-            logging.info("Processing open positions.")
+            # Fetch open positions
             self.positions = self.broker.get_open_positions()
-            if self.positions is not None:
-                for item in self.positions['positions']:
-                    self.process_epic(item['market']['epic'])
-                    time.sleep(self.timeout)
-            else:
-                logging.warn("Unable to retrieve open positions!")
+            # Process them first
+            self.process_open_positions(self.positions)
 
             # Check if the account has enough cash available to open new positions
-            percent_used = self.get_account_used_perc()
+            percent_used = self.broker.get_account_used_perc()
             if percent_used < self.max_account_usable:
                 logging.info(
                     "Ok to trade, {}% of account is used".format(str(percent_used)))
                 if len(epic_list) < 1:
-                    logging.warn("Epic list is empty!")
+                    logging.warning("Epic list is empty!")
                 else:
                     logging.info(
                         "Started processing epic list of length: {}".format(len(epic_list)))
@@ -114,9 +107,9 @@ class Strategy:
                         try:
                             if self.process_epic(epic):
                                 # If there has been a trade check again account usage
-                                percent_used = self.get_account_used_perc()
+                                percent_used = self.broker.get_account_used_perc()
                                 if percent_used > self.max_account_usable:
-                                    logging.warn(
+                                    logging.warning(
                                         "Stop trading because {}% of account is used".format(str(percent_used)))
                                     break
                             time.sleep(self.timeout)
@@ -127,7 +120,7 @@ class Strategy:
                             time.sleep(self.timeout)
                             continue
             else:
-                logging.warn("Will not trade, {}% of account balance is used."
+                logging.warning("Will not trade, {}% of account balance is used."
                              .format(str(percent_used)))
 
             # If interval is set to -1 in config file then the strategy should provide its own interval
@@ -142,6 +135,7 @@ class Strategy:
             logging.error(sys.exc_info()[0])
             logging.error("Something fucked up.")
             time.sleep(self.timeout)
+
 
     def process_epic(self, epic):
         """
@@ -159,7 +153,7 @@ class Strategy:
                 for item in self.positions['positions']:
                     # If a same direction trade already exist, don't trade
                     if item['market']['epic'] == epic and trade.name == item['position']['direction']:
-                        logging.warn(
+                        logging.warning(
                             "There is already an open position for this epic, skip trade")
                         return False
                     # If a trade in opposite direction exist, close the position
@@ -168,26 +162,23 @@ class Strategy:
                 return self.broker.trade(epic, trade.name, limit, stop)
             else:
                 logging.error(
-                    "Unable to retrieve open positions! Avoid trading this epic")
+                    "Unable to fetch open positions! Avoid trading this epic")
         return False
 
-    def get_account_used_perc(self):
-        """
-        Fetch the percentage of available balance is currently used
 
-            - Returns the percentage of account used over total value available
+    def process_open_positions(self, positions):
         """
-        balance, deposit = self.broker.get_account_balances()
-        if balance is None or deposit is None:
-            return 9999999  # This will block the trading
-        return Utils.percentage(deposit, balance)
+        process the open positions to find closing trades
 
-    def isMarketOpen(self, timezone):
+            - **positions**: json object containing open positions
+            - Returns **False** if an error occurs otherwise True
         """
-        Return True if the market is open, false otherwise
-
-            - **timezone**: string representing the timezone
-        """
-        tz = pytz.timezone(timezone)
-        now_time = datetime.datetime.now(tz=tz).strftime('%H:%M')
-        return Utils.is_between(str(now_time), ("07:55", "16:35"))
+        if positions is not None:
+            logging.info("Processing open positions.")
+            for item in positions['positions']:
+                self.process_epic(item['market']['epic'])
+                time.sleep(self.timeout)
+            return True
+        else:
+            logging.warning("Unable to fetch open positions!")
+        return False
