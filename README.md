@@ -30,9 +30,6 @@ starting point for this project. Thank you.
 # Install
 TODO (Still need to be properly configured)
 
-Run the shell script `install.sh`.
-This will install the script in `/usr/local/TradingBot` folder
-
 # Setup
 Install dependencies with pip
 ```
@@ -71,6 +68,8 @@ with the preferred options:
 
 TODO (Explain each configuration parameter)
 
+By default, logs are saved in `~/.TradingBot/log`
+
 # Run
 
 Open a new terminal and type:
@@ -93,10 +92,15 @@ To close all the currently open positions:
 The unit test depend on `pytest` package
 
 ```
-pip3 install pytest
+pip install pytest
 ```
 
 To run the test just use the `pytest` command from the project root.
+
+You can run the test in Docker containers against different python versions:
+```
+./trading_bot_ctl test_docker
+```
 
 # Create your own strategy
 
@@ -147,6 +151,23 @@ As an example this will start TradingBot at 8:00 in the morning and will stop it
 35 16 * * 1-5 /.../TradingBot/trading_bot_ctl stop
 ```
 NOTE: Remember to set the correct installation path and to set the correct timezone in your machine!
+
+# Docker
+You can run TradingBot in a Docker container:
+```
+./trading_bot_ctl start_docker
+```
+The container will be called `dkr_trading_bot` and the logs will still be stored in the configured folder in the host machine. By default `~/.TradingBot/log`.
+
+To stop TradingBot just kill the container:
+```
+docker kill dkr_trading_bot
+```
+
+If you need to start a bash shell into the container
+```
+docker exec -it dkr_trading_bot bash
+```
 
 # Contributing
 I am really happy to receive any help so please just open a pull request

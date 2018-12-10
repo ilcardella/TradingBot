@@ -36,6 +36,13 @@ test()
   pytest
 }
 
+start_docker()
+{
+  echo Starting TradingBot in a Docker container...
+  mkdir -p /home/$USER/.TradingBot/log
+  docker run -dit --rm --name dkr_trading_bot -v /home/alberto/workspace/TradingBot:/app -v /home/$USER/.TradingBot/log:/root/.TradingBot/log python:3 /bin/bash app/run_docker.sh
+}
+
 test_docker()
 {
   echo Running unit test with pytest in a Docker container...
@@ -50,5 +57,5 @@ test_docker()
 }
 
 case $1 in
-  start|stop|close_positions|install_deps|test|test_docker) "$1" ;;
+  start|stop|close_positions|install_deps|test|test_docker|start_docker) "$1" ;;
 esac
