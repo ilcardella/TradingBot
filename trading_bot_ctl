@@ -15,19 +15,40 @@ stop()
   rm pid.txt
 }
 
-close-positions()
+close_positions()
 {
   echo Starting TradingBot to close positions...
   cd scripts
   python3 trading_bot.py -c &
 }
 
+install_deps()
+{
+  echo Installing dependencies...
+  pip install -r requirements.txt
+}
+
 test()
 {
   echo Running unit test with pytest...
+  install_deps
+  sphinx-build -b dummy doc doc/_build
   pytest
 }
 
+test_docker()
+{
+  echo Running unit test with pytest in a Docker container...
+  echo Testing against Python 3.4...
+  docker run -it --rm -v $(pwd):/app python:3.4 /bin/bash -cx "cd app && ./trading_bot_ctl test"
+  echo Testing against Python 3.5...
+  docker run -it --rm -v $(pwd):/app python:3.5 /bin/bash -cx "cd app && ./trading_bot_ctl test"
+  echo Testing against Python 3.6...
+  docker run -it --rm -v $(pwd):/app python:3.6 /bin/bash -cx "cd app && ./trading_bot_ctl test"
+  echo Testing against Python 3 latest...
+  docker run -it --rm -v $(pwd):/app python:3 /bin/bash -cx "cd app && ./trading_bot_ctl test"
+}
+
 case $1 in
-  start|stop|close-positions|test) "$1" ;;
+  start|stop|close_positions|install_deps|test|test_docker) "$1" ;;
 esac
