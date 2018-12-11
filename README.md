@@ -20,14 +20,8 @@ starting point for this project. Thank you.
 # Dependencies
 
 - Python 3.4+
-- numpy
-- pandas
-- scipy
-- matplotlib
-- pytz
-- requests
-- govuk_bank_holidays (https://github.com/ministryofjustice/govuk-bank-holidays)
 
+View file `requirements.txt` for the full list of dependencies.
 
 # Setup
 
