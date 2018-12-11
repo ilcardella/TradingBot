@@ -1,4 +1,5 @@
-# TradingBot    [![Build Status](https://travis-ci.com/ilcardella/TradingBot.svg?branch=master)](https://travis-ci.com/ilcardella/TradingBot)  [![Documentation Status](https://readthedocs.org/projects/tradingbot/badge/?version=latest)](https://tradingbot.readthedocs.io/en/latest/?badge=latest)
+# TradingBot
+[![Build Status](https://travis-ci.com/ilcardella/TradingBot.svg?branch=master)](https://travis-ci.com/ilcardella/TradingBot)  [![Documentation Status](https://readthedocs.org/projects/tradingbot/badge/?version=latest)](https://tradingbot.readthedocs.io/en/latest/?badge=latest)
 
 This is an attempt to create an autonomous market trading script using the IG
 REST API and any other available data source for market prices.
@@ -17,32 +18,30 @@ who is the creator of the first script version and gave me a good
 starting point for this project. Thank you.
 
 # Dependencies
-- Python 3
 
-- numpy
-- pandas
-- scipy
-- matplotlib
-- pytz
-- requests
-- govuk_bank_holidays (https://github.com/ministryofjustice/govuk-bank-holidays)
+- Python 3.4+
 
-# Install
-TODO (Still need to be properly configured)
+View file `requirements.txt` for the full list of dependencies.
 
 # Setup
+
+It is recommended to use a virtual environment or a Docker container (see below
+for Docker instructions).
+
 Install dependencies with pip
 ```
 pip install -r requirements.txt
 ```
 
 Login to your IG Dashboard
+
 - Obtain an API KEY from the settings panel
 - If using the demo account, create demo credentials
 - Take note of your spread betting account ID (demo or real)
 - Visit AlphaVantage website: `https://www.alphavantage.co`
 - Request a free api key
 - Insert these info in a file called `.credentials`
+
 This must be in json format
 ```
 {
@@ -84,7 +83,7 @@ To stop instead:
 
 To close all the currently open positions:
 ```
-./trading_bot_ctl close-positions
+./trading_bot_ctl close_positions
 ```
 
 # Test
@@ -153,7 +152,7 @@ As an example this will start TradingBot at 8:00 in the morning and will stop it
 NOTE: Remember to set the correct installation path and to set the correct timezone in your machine!
 
 # Docker
-You can run TradingBot in a Docker container:
+You can run TradingBot in a Docker container (https://docs.docker.com/):
 ```
 ./trading_bot_ctl start_docker
 ```
