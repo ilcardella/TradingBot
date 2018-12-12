@@ -34,9 +34,7 @@ class SimpleMACD(Strategy):
         """
         self.spin_interval = config['strategies']['simple_macd']['spin_interval']
         self.controlledRisk = config['ig_interface']['controlled_risk']
-        self.use_av_api = config['strategies']['simple_macd']['use_av_api']
-        if self.use_av_api:
-            self.timeout = 12  # AlphaVantage limits to 5 calls per minute
+        self.use_av_api = config['general']['use_av_api']
 
 
     def find_trade_signal(self, epic_id):

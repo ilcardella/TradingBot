@@ -8,7 +8,8 @@
         "log_file": "{home}/.TradingBot/log/trading_bot_{timestamp}.log",
         "debug_log": false,
         "epic_ids_filepath": "../data/epic_ids.txt",
-        "credentials_filepath": "../data/.credentials"
+        "credentials_filepath": "../data/.credentials",
+        "use_av_api": true
     },
     "ig_interface" : {
         "order_type": "MARKET",
@@ -28,7 +29,6 @@
             "too_high_margin": 100
         },
         "simple_macd": {
-            "use_av_api": true,
             "spin_interval": -1
         }
     }
