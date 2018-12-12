@@ -7,6 +7,7 @@ import datetime as dt
 import os
 import sys
 import inspect
+from random import shuffle
 
 currentdir = os.path.dirname(os.path.abspath(
     inspect.getfile(inspect.currentframe())))
@@ -115,7 +116,7 @@ class StocksAutoTrader:
         except IOError:
             # Create the file empty
             logging.error('{} does not exist!'.format(self.epic_ids_filepath))
-        if len(epic_list) < 1:
+        if len(epic_ids) < 1:
             logging.error("Epic list is empty!")
         return epic_ids
 
