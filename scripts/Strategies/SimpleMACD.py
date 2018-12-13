@@ -35,6 +35,8 @@ class SimpleMACD(Strategy):
         self.spin_interval = config['strategies']['simple_macd']['spin_interval']
         self.controlledRisk = config['ig_interface']['controlled_risk']
         self.use_av_api = config['general']['use_av_api']
+        self.max_spread_perc = config['strategies']['simple_macd']['max_spread_perc']
+
 
 
     def find_trade_signal(self, epic_id):
@@ -49,8 +51,11 @@ class SimpleMACD(Strategy):
         marketId, current_bid, current_offer, limit_perc, stop_perc = self.get_market_snapshot(
             epic_id)
 
+        # Spread constraint
+        if current_bid - current_offer > self.max_spread_perc:
+            return TradeDirection.NONE, None, None
+
         # Fetch historic prices and build a list with them ordered cronologically
-        # TODO unify marketId and epic_id
         px = self.get_dataframe_from_historic_prices(marketId, epic_id)
 
         # Find where macd and signal cross each other

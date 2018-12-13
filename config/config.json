@@ -29,7 +29,8 @@
             "too_high_margin": 100
         },
         "simple_macd": {
-            "spin_interval": -1
+            "spin_interval": -1,
+            "max_spread_perc": 5
         }
     }
 
