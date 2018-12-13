@@ -1,19 +1,3 @@
-import logging
-import time
-import traceback
-from random import shuffle
-import os
-import inspect
-import sys
-
-currentdir = os.path.dirname(os.path.abspath(
-    inspect.getfile(inspect.currentframe())))
-parentdir = os.path.dirname(currentdir)
-sys.path.insert(0, parentdir)
-
-from Utils import Utils, TradeDirection
-
-
 class Strategy:
     """
     Generic strategy template to use as a parent class for custom strategies.
@@ -24,14 +8,8 @@ class Strategy:
         self.positions = {}
         self.broker = services['broker']
         self.AV = services['alpha_vantage']
-
-        self.time_zone = config['general']['time_zone']
-        self.order_size = config['ig_interface']['order_size']
-        self.max_account_usable = config['general']['max_account_usable']
         # This can be overwritten in children class
         self.spin_interval = config['strategies']['spin_interval']
-        self.timeout = 1  # Delay between each find_trade_signal() call
-
         # This must be the last operation of this function to override possible values in children class
         self.read_configuration(config)
 
@@ -56,129 +34,7 @@ class Strategy:
         """
         Must override
         """
-        raise NotImplementedError('Not implemented: get_seconds_to_next_spin')
+        return self.spin_interval
 
 ##############################################################
 ##############################################################
-
-    def start(self, epic_list):
-        """
-        Start the strategy processing the given list of epic ids. Wait until the
-        market is open to start processing.
-
-            - **epic_list**: list of epic ids
-        """
-        while True:
-            if Utils.is_market_open(self.time_zone):
-                self.spin(epic_list)
-            else:
-                seconds = Utils.get_seconds_to_market_opening()
-                logging.info(
-                    "Market is closed! Wait for {0:.2f} hours...".format(seconds / 3600))
-                time.sleep(seconds)
-                continue
-
-    def spin(self, epic_list):
-        """
-        Process the epic list one by one handling new trades and closing
-        open positions if necessary
-
-            - **epic_list**: list of epic ids
-        """
-        logging.info("Strategy started to spin.")
-        try:
-            # Fetch open positions
-            self.positions = self.broker.get_open_positions()
-            # Process them first
-            self.process_open_positions(self.positions)
-
-            # Check if the account has enough cash available to open new positions
-            percent_used = self.broker.get_account_used_perc()
-            if percent_used < self.max_account_usable:
-                logging.info(
-                    "Ok to trade, {}% of account is used".format(str(percent_used)))
-                if len(epic_list) < 1:
-                    logging.warning("Epic list is empty!")
-                else:
-                    logging.info(
-                        "Started processing epic list of length: {}".format(len(epic_list)))
-                    shuffle(epic_list)
-                    for epic in epic_list:
-                        try:
-                            if self.process_epic(epic):
-                                # If there has been a trade check again account usage
-                                percent_used = self.broker.get_account_used_perc()
-                                if percent_used > self.max_account_usable:
-                                    logging.warning(
-                                        "Stop trading because {}% of account is used".format(str(percent_used)))
-                                    break
-                            time.sleep(self.timeout)
-                        except Exception as e:
-                            logging.error(e)
-                            logging.error(traceback.format_exc())
-                            logging.error(sys.exc_info()[0])
-                            time.sleep(self.timeout)
-                            continue
-            else:
-                logging.warning("Will not trade, {}% of account balance is used."
-                             .format(str(percent_used)))
-
-            # If interval is set to -1 in config file then the strategy should provide its own interval
-            seconds = self.get_seconds_to_next_spin(
-            ) if self.spin_interval < 0 else self.spin_interval
-            logging.info(
-                "Epics analysis complete. Wait for {} seconds".format(seconds))
-            time.sleep(seconds)
-        except Exception as e:
-            logging.error(e)
-            logging.error(traceback.format_exc())
-            logging.error(sys.exc_info()[0])
-            logging.error("Something fucked up.")
-            time.sleep(self.timeout)
-
-
-    def process_epic(self, epic):
-        """
-        process the given epic
-
-            - **epic**: market epic as string
-            - Returns **False** if an error occurs otherwise True
-        """
-        logging.info("Processing {}".format(epic))
-        # Process the epic and find if we want to trade
-        trade, limit, stop = self.find_trade_signal(epic)
-        # In case of no trade don't do anything
-        if trade is not TradeDirection.NONE:
-            if self.positions is not None:
-                for item in self.positions['positions']:
-                    # If a same direction trade already exist, don't trade
-                    if item['market']['epic'] == epic and trade.name == item['position']['direction']:
-                        logging.warning(
-                            "There is already an open position for this epic, skip trade")
-                        return False
-                    # If a trade in opposite direction exist, close the position
-                    elif item['market']['epic'] == epic and trade.name != item['position']['direction']:
-                        return self.broker.close_position(item)
-                return self.broker.trade(epic, trade.name, limit, stop)
-            else:
-                logging.error(
-                    "Unable to fetch open positions! Avoid trading this epic")
-        return False
-
-
-    def process_open_positions(self, positions):
-        """
-        process the open positions to find closing trades
-
-            - **positions**: json object containing open positions
-            - Returns **False** if an error occurs otherwise True
-        """
-        if positions is not None:
-            logging.info("Processing open positions.")
-            for item in positions['positions']:
-                self.process_epic(item['market']['epic'])
-                time.sleep(self.timeout)
-            return True
-        else:
-            logging.warning("Unable to fetch open positions!")
-        return False
