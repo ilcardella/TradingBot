@@ -149,7 +149,7 @@ class StocksAutoTrader:
                     time.sleep(self.timeout)
                 # Wait for next spin loop as configured in the strategy
                 seconds = self.strategy.get_seconds_to_next_spin()
-                logging.info("Epics analysis complete. Wait for {} seconds before next spin".format(seconds))
+                logging.info("Epics analysis complete. Wait for {0:.2f} seconds before next spin".format(seconds/3600))
                 time.sleep(seconds)
             else:
                 self.wait_for_next_market_opening()
