@@ -26,6 +26,7 @@ class IG_API_URL(Enum):
     MARKETS = 'markets'
     PRICES = 'prices'
     CONFIRMS = 'confirms'
+    MARKET_NAV = 'marketnavigation'
 
 
 class IGInterface():
@@ -353,6 +354,17 @@ class IGInterface():
         if balance is None or deposit is None:
             return None
         return Utils.percentage(deposit, balance)
+
+
+    def navigate_market_node(self, node_id):
+        """
+        Navigate the market node id
+
+            - Returns the json representing the market node
+        """
+        url = '{}/{}/{}'.format(self.apiBaseURL, IG_API_URL.MARKET_NAV.value, node_id)
+        data = self.http_get(url)
+        return data if data is not None else None
 
 
     def http_get(self, url):

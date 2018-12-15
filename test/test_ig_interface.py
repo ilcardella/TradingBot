@@ -418,3 +418,7 @@ def test_get_account_used_perc_fail(ig, requests_mock):
     perc = ig.get_account_used_perc()
 
     assert perc is None
+
+def test_navigate_market_node(ig, requests_mock):
+    # TODO
+    assert True

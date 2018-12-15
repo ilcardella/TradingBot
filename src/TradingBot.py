@@ -158,7 +158,6 @@ class TradingBot:
         """
         while True:
             if Utils.is_market_open(self.time_zone):
-
                 # Process open positions
                 self.positions = self.IG.get_open_positions()
                 self.process_open_positions(self.positions)
@@ -168,15 +167,10 @@ class TradingBot:
                         self.load_epic_ids_from_local_file(
                             self.epic_ids_filepath))
                 elif self.market_source == MarketSource.WATCHLIST:
-                    # TODO
-                    #self.process_watchlist(self.watchlist_name)
-                    logging.error("WATCHLIST market source not implemented")
-                    return
+                    self.process_watchlist(self.watchlist_name)
                 elif self.market_source == MarketSource.API:
-                    # TODO
-                    #self.process_market_exploration()
-                    logging.error("API market source not implemented")
-                    return
+                    # Calling with empty strings starts market navigation from highest level
+                    self.process_market_exploration('')
 
                 # Wait for next spin loop as configured in the strategy
                 seconds = self.strategy.get_seconds_to_next_spin()
@@ -184,6 +178,40 @@ class TradingBot:
                 time.sleep(seconds)
             else:
                 self.wait_for_next_market_opening()
+
+
+    def process_watchlist(self, watchlist_name):
+        """
+        Process the markets included in the given IG watchlist
+
+            - **watchlist_name**: IG watchlist name
+        """
+        # TODO
+        logging.error("WATCHLIST market source not implemented")
+        return
+
+
+    def process_market_exploration(self, node_id):
+        """
+        Navigate the markets using IG API to fetch markets id dinamically
+
+            - **node_id**: The node id to navigate markets in
+        """
+        node = self.IG.navigate_market_node(node_id)
+        if isinstance(node['nodes'], list):
+            for node in node['nodes']:
+                self.process_market_exploration(node['id'])
+        if isinstance(node['markets'], list):
+            for market in node['markets']:
+                DFB_TODAY_DAILY_CHECK = [
+                    "DFB" in str(
+                        market['epic']), "TODAY" in str(
+                        market['epic']), "DAILY" in str(
+                        market['epic'])]
+
+                if any(DFB_TODAY_DAILY_CHECK):
+                    if not self.process_market(market['epic']):
+                        return
 
 
     def process_epic_list(self, epic_list):
@@ -196,7 +224,7 @@ class TradingBot:
         logging.info("Processing epic list of length: {}".format(len(epic_list)))
         for epic in epic_list:
             if not self.process_market(epic):
-                break
+                return
 
 
     def process_market(self, epic):
