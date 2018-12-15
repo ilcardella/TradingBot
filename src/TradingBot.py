@@ -28,23 +28,61 @@ class TradingBot:
         # Set timezone
         set(pytz.all_timezones_set)
 
-        # Read configuration file
-        try:
-            with open('../config/config.json', 'r') as file:
-                config = json.load(file)
-        except IOError:
-            logging.error("Configuration file not found!")
-            exit()
+        # Load configuration
+        config = self.load_json_file('../config/config.json')
         self.read_configuration(config)
 
         # Read credentials file
+        credentials = self.load_json_file(self.credentials_filepath)
+
+        # Setup the global logger
+        self.setup_logging()
+
+        # Positions container
+        self.positions = None
+
+        # Init trade services
+        services = self.init_trading_services(config, credentials)
+
+        # Define the strategy to use here
+        self.strategy = SimpleMACD(config, services)
+
+
+    def load_json_file(self, filepath):
+        """
+        Load a JSON formatted file from the given filepath
+
+            - **filepath** The filepath including filename and extension
+            - Return a dictionary of the loaded json
+        """
         try:
-            with open(self.credentials_filepath, 'r') as file:
-                credentials = json.load(file)
+            with open(filepath, 'r') as file:
+                return json.load(file)
         except IOError:
-            logging.error("Credentials file not found!")
+            logging.error("File not found ({})".format(filepath))
             exit()
 
+
+    def read_configuration(self, config):
+        """
+        Read the configuration from the config json
+        """
+        self.epic_ids_filepath = config['general']['epic_ids_filepath']
+        self.credentials_filepath = config['general']['credentials_filepath']
+        self.debug_log = config['general']['debug_log']
+        self.enable_log = config['general']['enable_log']
+        self.log_file = config['general']['log_file']
+        self.time_zone = config['general']['time_zone']
+        self.max_account_usable = config['general']['max_account_usable']
+        self.use_av_api = config['general']['use_av_api']
+        # AlphaVantage limits to 5 calls per minute
+        self.timeout = 12 if self.use_av_api else 1
+
+
+    def setup_logging(self):
+        """
+        Setup the global logging settings
+        """
         # Define the global logging settings
         debugLevel = logging.DEBUG if self.debug_log else logging.INFO
         # If enabled define log file filename with current timestamp
@@ -61,8 +99,16 @@ class TradingBot:
         else:
             logging.basicConfig(level=debugLevel,
                             format="[%(asctime)s] %(levelname)s: %(message)s")
-        # Positions container
-        self.positions = None
+
+
+    def init_trading_services(self, config, credentials):
+        """
+        Create instances of the trading services required, such as web interface
+        for trading and fetch market data.
+
+            - **config** The configuration json
+            - **credentials** The credentials json
+        """
         # Create IG interface
         self.IG = IGInterface(config)
         # Init the IG interface
@@ -74,28 +120,11 @@ class TradingBot:
         self.AV = AVInterface(credentials['av_api_key'])
 
         # Create dict of services
-        services = {
+        return {
             "broker": self.IG,
             "alpha_vantage": self.AV
         }
 
-        # Define the strategy to use here
-        self.strategy = SimpleMACD(config, services)
-
-    def read_configuration(self, config):
-        """
-        Read the configuration from the config json
-        """
-        self.epic_ids_filepath = config['general']['epic_ids_filepath']
-        self.credentials_filepath = config['general']['credentials_filepath']
-        self.debug_log = config['general']['debug_log']
-        self.enable_log = config['general']['enable_log']
-        self.log_file = config['general']['log_file']
-        self.time_zone = config['general']['time_zone']
-        self.max_account_usable = config['general']['max_account_usable']
-        self.use_av_api = config['general']['use_av_api']
-        # AlphaVantage limits to 5 calls per minute
-        self.timeout = 12 if self.use_av_api else 1
 
     def get_epic_ids(self):
         """
@@ -120,9 +149,10 @@ class TradingBot:
             logging.error("Epic list is empty!")
         return epic_ids
 
+
     def start(self, argv):
         """
-        Starts the strategy
+        Starts the TradingBot
         """
         while True:
             if Utils.is_market_open(self.time_zone):
@@ -140,6 +170,7 @@ class TradingBot:
             else:
                 self.wait_for_next_market_opening()
 
+
     def process_epic_list(self, epic_list):
         """
         Process the given list of epic ids, one by one to find new trades
@@ -151,6 +182,7 @@ class TradingBot:
         for epic in epic_list:
             if not self.process_market(epic):
                 break
+
 
     def process_market(self, epic):
         """
@@ -172,6 +204,7 @@ class TradingBot:
         time.sleep(self.timeout)
         return True
 
+
     def close_open_positions(self):
         """
         Closes all the open positions in the account
@@ -182,6 +215,7 @@ class TradingBot:
         else:
             logging.error("Impossible to close all open positions, retry.")
 
+
     def wait_for_next_market_opening(self):
         """
         Sleep until the next market opening. Takes into account weekends
@@ -190,6 +224,7 @@ class TradingBot:
         seconds = Utils.get_seconds_to_market_opening()
         logging.info("Market is closed! Wait for {0:.2f} hours...".format(seconds / 3600))
         time.sleep(seconds)
+
 
     def process_trade(self, epic, trade, limit, stop):
         """
@@ -210,6 +245,7 @@ class TradingBot:
                 logging.error(
                     "Unable to fetch open positions! Avoid trading this epic")
         return False
+
 
     def process_open_positions(self, positions):
         """
