@@ -9,16 +9,17 @@
 # SOFTWARE.
 ###############################################################################
 
-from StocksAutoTrader import StocksAutoTrader
+from TradingBot import TradingBot
 import argparse
 
 if __name__ == '__main__':
+    # Argument management
     parser = argparse.ArgumentParser()
     parser.add_argument("-c", "--close_positions",
                         help="Close all the open positions", action="store_true")
     args = parser.parse_args()
 
     if args.close_positions:
-        StocksAutoTrader().close_open_posistions()
+        TradingBot().close_open_positions()
     else:
-        StocksAutoTrader().start(args)
+        TradingBot().start(args)

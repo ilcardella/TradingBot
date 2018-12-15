@@ -19,7 +19,7 @@ from Interfaces.IGInterface import IGInterface
 from Interfaces.AVInterface import AVInterface
 from Strategies.SimpleMACD import SimpleMACD
 
-class StocksAutoTrader:
+class TradingBot:
     """
     Class that initialise and hold references of main components like the
     broker interface, the strategy or the epic_ids list
@@ -124,9 +124,6 @@ class StocksAutoTrader:
         """
         Starts the strategy
         """
-        epicList = self.get_epic_ids()
-        shuffle(epicList)
-
         while True:
             if Utils.is_market_open(self.time_zone):
 
@@ -134,19 +131,8 @@ class StocksAutoTrader:
                 self.positions = self.IG.get_open_positions()
                 self.process_open_positions(self.positions)
 
-                logging.info("Processing epic list of length: {}".format(len(epicList)))
-                for epic in epicList:
-                    percent_used = self.IG.get_account_used_perc()
-                    if percent_used >= self.max_account_usable:
-                        logging.warning("Stop trading because {}% of account is used".format(str(percent_used)))
-                        break
-                    if not Utils.is_market_open(self.time_zone):
-                        logging.warn("Market is closed: stop processing")
-                        break
-                    logging.info("Processing {}".format(epic))
-                    trade, limit, stop = self.strategy.find_trade_signal(epic)
-                    self.process_trade(epic, trade, limit, stop)
-                    time.sleep(self.timeout)
+                self.process_epic_list(self.get_epic_ids())
+
                 # Wait for next spin loop as configured in the strategy
                 seconds = self.strategy.get_seconds_to_next_spin()
                 logging.info("Epics analysis complete. Wait for {0:.2f} seconds before next spin".format(seconds/3600))
@@ -154,7 +140,39 @@ class StocksAutoTrader:
             else:
                 self.wait_for_next_market_opening()
 
-    def close_open_posistions(self):
+    def process_epic_list(self, epic_list):
+        """
+        Process the given list of epic ids, one by one to find new trades
+
+            - **epic_list**: list of epic ids as strings
+        """
+        shuffle(epic_list)
+        logging.info("Processing epic list of length: {}".format(len(epic_list)))
+        for epic in epic_list:
+            if not self.process_market(epic):
+                break
+
+    def process_market(self, epic):
+        """
+        Process the givem epic using the defined strategy
+
+            - **epic**: string representing a market epic id
+            - Returns **False** if market is closed or if account reach maximum margin, otherwise **True**
+        """
+        percent_used = self.IG.get_account_used_perc()
+        if percent_used >= self.max_account_usable:
+            logging.warning("Stop trading because {}% of account is used".format(str(percent_used)))
+            return False
+        if not Utils.is_market_open(self.time_zone):
+            logging.warn("Market is closed: stop processing")
+            return False
+        logging.info("Processing {}".format(epic))
+        trade, limit, stop = self.strategy.find_trade_signal(epic)
+        self.process_trade(epic, trade, limit, stop)
+        time.sleep(self.timeout)
+        return True
+
+    def close_open_positions(self):
         """
         Closes all the open positions in the account
         """

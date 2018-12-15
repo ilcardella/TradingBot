@@ -2,5 +2,5 @@
 
 cd app
 pip install -r requirements.txt
-cd scripts
-python trading_bot.py
+cd src
+python main.py
