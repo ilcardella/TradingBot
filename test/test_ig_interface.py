@@ -9,7 +9,7 @@ currentdir = os.path.dirname(os.path.abspath(
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, '{}/src'.format(parentdir))
 
-from Interfaces.IGInterface import IGInterface
+from Interfaces.IGInterface import IGInterface, IG_API_URL
 
 @pytest.fixture
 def config():
@@ -419,6 +419,96 @@ def test_get_account_used_perc_fail(ig, requests_mock):
 
     assert perc is None
 
-def test_navigate_market_node(ig, requests_mock):
-    # TODO
-    assert True
+def test_navigate_market_node_nodes(ig, requests_mock):
+    mock = {
+        "nodes": [{
+            "id": "668394",
+            "name": "Cryptocurrency"
+        }, {
+            "id": "77976799",
+            "name": "Options (Australia 200)"
+        }, {
+            "id": "89291253",
+            "name": "Options (US Tech 100)"
+        }],
+        "markets": None
+    }
+    requests_mock.get('{}/{}/'.format(ig.apiBaseURL, IG_API_URL.MARKET_NAV.value), status_code=200, json=mock)
+
+    data = ig.navigate_market_node('')
+    assert data == mock
+
+    data = ig.navigate_market_node('123')
+    assert data is None
+
+    requests_mock.get('{}/{}/'.format(ig.apiBaseURL, IG_API_URL.MARKET_NAV.value), status_code=401, json=mock)
+
+    data = ig.navigate_market_node('')
+    assert data is None
+
+def test_navigate_market_node_markets(ig, requests_mock):
+    mock = {
+        "nodes": None,
+        "markets": [{
+            "delayTime": 0,
+            "epic": "KC.D.AVLN8875P.DEC.IP",
+            "netChange": 0.01,
+            "lotSize": 0,
+            "expiry": "DEC-18",
+            "instrumentType": "SHARES",
+            "instrumentName": "General Accident PLC 8.875 Pfd",
+            "high": 134.55,
+            "low": 129.5,
+            "percentageChange": 0.01,
+            "updateTime": "4461000",
+            "updateTimeUTC": "02:14:21",
+            "bid": 131.49,
+            "offer": 132.54,
+            "otcTradeable": True,
+            "streamingPricesAvailable": False,
+            "marketStatus": "EDITS_ONLY",
+            "scalingFactor": 1
+        }, {
+            "delayTime": 0,
+            "epic": "KC.D.AVLN8875P.MAR.IP",
+            "netChange": 0.0,
+            "lotSize": 0,
+            "expiry": "MAR-19",
+            "instrumentType": "SHARES",
+            "instrumentName": "General Accident PLC 8.875 Pfd",
+            "high": 135.03,
+            "low": 129.84,
+            "percentageChange": 0.0,
+            "updateTime": "4461000",
+            "updateTimeUTC": "02:14:21",
+            "bid": 131.82,
+            "offer": 133.01,
+            "otcTradeable": True,
+            "streamingPricesAvailable": False,
+            "marketStatus": "EDITS_ONLY",
+            "scalingFactor": 1
+        }, {
+            "delayTime": 0,
+            "epic": "KC.D.AVLN8875P.JUN.IP",
+            "netChange": 0.01,
+            "lotSize": 0,
+            "expiry": "JUN-19",
+            "instrumentType": "SHARES",
+            "instrumentName": "General Accident PLC 8.875 Pfd",
+            "high": 135.64,
+            "low": 130.04,
+            "percentageChange": 0.0,
+            "updateTime": "4461000",
+            "updateTimeUTC": "02:14:21",
+            "bid": 132.03,
+            "offer": 133.62,
+            "otcTradeable": True,
+            "streamingPricesAvailable": False,
+            "marketStatus": "EDITS_ONLY",
+            "scalingFactor": 1
+        }]
+    }
+    requests_mock.get('{}/{}/12345678'.format(ig.apiBaseURL, IG_API_URL.MARKET_NAV.value), status_code=200, json=mock)
+
+    data = ig.navigate_market_node('12345678')
+    assert data == mock
