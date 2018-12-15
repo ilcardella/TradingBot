@@ -1,15 +1,23 @@
 {
     "general" : {
-        "year": 2018,
         "max_account_usable": 50,
         "esma_stocks_margin_perc": 20,
         "time_zone": "Europe/London",
         "enable_log": true,
         "log_file": "{home}/.TradingBot/log/trading_bot_{timestamp}.log",
         "debug_log": false,
-        "epic_ids_filepath": "../data/epic_ids.txt",
         "credentials_filepath": "../data/.credentials",
-        "use_av_api": true
+        "use_av_api": true,
+        "market_source": {
+            "value": "list",
+            "options": [
+                "list",
+                "api",
+                "watchlist"
+            ]
+        },
+        "epic_ids_filepath": "../data/epic_ids.txt",
+        "watchlist_name": "trading_bot"
     },
     "ig_interface" : {
         "order_type": "MARKET",

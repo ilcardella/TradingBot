@@ -16,6 +16,16 @@ class TradeDirection(Enum):
     BUY = 'BUY'
     SELL = 'SELL'
 
+
+class MarketSource(Enum):
+    """
+    Available market sources: local file list, watch list, market navigation
+    through API, etc.
+    """
+    LIST = 'list'
+    WATCHLIST = 'watchlist'
+    API = 'api'
+
 class Utils:
     """
     Utility class containing static methods to perform simple general actions

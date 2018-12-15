@@ -6,12 +6,12 @@ Each section of this document provide a description of the module meaning
 along with the documentation of its internal members.
 
 
-StockAutoTrader
-^^^^^^^^^^^^^^^
+TradingBot
+^^^^^^^^^^
 
-.. automodule:: StocksAutoTrader
+.. automodule:: TradingBot
 
-.. autoclass:: StocksAutoTrader
+.. autoclass:: TradingBot
     :members:
 
 Interfaces

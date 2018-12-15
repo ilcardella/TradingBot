@@ -14,7 +14,7 @@ currentdir = os.path.dirname(os.path.abspath(
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir)
 
-from Utils import Utils, TradeDirection
+from Utils import Utils, TradeDirection, MarketSource
 from Interfaces.IGInterface import IGInterface
 from Interfaces.AVInterface import AVInterface
 from Strategies.SimpleMACD import SimpleMACD
@@ -75,6 +75,8 @@ class TradingBot:
         self.time_zone = config['general']['time_zone']
         self.max_account_usable = config['general']['max_account_usable']
         self.use_av_api = config['general']['use_av_api']
+        self.market_source = MarketSource(config['general']['market_source']['value'])
+        self.watchlist_name = config['general']['watchlist_name']
         # AlphaVantage limits to 5 calls per minute
         self.timeout = 12 if self.use_av_api else 1
 
@@ -126,7 +128,7 @@ class TradingBot:
         }
 
 
-    def get_epic_ids(self):
+    def load_epic_ids_from_local_file(self, filepath):
         """
         Read a file from filesystem containing a list of epic ids.
         The filepath is defined in config.json file
@@ -136,7 +138,7 @@ class TradingBot:
         epic_ids = []
         try:
             # open file and read the content in a list
-            with open(self.epic_ids_filepath, 'r') as filehandle:
+            with open(filepath, 'r') as filehandle:
                 filecontents = filehandle.readlines()
                 for line in filecontents:
                     # remove linebreak which is the last character of the string
@@ -144,7 +146,7 @@ class TradingBot:
                     epic_ids.append(current_epic_id)
         except IOError:
             # Create the file empty
-            logging.error('{} does not exist!'.format(self.epic_ids_filepath))
+            logging.error('{} does not exist!'.format(filepath))
         if len(epic_ids) < 1:
             logging.error("Epic list is empty!")
         return epic_ids
@@ -161,7 +163,20 @@ class TradingBot:
                 self.positions = self.IG.get_open_positions()
                 self.process_open_positions(self.positions)
 
-                self.process_epic_list(self.get_epic_ids())
+                if self.market_source == MarketSource.LIST:
+                    self.process_epic_list(
+                        self.load_epic_ids_from_local_file(
+                            self.epic_ids_filepath))
+                elif self.market_source == MarketSource.WATCHLIST:
+                    # TODO
+                    #self.process_watchlist(self.watchlist_name)
+                    logging.error("WATCHLIST market source not implemented")
+                    return
+                elif self.market_source == MarketSource.API:
+                    # TODO
+                    #self.process_market_exploration()
+                    logging.error("API market source not implemented")
+                    return
 
                 # Wait for next spin loop as configured in the strategy
                 seconds = self.strategy.get_seconds_to_next_spin()

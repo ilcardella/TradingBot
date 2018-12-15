@@ -12,10 +12,10 @@ without the trouble of developing all the boring stuff to make it work.
 The following sections give an overview of the main components that compose
 TradingBot.
 
-StocksAutoTrader
-""""""""""""""""
+TradingBot
+""""""""""
 
-StocksAutoTrader is a simple component used to initialised all the other
+TradingBot is the main component used to initialised all the other
 components that will be used during the main routine.
 It instantiate a strategy and the broker interface reading the provided
 user credentials.
@@ -25,7 +25,7 @@ Broker interface
 
 TradingBot requires an interface with an executive broker in order to open
 and close trades in the market.
-The broker interface is initialised in the ``StocksAutoTrader`` module and
+The broker interface is initialised in the ``TradingBot`` module and
 it should be independent from its underlying implementation.
 
 At the current status, the only supported broker is IGIndex. This broker
@@ -85,7 +85,7 @@ To do that follow this steps:
    * *find_trade_signal*: it is the core of your custom strategy, here you can use the broker interface to decide if trade the given epic
    * *get_seconds_to_next_spin*: the *find_trade_signal* is called for every epic defined in the ``epic_ids.txt`` file. After that TradingBot will wait for the amount of seconds defined in this function
 
-#. Edit the ``StocksAutoTrader`` module initialising the new strategy
+#. Edit the ``TradingBot`` module initialising the new strategy
 
    .. code-block:: python
       :lineno-start: 13

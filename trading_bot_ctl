@@ -32,7 +32,7 @@ test()
 {
   echo Running unit test with pytest...
   install_deps
-  sphinx-build -b dummy doc doc/_build
+  sphinx-build -nWT -b dummy doc doc/_build/html
   pytest
 }
 
