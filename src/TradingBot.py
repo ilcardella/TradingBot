@@ -203,13 +203,9 @@ class TradingBot:
                 self.process_market_exploration(node['id'])
         if isinstance(node['markets'], list):
             for market in node['markets']:
-                DFB_TODAY_DAILY_CHECK = [
-                    "DFB" in str(
-                        market['epic']), "TODAY" in str(
-                        market['epic']), "DAILY" in str(
-                        market['epic'])]
-
-                if any(DFB_TODAY_DAILY_CHECK):
+                if any(["DFB" in str(market['epic']),
+                        "TODAY" in str(market['epic']),
+                        "DAILY" in str(market['epic'])]):
                     if not self.process_market(market['epic']):
                         return
 
