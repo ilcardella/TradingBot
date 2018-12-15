@@ -59,7 +59,7 @@ cd data
 sudo chmod 600 .credentials
 ```
 
-## Market source
+### Market source
 
 There are different ways to define which markets to analyse with TradinbgBot. You can select your preferred option in the `config.json` file with the `market_source` parameter:
 
@@ -76,12 +76,12 @@ You can use an IG watchlist, TradingBot will analyse every market added to the s
 
 TradingBot navigates the IG markets dynamically using the available API call to fetch epic ids.
 
-## Configuration file
+### Configuration file
 
 The `config.json` file is in the `config` folder and it contains several configurable parameter to personalise
 how TradingBot work. These are the description of each parameter:
 
-### General
+#### General
 
 - **max_account_usable**: The maximum percentage of account funds to use (A safe value is around 50%)
 - **esma_stocks_margin_perc**: The ESMA new margin percentage for shares (currently 20%)
@@ -95,7 +95,7 @@ how TradingBot work. These are the description of each parameter:
 - **epic_ids_filepath**:  The full file path for the local file containing the list of epic ids
 - **watchlist_name**: The watchlist name to use as market source, if selected
 
-### IG Interface
+#### IG Interface
 
 - **order_type**: The IG order type (MARKET, LIMIT, etc.). Do NOT change it
 - **order_size**: The size of the spread bets
@@ -107,7 +107,7 @@ how TradingBot work. These are the description of each parameter:
 - **controlled_risk**: Enable the controlled risk stop loss calculation. Enable only if you have a controlled risk account.
 - **paper_trading**: Enable the `paper trading`. No real trades will be done on the IG account.
 
-### Strategies
+#### Strategies
 
 - **spin_interval**: Amount of seconds to wait between each loop of the market list analysis
 
@@ -121,21 +121,21 @@ how TradingBot work. These are the description of each parameter:
 TradingBot can be controlled by the `trading_bot_ctl` shell script.
 The script provides several commands to perform different actions:
 
-## Start
+### Start
 
 Open a new terminal and type:
 ```
 ./trading_bot_ctl start
 ```
 
-## Stop
+### Stop
 
 To stop TradingBot:
 ```
 ./trading_bot_ctl stop
 ```
 
-## Close open positions
+### Close open positions
 
 To close all the currently open positions:
 ```
