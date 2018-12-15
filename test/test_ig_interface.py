@@ -512,3 +512,13 @@ def test_navigate_market_node_markets(ig, requests_mock):
 
     data = ig.navigate_market_node('12345678')
     assert data == mock
+
+
+    def test_get_watchlist(ig, requests_mock):
+        # TODO
+        assert True
+
+
+    def test_get_markets_from_watchlist(ig, requests_mock):
+        # TODO
+        assert True

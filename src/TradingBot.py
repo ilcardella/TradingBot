@@ -186,9 +186,13 @@ class TradingBot:
 
             - **watchlist_name**: IG watchlist name
         """
-        # TODO
-        logging.error("WATCHLIST market source not implemented")
-        return
+        markets = self.IG.get_markets_from_watchlist(self.watchlist_name)
+        if markets is None
+            logging.error("Watchlist {} not found!".format(watchlist_name))
+            return
+        for m in markets:
+            if not self.process_market(m['epic']):
+                return
 
 
     def process_market_exploration(self, node_id):
