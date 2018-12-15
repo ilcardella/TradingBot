@@ -187,7 +187,7 @@ class TradingBot:
             - **watchlist_name**: IG watchlist name
         """
         markets = self.IG.get_markets_from_watchlist(self.watchlist_name)
-        if markets is None
+        if markets is None:
             logging.error("Watchlist {} not found!".format(watchlist_name))
             return
         for m in markets:
