@@ -59,27 +59,83 @@ cd data
 sudo chmod 600 .credentials
 ```
 
-You need a file `epic_ids.txt` containg IG epics of the companies you want to monitor.
-You can copy this file into the `data` folder.
+### Market source
 
-Open the `config.json` file in the `config` folder and set it up
-with the preferred options:
+There are different ways to define which markets to analyse with TradinbgBot. You can select your preferred option in the `config.json` file with the `market_source` parameter:
 
-TODO (Explain each configuration parameter)
+- **Local file**
 
-By default, logs are saved in `~/.TradingBot/log`
+You can create a file `epic_ids.txt` containg IG epics of the companies you want to monitor.
+You need to copy this file into the `data` folder.
+
+- **Watchlist**
+
+You can use an IG watchlist, TradingBot will analyse every market added to the selected watchlist
+
+- **API**
+
+TradingBot navigates the IG markets dynamically using the available API call to fetch epic ids.
+
+### Configuration file
+
+The `config.json` file is in the `config` folder and it contains several configurable parameter to personalise
+how TradingBot work. These are the description of each parameter:
+
+#### General
+
+- **max_account_usable**: The maximum percentage of account funds to use (A safe value is around 50%)
+- **esma_stocks_margin_perc**: The ESMA new margin percentage for shares (currently 20%)
+- **time_zone**: The timezone to use (i.e. 'Europe/London)
+- **enable_log**: Enable the log in a file rather than on stdout
+- **log_file**: Define the full file path for the log file to use, if enabled. {home} and {timestamp} placeholders are replaced with the user home directory and the timestamp when TradingBot started
+- **debug_log**: Enable the debug level in the logging
+- **credentials_filepath**: Filepath for the `.credentials` file
+- **use_av_api**: Enable the use of AlphaVantage to fetch historic market prices
+- **market_source**: The source to use to fetch the market ids. Available values are explained in the `Setup` section below.
+- **epic_ids_filepath**:  The full file path for the local file containing the list of epic ids
+- **watchlist_name**: The watchlist name to use as market source, if selected
+
+#### IG Interface
+
+- **order_type**: The IG order type (MARKET, LIMIT, etc.). Do NOT change it
+- **order_size**: The size of the spread bets
+- **order_expiry**: The order expiry (DFB). Do NOT change it
+- **order_currency**: The currency of the order (For UK shares leave it as GBP)
+- **order_force_open**: Force to open the orders
+- **use_g_stop**: Use guaranteed stops. Read IG terms for more info about them.
+- **use_demo_account**: Trade on the DEMO IG account. If enabled remember to setup the demo account credentials too
+- **controlled_risk**: Enable the controlled risk stop loss calculation. Enable only if you have a controlled risk account.
+- **paper_trading**: Enable the `paper trading`. No real trades will be done on the IG account.
+
+#### Strategies
+
+- **spin_interval**: Amount of seconds to wait between each loop of the market list analysis
+
+#### SimpleMACD
+
+- **spin_interval**: Override the `Strategies` value
+- **max_spread_perc**: Spread percentage to filter markets with high spread
 
 # Run
+
+TradingBot can be controlled by the `trading_bot_ctl` shell script.
+The script provides several commands to perform different actions:
+
+### Start
 
 Open a new terminal and type:
 ```
 ./trading_bot_ctl start
 ```
 
-To stop instead:
+### Stop
+
+To stop TradingBot:
 ```
 ./trading_bot_ctl stop
 ```
+
+### Close open positions
 
 To close all the currently open positions:
 ```
@@ -88,13 +144,7 @@ To close all the currently open positions:
 
 # Test
 
-The unit test depend on `pytest` package
-
-```
-pip install pytest
-```
-
-To run the test just use the `pytest` command from the project root.
+To run the test just run `pytest` from the project root.
 
 You can run the test in Docker containers against different python versions:
 ```
@@ -139,6 +189,9 @@ make html
 The generated html files will be under `doc/_build/html`.
 
 # Automate
+
+**NOTE**: TradingBot monitors the market opening hours and suspend the trading when the market is closed. Generally you should NOT need a cron job!
+
 You can set up the crontab job to run and kill TradinBot at specific times.
 The only configuration required is to edit the crontab file adding the preferred schedule:
 ```
@@ -149,7 +202,7 @@ As an example this will start TradingBot at 8:00 in the morning and will stop it
 00 08 * * 1-5 /.../TradingBot/trading_bot_ctl start
 35 16 * * 1-5 /.../TradingBot/trading_bot_ctl stop
 ```
-NOTE: Remember to set the correct installation path and to set the correct timezone in your machine!
+NOTE: Remember to set the correct timezone in your machine!
 
 # Docker
 You can run TradingBot in a Docker container (https://docs.docker.com/):
@@ -172,4 +225,4 @@ docker exec -it dkr_trading_bot bash
 I am really happy to receive any help so please just open a pull request
 with your changes and I will handle it.
 
-If you instead find problems or have ideas for future improvements open an Issue. Thanks
+If you instead find problems or have ideas for future improvements open an Issue. Thanks for all the support!

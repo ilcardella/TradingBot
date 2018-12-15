@@ -3,14 +3,14 @@
 start()
 {
   echo Starting TradingBot...
-  cd scripts
-  python3 trading_bot.py & echo $! > pid.txt
+  cd src
+  python3 main.py & echo $! > pid.txt
 }
 
 stop()
 {
   echo Stopping TradingBot...
-  cd scripts
+  cd src
   cat pid.txt | xargs kill
   rm pid.txt
 }
@@ -18,8 +18,8 @@ stop()
 close_positions()
 {
   echo Starting TradingBot to close positions...
-  cd scripts
-  python3 trading_bot.py -c &
+  cd src
+  python3 main.py -c &
 }
 
 install_deps()
@@ -32,7 +32,7 @@ test()
 {
   echo Running unit test with pytest...
   install_deps
-  sphinx-build -b dummy doc doc/_build
+  sphinx-build -nWT -b dummy doc doc/_build/html
   pytest
 }
 

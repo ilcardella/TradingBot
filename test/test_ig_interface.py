@@ -7,9 +7,9 @@ import json
 currentdir = os.path.dirname(os.path.abspath(
     inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
-sys.path.insert(0, '{}/scripts'.format(parentdir))
+sys.path.insert(0, '{}/src'.format(parentdir))
 
-from Interfaces.IGInterface import IGInterface
+from Interfaces.IGInterface import IGInterface, IG_API_URL
 
 @pytest.fixture
 def config():
@@ -418,3 +418,246 @@ def test_get_account_used_perc_fail(ig, requests_mock):
     perc = ig.get_account_used_perc()
 
     assert perc is None
+
+def test_navigate_market_node_nodes(ig, requests_mock):
+    mock = {
+        "nodes": [{
+            "id": "668394",
+            "name": "Cryptocurrency"
+        }, {
+            "id": "77976799",
+            "name": "Options (Australia 200)"
+        }, {
+            "id": "89291253",
+            "name": "Options (US Tech 100)"
+        }],
+        "markets": None
+    }
+    requests_mock.get('{}/{}/'.format(ig.apiBaseURL, IG_API_URL.MARKET_NAV.value), status_code=200, json=mock)
+
+    data = ig.navigate_market_node('')
+    assert data == mock
+
+    data = ig.navigate_market_node('123')
+    assert data is None
+
+    requests_mock.get('{}/{}/'.format(ig.apiBaseURL, IG_API_URL.MARKET_NAV.value), status_code=401, json=mock)
+
+    data = ig.navigate_market_node('')
+    assert data is None
+
+def test_navigate_market_node_markets(ig, requests_mock):
+    mock = {
+        "nodes": None,
+        "markets": [{
+            "delayTime": 0,
+            "epic": "KC.D.AVLN8875P.DEC.IP",
+            "netChange": 0.01,
+            "lotSize": 0,
+            "expiry": "DEC-18",
+            "instrumentType": "SHARES",
+            "instrumentName": "General Accident PLC 8.875 Pfd",
+            "high": 134.55,
+            "low": 129.5,
+            "percentageChange": 0.01,
+            "updateTime": "4461000",
+            "updateTimeUTC": "02:14:21",
+            "bid": 131.49,
+            "offer": 132.54,
+            "otcTradeable": True,
+            "streamingPricesAvailable": False,
+            "marketStatus": "EDITS_ONLY",
+            "scalingFactor": 1
+        }, {
+            "delayTime": 0,
+            "epic": "KC.D.AVLN8875P.MAR.IP",
+            "netChange": 0.0,
+            "lotSize": 0,
+            "expiry": "MAR-19",
+            "instrumentType": "SHARES",
+            "instrumentName": "General Accident PLC 8.875 Pfd",
+            "high": 135.03,
+            "low": 129.84,
+            "percentageChange": 0.0,
+            "updateTime": "4461000",
+            "updateTimeUTC": "02:14:21",
+            "bid": 131.82,
+            "offer": 133.01,
+            "otcTradeable": True,
+            "streamingPricesAvailable": False,
+            "marketStatus": "EDITS_ONLY",
+            "scalingFactor": 1
+        }, {
+            "delayTime": 0,
+            "epic": "KC.D.AVLN8875P.JUN.IP",
+            "netChange": 0.01,
+            "lotSize": 0,
+            "expiry": "JUN-19",
+            "instrumentType": "SHARES",
+            "instrumentName": "General Accident PLC 8.875 Pfd",
+            "high": 135.64,
+            "low": 130.04,
+            "percentageChange": 0.0,
+            "updateTime": "4461000",
+            "updateTimeUTC": "02:14:21",
+            "bid": 132.03,
+            "offer": 133.62,
+            "otcTradeable": True,
+            "streamingPricesAvailable": False,
+            "marketStatus": "EDITS_ONLY",
+            "scalingFactor": 1
+        }]
+    }
+    requests_mock.get('{}/{}/12345678'.format(ig.apiBaseURL, IG_API_URL.MARKET_NAV.value), status_code=200, json=mock)
+
+    data = ig.navigate_market_node('12345678')
+    assert data == mock
+
+
+    def test_get_watchlist(ig, requests_mock):
+        mock = {
+            "watchlists": [{
+                "id": "12345678",
+                "name": "My Watchlist",
+                "editable": true,
+                "deleteable": false,
+                "defaultSystemWatchlist": false
+            }, {
+                "id": "Popular Markets",
+                "name": "Popular Markets",
+                "editable": false,
+                "deleteable": false,
+                "defaultSystemWatchlist": true
+            }, {
+                "id": "Major Indices",
+                "name": "Major Indices",
+                "editable": false,
+                "deleteable": false,
+                "defaultSystemWatchlist": false
+            }, {
+                "id": "6817448",
+                "name": "Major FX",
+                "editable": false,
+                "deleteable": false,
+                "defaultSystemWatchlist": false
+            }, {
+                "id": "Major Commodities",
+                "name": "Major Commodities",
+                "editable": false,
+                "deleteable": false,
+                "defaultSystemWatchlist": false
+            }]
+        }
+        requests_mock.get('{}/{}/'.format(ig.apiBaseURL, IG_API_URL.WATCHLISTS.value), status_code=200, json=mock)
+        data = ig.get_watchlist('')
+        assert mock == data
+
+        requests_mock.get('{}/{}/'.format(ig.apiBaseURL, IG_API_URL.WATCHLISTS.value), status_code=401, json=mock)
+        data = ig.get_watchlist('')
+        assert data is None
+
+        requests_mock.get('{}/{}/'.format(ig.apiBaseURL, IG_API_URL.WATCHLISTS.value), status_code=200, json={'errorCode':''})
+        data = ig.get_watchlist('')
+        assert data is None
+
+
+    def test_get_markets_from_watchlist(ig, requests_mock):
+        mock = {
+            "watchlists": [{
+                "id": "12345678",
+                "name": "My Watchlist",
+                "editable": true,
+                "deleteable": false,
+                "defaultSystemWatchlist": false
+            }, {
+                "id": "Popular Markets",
+                "name": "Popular Markets",
+                "editable": false,
+                "deleteable": false,
+                "defaultSystemWatchlist": true
+            }, {
+                "id": "Major Indices",
+                "name": "Major Indices",
+                "editable": false,
+                "deleteable": false,
+                "defaultSystemWatchlist": false
+            }, {
+                "id": "6817448",
+                "name": "Major FX",
+                "editable": false,
+                "deleteable": false,
+                "defaultSystemWatchlist": false
+            }, {
+                "id": "Major Commodities",
+                "name": "Major Commodities",
+                "editable": false,
+                "deleteable": false,
+                "defaultSystemWatchlist": false
+            }]
+        }
+        mock_watchlist = {
+            "markets": [{
+                "instrumentName": "Bitcoin",
+                "expiry": "DFB",
+                "epic": "CS.D.BITCOIN.TODAY.IP",
+                "instrumentType": "CURRENCIES",
+                "marketStatus": "TRADEABLE",
+                "lotSize": 1.0,
+                "high": 3247.4,
+                "low": 3106.7,
+                "percentageChange": -0.25,
+                "netChange": -7.87,
+                "bid": 3129.72,
+                "offer": 3169.72,
+                "updateTime": "18:11:51",
+                "updateTimeUTC": "18:11:51",
+                "delayTime": 0,
+                "streamingPricesAvailable": true,
+                "scalingFactor": 1
+            }, {
+                "instrumentName": "FTSE 100",
+                "expiry": "DFB",
+                "epic": "IX.D.FTSE.DAILY.IP",
+                "instrumentType": "INDICES",
+                "marketStatus": "EDITS_ONLY",
+                "lotSize": 10.0,
+                "high": 6847.1,
+                "low": 6788.2,
+                "percentageChange": -0.59,
+                "netChange": -40.5,
+                "bid": 6790.8,
+                "offer": 6794.8,
+                "updateTime": "02:14:21",
+                "updateTimeUTC": "02:14:21",
+                "delayTime": 0,
+                "streamingPricesAvailable": true,
+                "scalingFactor": 1
+            }, {
+                "instrumentName": "Germany 30",
+                "expiry": "DFB",
+                "epic": "IX.D.DAX.DAILY.IP",
+                "instrumentType": "INDICES",
+                "marketStatus": "EDITS_ONLY",
+                "lotSize": 25.0,
+                "high": 10875.8,
+                "low": 10804.0,
+                "percentageChange": -0.37,
+                "netChange": -40.4,
+                "bid": 10809.4,
+                "offer": 10814.4,
+                "updateTime": "02:14:21",
+                "updateTimeUTC": "02:14:21",
+                "delayTime": 0,
+                "streamingPricesAvailable": true,
+                "scalingFactor": 1
+            }]
+        }
+
+        requests_mock.get('{}/{}/'.format(ig.apiBaseURL, IG_API_URL.WATCHLISTS.value), status_code=200, json=mock)
+        requests_mock.get('{}/{}/12345678'.format(ig.apiBaseURL, IG_API_URL.WATCHLISTS.value), status_code=200, json=mock_watchlist)
+
+        data = ig.get_markets_from_watchlist('My Watchlist')
+        assert data == mock_watchlist
+
+        data = ig.get_markets_from_watchlist('wrong_name')
+        assert data is None

@@ -26,6 +26,8 @@ class IG_API_URL(Enum):
     MARKETS = 'markets'
     PRICES = 'prices'
     CONFIRMS = 'confirms'
+    MARKET_NAV = 'marketnavigation'
+    WATCHLISTS = 'watchlists'
 
 
 class IGInterface():
@@ -353,6 +355,47 @@ class IGInterface():
         if balance is None or deposit is None:
             return None
         return Utils.percentage(deposit, balance)
+
+
+    def navigate_market_node(self, node_id):
+        """
+        Navigate the market node id
+
+            - Returns the json representing the market node
+        """
+        url = '{}/{}/{}'.format(self.apiBaseURL, IG_API_URL.MARKET_NAV.value, node_id)
+        data = self.http_get(url)
+        return data if data is not None else None
+
+
+    def get_watchlist(self, id):
+        """
+        Get the watchlist info
+
+            - **id**: id of the watchlist. If empty id is provided, the
+              function returns the list of all the watchlist in the account
+        """
+        url = '{}/{}/{}'.format(self.apiBaseURL, IG_API_URL.WATCHLISTS.value, id)
+        data = self.http_get(url)
+        return data if data is not None else None
+
+
+    def get_markets_from_watchlist(self, name):
+        """
+        Get the list of markets included in the watchlist
+
+            - **name**: name of the watchlist
+        """
+        markets = []
+        # Request with empty name returns list of all the watchlists
+        all_watchlists = self.get_watchlist('')
+        if w is not None:
+            for w in all_watchlists:
+                if 'name' in w and w['name'] == name:
+                    data = self.get_watchlist(w['id'])
+                    if data is not None and 'markets' in data:
+                        return data['markets']
+        return None
 
 
     def http_get(self, url):
