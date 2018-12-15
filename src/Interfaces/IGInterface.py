@@ -27,7 +27,7 @@ class IG_API_URL(Enum):
     PRICES = 'prices'
     CONFIRMS = 'confirms'
     MARKET_NAV = 'marketnavigation'
-    WATCHLIST = 'watchlists'
+    WATCHLISTS = 'watchlists'
 
 
 class IGInterface():
@@ -375,7 +375,7 @@ class IGInterface():
             - **id**: id of the watchlist. If empty id is provided, the
               function returns the list of all the watchlist in the account
         """
-        url = '{}/{}/{}'.format(self.apiBaseURL, IG_API_URL.WATCHLIST.value, id)
+        url = '{}/{}/{}'.format(self.apiBaseURL, IG_API_URL.WATCHLISTS.value, id)
         data = self.http_get(url)
         return data if data is not None else None
 
