@@ -38,7 +38,9 @@
         },
         "simple_macd": {
             "spin_interval": -1,
-            "max_spread_perc": 5
+            "max_spread_perc": 5,
+            "limit_perc": 10,
+            "stop_perc": 5
         }
     }
 

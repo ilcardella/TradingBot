@@ -115,6 +115,8 @@ how TradingBot work. These are the description of each parameter:
 
 - **spin_interval**: Override the `Strategies` value
 - **max_spread_perc**: Spread percentage to filter markets with high spread
+- **limit_perc**: Limit percentage to take profit for each trade
+- **stop_perc**: Stop percentage to stop any loss
 
 # Run
 

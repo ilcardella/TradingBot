@@ -153,8 +153,8 @@ def test_get_market_snapshot(strategy):
     assert marketId == 'GSK-UK'
     assert current_bid == 1562.0
     assert current_offer == 1565.8
-    assert limit_perc == 15
-    assert stop_perc == 8
+    assert limit_perc == strategy.limit_p
+    assert stop_perc == strategy.stop_p
 
 def test_get_market_snapshot_invalid(strategy):
     # TODO add exception test cases, wrong id, null bid, null offer, etc.

@@ -36,7 +36,8 @@ class SimpleMACD(Strategy):
         self.controlledRisk = config['ig_interface']['controlled_risk']
         self.use_av_api = config['general']['use_av_api']
         self.max_spread_perc = config['strategies']['simple_macd']['max_spread_perc']
-
+        self.limit_p = config['strategies']['simple_macd']['limit_perc']
+        self.stop_p = config['strategies']['simple_macd']['stop_perc']
 
 
     def find_trade_signal(self, epic_id):
@@ -116,10 +117,9 @@ class SimpleMACD(Strategy):
                 or market['snapshot']['offer'] is None):
             raise Exception
 
-        # TODO make limit and stop configurable or depending on market data
-        limit_perc = 15
+        limit_perc = self.limit_p
         stop_perc = max(
-            [market['dealingRules']['minNormalStopOrLimitDistance']['value'], 8])
+            [market['dealingRules']['minNormalStopOrLimitDistance']['value'], self.stop_p])
         if self.controlledRisk:
             # +1 to avoid rejection
             stop_perc = market['dealingRules']['minControlledRiskStopDistance']['value'] + 1
