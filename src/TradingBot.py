@@ -241,10 +241,7 @@ class TradingBot:
         if not Utils.is_market_open(self.time_zone):
             logging.warn("Market is closed: stop processing")
             return False
-        logging.info("Processing {}".format(epic))
-        trade, limit, stop = self.strategy.find_trade_signal(epic)
-        self.process_trade(epic, trade, limit, stop)
-        time.sleep(self.timeout)
+        self.process_trade(epic)
         return True
 
 
@@ -269,25 +266,28 @@ class TradingBot:
         time.sleep(seconds)
 
 
-    def process_trade(self, epic, trade, limit, stop):
+    def process_trade(self, epic):
         """
         Process a trade checking if it is a "close position" trade or a new action
         """
+        logging.info("Processing {}".format(epic))
+        # Use strategy to analyse market
+        trade, limit, stop = self.strategy.find_trade_signal(epic)
         if trade is not TradeDirection.NONE:
             if self.positions is not None:
                 for item in self.positions['positions']:
                     # If a same direction trade already exist, don't trade
                     if item['market']['epic'] == epic and trade.name == item['position']['direction']:
                         logging.info( "There is already an open position for this epic, skip trade")
-                        return False
                     # If a trade in opposite direction exist, close the position
                     elif item['market']['epic'] == epic and trade.name != item['position']['direction']:
-                        return self.IG.close_position(item)
-                return self.IG.trade(epic, trade.name, limit, stop)
+                        self.IG.close_position(item)
+                self.IG.trade(epic, trade.name, limit, stop)
             else:
                 logging.error(
                     "Unable to fetch open positions! Avoid trading this epic")
-        return False
+        # Sleep for the defined timeout
+        time.sleep(self.timeout)
 
 
     def process_open_positions(self, positions):
@@ -299,11 +299,7 @@ class TradingBot:
         """
         if positions is not None:
             logging.info("Processing open positions.")
-            for item in positions['positions']:
-                epic = item['market']['epic']
-                trade, limit, stop = self.strategy.find_trade_signal(epic)
-                self.process_trade(epic, trade, limit, stop)
-                time.sleep(self.timeout)
+            self.process_epic_list([item['market']['epic'] for item in positions['positions']])
             return True
         else:
             logging.warning("Unable to fetch open positions!")
