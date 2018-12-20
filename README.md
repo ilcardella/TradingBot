@@ -94,6 +94,7 @@ how TradingBot work. These are the description of each parameter:
 - **market_source**: The source to use to fetch the market ids. Available values are explained in the `Setup` section below.
 - **epic_ids_filepath**:  The full file path for the local file containing the list of epic ids
 - **watchlist_name**: The watchlist name to use as market source, if selected
+- **active_strategy**: The strategy name to use. Must match one of the names in the `Strategies` section below
 
 #### IG Interface
 
@@ -109,7 +110,7 @@ how TradingBot work. These are the description of each parameter:
 
 #### Strategies
 
-- **spin_interval**: Amount of seconds to wait between each loop of the market list analysis
+Settings specific for each strategy
 
 #### SimpleMACD
 
@@ -123,61 +124,50 @@ how TradingBot work. These are the description of each parameter:
 TradingBot can be controlled by the `trading_bot_ctl` shell script.
 The script provides several commands to perform different actions:
 
-### Start
-
-Open a new terminal and type:
+### Start TradingBot
+:
 ```
 ./trading_bot_ctl start
 ```
 
-### Stop
+### Stop TradingBot
 
-To stop TradingBot:
 ```
 ./trading_bot_ctl stop
 ```
 
-### Close open positions
+### Close all the open positions
 
-To close all the currently open positions:
 ```
 ./trading_bot_ctl close_positions
 ```
 
 # Test
 
-To run the test just run `pytest` from the project root.
+If you have setup a virtual environment you can run the test by running `pytest` from the project root folder.
+
+You can run the test from a clean environment with:
+```
+./trading_bot_ctl test
+```
 
 You can run the test in Docker containers against different python versions:
 ```
 ./trading_bot_ctl test_docker
 ```
 
-# Create your own strategy
-
-TODO This process needs some improvements
-
-If you want to create a custom trading strategy, you can create a new
-file containing a class that extend from `Strategy` in `Strategy.py`.
-You need to override a few methods of that class and then add anything
-you require.
-
-After that, if you want TradingBot to use your strategy, just edit the
-`StockAutoTrader.py` and instantiate your class.
-
-Please if you create new strategies I would be really happy if you
-could share it with me creating a pull request.
-
 # Documentation
+
+The Sphinx documentation contains further details about each TradingBot module
+with source code documentation of each class member.
+Explanation is provided regarding how to create your own Strategy and how to integrate
+it with the system.
+
 Read the documentation at:
 
 https://tradingbot.readthedocs.io
 
-To build it locally you need to install `sphinx` on your machine
-http://www.sphinx-doc.org/en/master/usage/installation.html
-The `requirements.txt` includes `sphinx` already.
-
-After that you can execute these commands from the project root:
+You can build it locally from the project root folder:
 ```
 sphinx-build -b html doc doc/_build/html
 ```
