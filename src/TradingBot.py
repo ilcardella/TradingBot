@@ -17,13 +17,14 @@ sys.path.insert(0, parentdir)
 from Utils import Utils, TradeDirection, MarketSource
 from Interfaces.IGInterface import IGInterface
 from Interfaces.AVInterface import AVInterface
-from Strategies.SimpleMACD import SimpleMACD
+from Strategies.StrategyFactory import StrategyFactory
 
 class TradingBot:
     """
     Class that initialise and hold references of main components like the
     broker interface, the strategy or the epic_ids list
     """
+
     def __init__(self):
         # Set timezone
         set(pytz.all_timezones_set)
@@ -44,8 +45,9 @@ class TradingBot:
         # Init trade services
         services = self.init_trading_services(config, credentials)
 
-        # Define the strategy to use here
-        self.strategy = SimpleMACD(config, services)
+        # Create strategy from the factory class
+        self.strategy = StrategyFactory(config, services).make_strategy(
+            self.active_strategy)
 
 
     def load_json_file(self, filepath):
@@ -79,6 +81,7 @@ class TradingBot:
         self.watchlist_name = config['general']['watchlist_name']
         # AlphaVantage limits to 5 calls per minute
         self.timeout = 12 if self.use_av_api else 1
+        self.active_strategy = config['general']['active_strategy']
 
 
     def setup_logging(self):
