@@ -17,7 +17,8 @@
             ]
         },
         "epic_ids_filepath": "../data/epic_ids.txt",
-        "watchlist_name": "trading_bot"
+        "watchlist_name": "trading_bot",
+        "active_strategy": "simple_macd"
     },
     "ig_interface" : {
         "order_type": "MARKET",
