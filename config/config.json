@@ -32,7 +32,6 @@
         "paper_trading": false
     },
     "strategies": {
-        "spin_interval": 3600,
         "faig": {
             "stop_loss_multiplier": 3,
             "too_high_margin": 100

@@ -9,7 +9,7 @@ class Strategy:
         self.broker = services['broker']
         self.AV = services['alpha_vantage']
         # This can be overwritten in children class
-        self.spin_interval = config['strategies']['spin_interval']
+        self.spin_interval = 3600
         # This must be the last operation of this function to override possible values in children class
         self.read_configuration(config)
 
