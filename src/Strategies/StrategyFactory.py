@@ -17,16 +17,18 @@ class StrategyNames(Enum):
     FAIG = 'faig'
 
 class StrategyFactory:
-    def __init__(self, config):
+    def __init__(self, config, services):
         self.read_configuration(config)
+        self.config = config
+        self.services = services
 
     def read_configuration(self, config):
-        self.strategies = config['strategies']
+        pass
 
-    def make_strategy(self, strategy_name, config=None, services=None):
+    def make_strategy(self, strategy_name):
         if strategy_name == StrategyNames.SIMPLE_MACD.value:
-            return SimpleMACD(config, services)
+            return SimpleMACD(self.config, self.services)
         elif strategy_name == StrategyNames.FAIG.value:
-            return FAIG_iqr(config, services)
+            return FAIG_iqr(self.config, self.services)
         else:
             logging.error('Impossible to create strategy {}. It does not exist'.format(strategy_name))

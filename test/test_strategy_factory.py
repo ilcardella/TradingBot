@@ -34,8 +34,8 @@ def services():
         "alpha_vantage": "mock"
     }
 
-def test_make_strategy_fail(config):
-    sf = StrategyFactory(config)
+def test_make_strategy_fail(config, services):
+    sf = StrategyFactory(config, services)
     strategy = sf.make_strategy('')
     assert strategy is None
 
@@ -43,9 +43,9 @@ def test_make_strategy_fail(config):
     assert strategy is None
 
 def test_make_strategy(config, services):
-    sf = StrategyFactory(config)
-    strategy = sf.make_strategy('simple_macd', config, services)
+    sf = StrategyFactory(config,services)
+    strategy = sf.make_strategy('simple_macd')
     assert isinstance(strategy, SimpleMACD)
 
-    strategy = sf.make_strategy('faig', config, services)
+    strategy = sf.make_strategy('faig')
     assert isinstance(strategy, FAIG_iqr)
