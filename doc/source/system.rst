@@ -15,10 +15,11 @@ TradingBot.
 TradingBot
 """"""""""
 
-TradingBot is the main component used to initialised all the other
+TradingBot is the main entiy used to initialised all the
 components that will be used during the main routine.
-It instantiate a strategy and the broker interface reading the provided
-user credentials.
+It reads the configuration file and the credentials file, it creates the
+configured strategy instance, the broker interface and it handle the
+processing of the markets with the active strategy.
 
 Broker interface
 """"""""""""""""
@@ -34,18 +35,16 @@ provides a very good set of API to analyse the market and manage the account.
 Strategy
 """"""""
 
-The ``Strategy`` is the core of the TradingBot system. It wraps the custom
-implementation and handles the open positions, the margin limits and the trades
-themselves.
-It is a generic class that can be extended with custom functions to execute
-trades according to the personalised strategy.
+The ``Strategy`` is the core of the TradingBot system.
+It is a generic template class that can be extended with custom functions to
+execute trades according to the personalised strategy.
 
 How to use your own strategy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Anyone can create a new strategy from scratch defining its own set of rules
+Anyone can create a new strategy from scratch in a few simple steps.
+With your own strategy you can define your own set of rules
 to decide whether to buy, sell or hold a specific market.
-To do that follow this steps:
 
 #. Create a new python module inside the Strategy folder :
 
@@ -58,40 +57,60 @@ To do that follow this steps:
 
    .. code-block:: python
 
+    import os
+    import inspect
+    import sys
+    import logging
+
+    # Required for correct import path
     currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
     parentdir = os.path.dirname(currentdir)
     sys.path.insert(0,parentdir)
 
     from .Strategy import Strategy
     from Utils import Utils, TradeDirection
+    # Import any other required module
 
     class my_strategy(Strategy): # Extends Strategy module
-       def __init__(self, config):
-           super().__init__(config) # Call parent constructor
+        def __init__(self, config, services):
+            # Call parent constructor
+            super().__init__(config)
 
-       def read_configuration(self, config):
-           # Read from the config json and store config parameters
+        def read_configuration(self, config):
+            # Read from the config json and store config parameters
 
-       def find_trade_signal(self, broker, epic_id):
-           # Given a broker interface and an IG epic decide the trade direction
-           # return TradeDirection.XXX, stop_level, limit_level
+        def find_trade_signal(self, epic_id):
+            # Given an IG epic decide the trade direction
+            # return TradeDirection.XXX, stop_level, limit_level
 
-       def get_seconds_to_next_spin(self):
-           # Return the amount of seconds between each spin of the strategy
+        def get_seconds_to_next_spin(self):
+            # Return the amount of seconds between each spin of the strategy
+            # Each spin analyse all the markets in the list/watchlist
 
-#. Add the implementation for those function:
+#. Add the implementation for these functions:
 
    * *read_configuration*: ``config`` is the json object loaded from the ``config.json`` file
    * *find_trade_signal*: it is the core of your custom strategy, here you can use the broker interface to decide if trade the given epic
-   * *get_seconds_to_next_spin*: the *find_trade_signal* is called for every epic defined in the ``epic_ids.txt`` file. After that TradingBot will wait for the amount of seconds defined in this function
+   * *get_seconds_to_next_spin*: the *find_trade_signal* is called for every epic requested. After that TradingBot will wait for the amount of seconds defined in this function
 
-#. Edit the ``TradingBot`` module initialising the new strategy
+#. Edit the ``StrategyFactory`` module inporting the new strategy and adding
+   its name to the ``StrategyNames`` enum. Then add it to the *make* function
 
    .. code-block:: python
-      :lineno-start: 13
+      :lineno-start: 28
 
-      # Define the strategy to use here
-      self.strategy = my_strategy(config)
+        def make_strategy(self, strategy_name):
+            if strategy_name == StrategyNames.SIMPLE_MACD.value:
+                return SimpleMACD(self.config, self.services)
+            elif strategy_name == StrategyNames.FAIG.value:
+                return FAIG_iqr(self.config, self.services)
+            elif strategy.name == StrateyNames.MY_STRATEGY.value:
+                return MY_STRATEGY(self.config, self.services)
+            else:
+                logging.error('Impossible to create strategy {}. It does not exist'.format(strategy_name))
 
 #. Edit the ``config.json`` adding a new section for your strategy parameters
-#. Share your strategy and create a Pull Request in GitHub :)
+
+#. Create a unit test for your strategy
+
+#. Share your strategy creating a Pull Request in GitHub :)
