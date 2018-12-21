@@ -17,7 +17,19 @@ class StrategyNames(Enum):
     FAIG = 'faig'
 
 class StrategyFactory:
+    """
+    Factory class to create instances of Strategies. The class provide an
+    interface to instantiate new objects of a given Strategy name
+    """
     def __init__(self, config, services):
+        """
+        Constructor of the StrategyFactory
+
+            - **config**: config json used to initialise Strategies
+            - **services**: dictionary including interfaces used to initialise
+              Strategies
+            - Return the instance of the StrategyFactory
+        """
         self.read_configuration(config)
         self.config = config
         self.services = services
@@ -26,6 +38,15 @@ class StrategyFactory:
         pass
 
     def make_strategy(self, strategy_name):
+        """
+        Create and return an instance of the Strategy class specified by
+        the strategy_name
+
+            - **strategy_name**: name of the strategy as defined in the json
+              config file
+            - Returns an instance of the requested Strategy or None if an
+              error occurres
+        """
         if strategy_name == StrategyNames.SIMPLE_MACD.value:
             return SimpleMACD(self.config, self.services)
         elif strategy_name == StrategyNames.FAIG.value:

@@ -53,6 +53,14 @@ Strategy
 .. autoclass:: Strategy
     :members:
 
+StrategyFactory
+"""""""""""""""
+
+.. automodule:: Strategies.StrategyFactory
+
+.. autoclass:: StrategyFactory
+    :members:
+
 SimpleMACD
 """"""""""
 
