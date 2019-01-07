@@ -389,8 +389,8 @@ class IGInterface():
         markets = []
         # Request with empty name returns list of all the watchlists
         all_watchlists = self.get_watchlist('')
-        if w is not None:
-            for w in all_watchlists:
+        if all_watchlists is not None:
+            for w in all_watchlists['watchlists']:
                 if 'name' in w and w['name'] == name:
                     data = self.get_watchlist(w['id'])
                     if data is not None and 'markets' in data:
