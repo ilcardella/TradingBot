@@ -68,10 +68,15 @@ class Utils:
         """Return the amount of seconds from now to the next market opening,
         taking into account UK bank holidays and weekends"""
         now = datetime.now()
-        # Get next working day
-        nextWorkDate = BankHolidays().get_next_work_day()
-        nextMarketOpening = datetime(year=nextWorkDate.year, month=nextWorkDate.month, day=nextWorkDate.day, hour=8, minute=0, second=0, microsecond=0)
-        # Calculate the delta from now to the next market opening
+        today_opening = datetime(year=now.year, month=now.month, day=now.day, hour=8, minute=0, second=0, microsecond=0)
+
+        if now < today_opening and BankHolidays().is_work_day(now.date()):
+            nextMarketOpening = today_opening
+        else:
+            # Get next working day
+            nextWorkDate = BankHolidays().get_next_work_day()
+            nextMarketOpening = datetime(year=nextWorkDate.year, month=nextWorkDate.month, day=nextWorkDate.day, hour=8, minute=0, second=0, microsecond=0)
+            # Calculate the delta from now to the next market opening
         return (nextMarketOpening - now).total_seconds()
 
     @staticmethod

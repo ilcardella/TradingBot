@@ -177,7 +177,7 @@ class TradingBot:
 
                 # Wait for next spin loop as configured in the strategy
                 seconds = self.strategy.get_seconds_to_next_spin()
-                logging.info("Epics analysis complete. Wait for {0:.2f} seconds before next spin".format(seconds/3600))
+                logging.info("Wait for {0:.2f} seconds before next spin".format(seconds))
                 time.sleep(seconds)
             else:
                 self.wait_for_next_market_opening()
