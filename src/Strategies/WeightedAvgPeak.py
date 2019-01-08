@@ -2,8 +2,10 @@ import os
 import inspect
 import sys
 import logging
+import numpy
 from numpy import NaN, Inf, arange, isscalar, asarray, array
 from scipy import stats
+import math
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
@@ -116,8 +118,8 @@ class WeightedAvgPeak(Strategy):
         mintab_low_a = array(mintab_low)[:, 1]
         maxtab_high_a = array(maxtab_high)[:, 1]
 
-        xb = xrange(0, len(mintab_low_a))
-        xc = xrange(0, len(maxtab_high_a))
+        xb = range(0, len(mintab_low_a))
+        xc = range(0, len(maxtab_high_a))
 
         mintab_low_a_slope, mintab_low_a_intercept, mintab_low_a_lo_slope, mintab_low_a_hi_slope = stats.mstats.theilslopes(
             mintab_low_a, xb, 0.99)
@@ -330,6 +332,36 @@ class WeightedAvgPeak(Strategy):
         elif TRADE_DIR is TradeDirection.SELL:
             return float(Price) + float(ATR) * int(self.ce_multiplier)
 
+    
+    def get_market_snapshot(self, epic_id):
+        """
+        Fetch a market snapshot from the given epic id, and returns
+        the **marketId** and the bid/offer prices
+
+            - **epic_id**: market epic as string
+            - Returns marketId, bidPrice, offerPrice
+        """
+        # Fetch current market data
+        market = self.broker.get_market_info(epic_id)
+        # Safety checks
+        if (market is None
+            or 'markets' in market  # means that epic_id is wrong
+                or market['snapshot']['bid'] is None
+                or market['snapshot']['offer'] is None):
+            raise Exception
+
+        limit_perc = self.limit_p
+        stop_perc = max(
+            [market['dealingRules']['minNormalStopOrLimitDistance']['value'], self.stop_p])
+        if self.controlledRisk:
+            # +1 to avoid rejection
+            stop_perc = market['dealingRules']['minControlledRiskStopDistance']['value'] + 1
+        # Extract market Id
+        marketId = market['instrument']['marketId']
+        current_bid = market['snapshot']['bid']
+        current_offer = market['snapshot']['offer']
+
+        return marketId, current_bid, current_offer, limit_perc, stop_perc
 
     def get_seconds_to_next_spin(self):
         # Return the amount of seconds between each spin of the strategy
