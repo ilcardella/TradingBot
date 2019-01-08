@@ -3,13 +3,13 @@
         "max_account_usable": 50,
         "esma_stocks_margin_perc": 20,
         "time_zone": "Europe/London",
-        "enable_log": true,
+        "enable_log": false,
         "log_file": "{home}/.TradingBot/log/trading_bot_{timestamp}.log",
         "debug_log": false,
         "credentials_filepath": "../data/.credentials",
         "use_av_api": true,
         "market_source": {
-            "value": "list",
+            "value": "watchlist",
             "options": [
                 "list",
                 "api",
@@ -18,7 +18,7 @@
         },
         "epic_ids_filepath": "../data/epic_ids.txt",
         "watchlist_name": "trading_bot",
-        "active_strategy": "simple_macd"
+        "active_strategy": "weighted_avg_peak"
     },
     "ig_interface" : {
         "order_type": "MARKET",
@@ -39,6 +39,12 @@
         "simple_macd": {
             "spin_interval": -1,
             "max_spread_perc": 5,
+            "limit_perc": 10,
+            "stop_perc": 5
+        },
+        "weighted_avg_peak": {
+            "spin_interval": -1,
+            "max_spread": 3,
             "limit_perc": 10,
             "stop_perc": 5
         }

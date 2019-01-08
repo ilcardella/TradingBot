@@ -10,7 +10,7 @@ sys.path.insert(0,'{}/src'.format(parentdir))
 
 from Strategies.StrategyFactory import StrategyFactory
 from Strategies.SimpleMACD import SimpleMACD
-from Strategies.FAIG_iqr import FAIG_iqr
+from Strategies.WeightedAvgPeak import WeightedAvgPeak
 
 
 @pytest.fixture
@@ -47,5 +47,5 @@ def test_make_strategy(config, services):
     strategy = sf.make_strategy('simple_macd')
     assert isinstance(strategy, SimpleMACD)
 
-    strategy = sf.make_strategy('faig')
-    assert isinstance(strategy, FAIG_iqr)
+    strategy = sf.make_strategy('weighted_avg_peak')
+    assert isinstance(strategy, WeightedAvgPeak)
