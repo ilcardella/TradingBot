@@ -264,7 +264,7 @@ class TradingBot:
         Sleep until the next market opening. Takes into account weekends
         and bank holidays in UK
         """
-        seconds = Utils.get_seconds_to_market_opening()
+        seconds = Utils.get_seconds_to_market_opening(dt.datetime.now())
         logging.info("Market is closed! Wait for {0:.2f} hours...".format(seconds / 3600))
         time.sleep(seconds)
 

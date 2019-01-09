@@ -45,7 +45,7 @@ def test_humanize_time():
 
 def test_get_seconds_to_market_opening():
     now = datetime.now()
-    seconds = Utils.get_seconds_to_market_opening()
+    seconds = Utils.get_seconds_to_market_opening(now)
     assert seconds > 0
     assert seconds is not None
     opening = now + timedelta(seconds=seconds)
@@ -53,6 +53,16 @@ def test_get_seconds_to_market_opening():
     expected = opening.replace(hour=8,minute=0,second=2,microsecond=0)
     diff = expected - opening
     assert diff.seconds < 10
+    # Test function if called after midnight but before market opening
+    mock = datetime.now().replace(hour=3, minute=30, second=0, microsecond=0)
+    seconds = Utils.get_seconds_to_market_opening(mock)
+    assert seconds > 0
+    assert seconds is not None
+    opening = mock + timedelta(seconds=seconds)
+    assert opening.day == mock.day
+    assert opening.hour == 8
+    assert opening.minute == 0
+
 
 def test_is_market_open():
     timezone = 'Europe/London'
