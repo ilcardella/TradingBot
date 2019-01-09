@@ -45,11 +45,8 @@ class WeightedAvgPeak(Strategy):
         TODO add description of strategy foundation
         """
         # Fetch data for the market
-        try:
-            marketId, current_bid, current_offer, limit_perc, stop_perc = self.get_market_snapshot(
-                epic_id)
-        except:
-            return TradeDirection.NONE, None, None
+        marketId, current_bid, current_offer, limit_perc, stop_perc = self.get_market_snapshot(
+            epic_id)
 
         # Spread constraint
         if current_bid - current_offer > self.max_spread:
@@ -162,11 +159,10 @@ class WeightedAvgPeak(Strategy):
         elif any(sell_rules):
             trade_direction = TradeDirection.SELL
 
-        if trade_direction is not TradeDirection.NONE:
-            logging.info("Strategy says: {} {}".format(
-                trade_direction.name, marketId))
-        else:
+        if trade_direction is TradeDirection.NONE:
             return trade_direction, None, None
+
+        logging.info("Strategy says: {} {}".format(trade_direction.name, marketId))
 
         ATR = self.calculate_stop_loss(prices)
 
@@ -205,7 +201,6 @@ class WeightedAvgPeak(Strategy):
         if int(stop_pips) > int(self.too_high_margin):
             logging.warning("Junk data for {}".format(epic_id))
             return TradeDirection.NONE, None, None
-
         return trade_direction, pip_limit, stop_pips
 
 
@@ -336,7 +331,7 @@ class WeightedAvgPeak(Strategy):
         elif TRADE_DIR is TradeDirection.SELL:
             return float(Price) + float(ATR) * int(self.ce_multiplier)
 
-    
+
     def get_market_snapshot(self, epic_id):
         """
         Fetch a market snapshot from the given epic id, and returns

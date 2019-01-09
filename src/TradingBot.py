@@ -275,7 +275,12 @@ class TradingBot:
         """
         logging.info("Processing {}".format(epic))
         # Use strategy to analyse market
-        trade, limit, stop = self.strategy.find_trade_signal(epic)
+        try:
+            trade, limit, stop = self.strategy.find_trade_signal(epic)
+        except Exception as e:
+            logging.error('Exception: {}'.format(e))
+            trade = TradeDirection.NONE
+
         if trade is not TradeDirection.NONE:
             if self.positions is not None:
                 for item in self.positions['positions']:
