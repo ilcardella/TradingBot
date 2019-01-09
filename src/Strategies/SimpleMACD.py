@@ -5,6 +5,7 @@ import requests
 import os
 import inspect
 import sys
+from datetime import datetime
 
 currentdir = os.path.dirname(os.path.abspath(
     inspect.getfile(inspect.currentframe())))
@@ -97,7 +98,7 @@ class SimpleMACD(Strategy):
         Calculate the amount of seconds to wait for between each strategy spin
         """
         # Run this strategy at market opening
-        return Utils.get_seconds_to_market_opening()
+        return Utils.get_seconds_to_market_opening(datetime.now())
 
 
     def get_market_snapshot(self, epic_id):
