@@ -38,14 +38,18 @@ class WeightedAvgPeak(Strategy):
         self.too_high_margin = 100                   # No stupidly high pip limit per trade
         # Normally would be 3/22 days but dull stocks require a lower multiplier
         self.ce_multiplier = 2
+        self.greed_indicator = 99999
 
     def find_trade_signal(self, epic_id):
         """
         TODO add description of strategy foundation
         """
         # Fetch data for the market
-        marketId, current_bid, current_offer, limit_perc, stop_perc = self.get_market_snapshot(
-            epic_id)
+        try:
+            marketId, current_bid, current_offer, limit_perc, stop_perc = self.get_market_snapshot(
+                epic_id)
+        except:
+            return TradeDirection.NONE, None, None
 
         # Spread constraint
         if current_bid - current_offer > self.max_spread:
@@ -160,7 +164,7 @@ class WeightedAvgPeak(Strategy):
 
         if trade_direction is not TradeDirection.NONE:
             logging.info("Strategy says: {} {}".format(
-                tradeDirection.name, marketId))
+                trade_direction.name, marketId))
         else:
             return trade_direction, None, None
 
@@ -196,8 +200,8 @@ class WeightedAvgPeak(Strategy):
         if int(pip_limit) == 1:
             # not worth the trade
             trade_direction = "NONE"
-        if int(pip_limit) >= int(greed_indicator):
-            pip_limit = int(greed_indicator - 1)
+        if int(pip_limit) >= int(self.greed_indicator):
+            pip_limit = int(self.greed_indicator - 1)
         if int(stop_pips) > int(self.too_high_margin):
             logging.warning("Junk data for {}".format(epic_id))
             return TradeDirection.NONE, None, None
@@ -324,7 +328,7 @@ class WeightedAvgPeak(Strategy):
         return array(maxtab), array(mintab)
 
 
-    def Chandelier_Exit_formula(TRADE_DIR, ATR, Price):
+    def Chandelier_Exit_formula(self, TRADE_DIR, ATR, Price):
         # Chandelier Exit (long) = 22-day High - ATR(22) x 3
         # Chandelier Exit (short) = 22-day Low + ATR(22) x 3
         if TRADE_DIR is TradeDirection.BUY:

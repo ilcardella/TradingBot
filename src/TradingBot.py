@@ -173,7 +173,7 @@ class TradingBot:
                     self.process_watchlist(self.watchlist_name)
                 elif self.market_source == MarketSource.API:
                     # Calling with empty strings starts market navigation from highest level
-                    self.process_market_exploration('')
+                    self.process_market_exploration('180500')
 
                 # Wait for next spin loop as configured in the strategy
                 seconds = self.strategy.get_seconds_to_next_spin()
@@ -205,10 +205,10 @@ class TradingBot:
             - **node_id**: The node id to navigate markets in
         """
         node = self.IG.navigate_market_node(node_id)
-        if isinstance(node['nodes'], list):
+        if 'nodes' in node and isinstance(node['nodes'], list):
             for node in node['nodes']:
                 self.process_market_exploration(node['id'])
-        if isinstance(node['markets'], list):
+        if 'markets' in node and isinstance(node['markets'], list):
             for market in node['markets']:
                 if any(["DFB" in str(market['epic']),
                         "TODAY" in str(market['epic']),
