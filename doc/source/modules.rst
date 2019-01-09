@@ -69,12 +69,12 @@ SimpleMACD
 .. autoclass:: SimpleMACD
     :members:
 
-FAIG
-""""
+Weighted Average Peak Detection
+"""""""""""""""""""""""""""""""
 
-.. automodule:: Strategies.FAIG_iqr
+.. automodule:: Strategies.WeightedAvgPeak
 
-.. autoclass:: FAIG_iqr
+.. autoclass:: WeightedAvgPeak
     :members:
 
 Utils
