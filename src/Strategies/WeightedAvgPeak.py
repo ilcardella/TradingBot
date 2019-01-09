@@ -38,6 +38,7 @@ class WeightedAvgPeak(Strategy):
         self.too_high_margin = 100                   # No stupidly high pip limit per trade
         # Normally would be 3/22 days but dull stocks require a lower multiplier
         self.ce_multiplier = 2
+        self.greed_indicator = 99999
 
     def find_trade_signal(self, epic_id):
         """
@@ -158,11 +159,10 @@ class WeightedAvgPeak(Strategy):
         elif any(sell_rules):
             trade_direction = TradeDirection.SELL
 
-        if trade_direction is not TradeDirection.NONE:
-            logging.info("Strategy says: {} {}".format(
-                tradeDirection.name, marketId))
-        else:
+        if trade_direction is TradeDirection.NONE:
             return trade_direction, None, None
+
+        logging.info("Strategy says: {} {}".format(trade_direction.name, marketId))
 
         ATR = self.calculate_stop_loss(prices)
 
@@ -196,12 +196,11 @@ class WeightedAvgPeak(Strategy):
         if int(pip_limit) == 1:
             # not worth the trade
             trade_direction = "NONE"
-        if int(pip_limit) >= int(greed_indicator):
-            pip_limit = int(greed_indicator - 1)
+        if int(pip_limit) >= int(self.greed_indicator):
+            pip_limit = int(self.greed_indicator - 1)
         if int(stop_pips) > int(self.too_high_margin):
             logging.warning("Junk data for {}".format(epic_id))
             return TradeDirection.NONE, None, None
-
         return trade_direction, pip_limit, stop_pips
 
 
@@ -324,7 +323,7 @@ class WeightedAvgPeak(Strategy):
         return array(maxtab), array(mintab)
 
 
-    def Chandelier_Exit_formula(TRADE_DIR, ATR, Price):
+    def Chandelier_Exit_formula(self, TRADE_DIR, ATR, Price):
         # Chandelier Exit (long) = 22-day High - ATR(22) x 3
         # Chandelier Exit (short) = 22-day Low + ATR(22) x 3
         if TRADE_DIR is TradeDirection.BUY:
@@ -332,7 +331,7 @@ class WeightedAvgPeak(Strategy):
         elif TRADE_DIR is TradeDirection.SELL:
             return float(Price) + float(ATR) * int(self.ce_multiplier)
 
-    
+
     def get_market_snapshot(self, epic_id):
         """
         Fetch a market snapshot from the given epic id, and returns
