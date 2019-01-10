@@ -7,9 +7,9 @@
         "log_file": "{home}/.TradingBot/log/trading_bot_{timestamp}.log",
         "debug_log": false,
         "credentials_filepath": "../data/.credentials",
-        "use_av_api": true,
+        "use_av_api": false,
         "market_source": {
-            "value": "watchlist",
+            "value": "api",
             "options": [
                 "list",
                 "api",
@@ -26,7 +26,7 @@
         "order_expiry": "DFB",
         "order_currency": "GBP",
         "order_force_open": true,
-        "use_g_stop": true,
+        "use_g_stop": false,
         "use_demo_account": true,
         "controlled_risk": false,
         "paper_trading": false

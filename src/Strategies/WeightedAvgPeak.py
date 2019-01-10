@@ -192,10 +192,10 @@ class WeightedAvgPeak(Strategy):
             stop_pips = int(esma_new_margin_req)
         if int(pip_limit) == 0:
             # not worth the trade
-            trade_direction = "NONE"
+            trade_direction = TradeDirection.NONE
         if int(pip_limit) == 1:
             # not worth the trade
-            trade_direction = "NONE"
+            trade_direction = TradeDirection.NONE
         if int(pip_limit) >= int(self.greed_indicator):
             pip_limit = int(self.greed_indicator - 1)
         if int(stop_pips) > int(self.too_high_margin):
@@ -347,7 +347,7 @@ class WeightedAvgPeak(Strategy):
             or 'markets' in market  # means that epic_id is wrong
                 or market['snapshot']['bid'] is None
                 or market['snapshot']['offer'] is None):
-            raise Exception
+            raise Exception("Cannot fetch market snapshot")
 
         limit_perc = self.limit_p
         stop_perc = max(

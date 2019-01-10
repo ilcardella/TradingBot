@@ -80,7 +80,7 @@ class TradingBot:
         self.market_source = MarketSource(config['general']['market_source']['value'])
         self.watchlist_name = config['general']['watchlist_name']
         # AlphaVantage limits to 5 calls per minute
-        self.timeout = 12 if self.use_av_api else 1
+        self.timeout = 12 if self.use_av_api else 2
         self.active_strategy = config['general']['active_strategy']
 
 
@@ -238,6 +238,9 @@ class TradingBot:
             - Returns **False** if market is closed or if account reach maximum margin, otherwise **True**
         """
         percent_used = self.IG.get_account_used_perc()
+        if percent_used is None:
+            logging.warning("Stop trading because can't fetch percentage of account used")
+            return False
         if percent_used >= self.max_account_usable:
             logging.warning("Stop trading because {}% of account is used".format(str(percent_used)))
             return False
