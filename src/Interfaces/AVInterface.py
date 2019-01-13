@@ -77,6 +77,23 @@ class AVInterface():
                 "AlphaVantage wrong api call for {}".format(marketId))
         return None
 
+    def weekly(self, marketId):
+        """
+        Calls AlphaVantage API and return the Weekly time series for the given market
+
+            - **marketId**: string representing an AlphaVantage compatible market id
+            - Returns **None** if an error occurs otherwise the pandas dataframe
+        """
+        market = _format_market_id(marketId)
+        try:
+            data, meta_data = self.TS.get_weekly(
+                symbol=market, outputsize='full')
+            return data
+        except:
+            logging.error(
+                "AlphaVantage wrong api call for {}".format(marketId))
+        return None
+
     def macdext(self, marketId, interval):
         """
         Calls AlphaVantage API and return the MACDEXT tech indicator series for the given market

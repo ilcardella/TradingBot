@@ -55,32 +55,33 @@ class WeightedAvgPeak(Strategy):
         # Compute mid price
         current_mid = Utils.midpoint(current_bid, current_offer)
 
-        # TODO create function for weekly data
-        # if self.use_av_api:
-        #     px = self.AV.weekly(marketId)
-        #     if px is None:
-        #         return None
-        #     px.index = range(len(px))
-        # else:
-        prices = self.broker.get_prices(epic_id, 'WEEK', 18)
-        if prices is None:
-            logging.error('No historic prices available for {}'.format(epic_id))
-            return TradeDirection.NONE, None, None
-
-        high_prices = []
-        low_prices = []
-        close_prices = []
-        ltv = []
-
-        for i in prices['prices']:
-            if i['highPrice']['bid'] is not None:
-                high_prices.append(i['highPrice']['bid'])
-            if i['lowPrice']['bid'] is not None:
-                low_prices.append(i['lowPrice']['bid'])
-            if i['closePrice']['bid'] is not None:
-                close_prices.append(i['closePrice']['bid'])
-            if isinstance(i['lastTradedVolume'], int):
-                ltv.append(int(i['lastTradedVolume']))
+        if self.use_av_api:
+            px = self.AV.weekly(marketId)
+            if px is None:
+                return TradeDirection.NONE, None, None
+            px.index = range(len(px))
+            high_prices = px['2. high'].values
+            low_prices = px['3. low'].values
+            close_prices = px['4. close'].values
+            ltv = px['5. volume'].values
+        else:
+            prices = self.broker.get_prices(epic_id, 'WEEK', 18)
+            if prices is None:
+                logging.error('No historic prices available for {}'.format(epic_id))
+                return TradeDirection.NONE, None, None
+            high_prices = []
+            low_prices = []
+            close_prices = []
+            ltv = []
+            for i in prices['prices']:
+                if i['highPrice']['bid'] is not None:
+                    high_prices.append(i['highPrice']['bid'])
+                if i['lowPrice']['bid'] is not None:
+                    low_prices.append(i['lowPrice']['bid'])
+                if i['closePrice']['bid'] is not None:
+                    close_prices.append(i['closePrice']['bid'])
+                if isinstance(i['lastTradedVolume'], int):
+                    ltv.append(int(i['lastTradedVolume']))
 
         # Check dataset integrity
         array_len_check = []
@@ -164,7 +165,7 @@ class WeightedAvgPeak(Strategy):
 
         logging.info("Strategy says: {} {}".format(trade_direction.name, marketId))
 
-        ATR = self.calculate_stop_loss(prices)
+        ATR = self.calculate_stop_loss(close_prices, high_prices, low_prices)
 
         if trade_direction is TradeDirection.BUY:
             pip_limit = int(abs(float(max(high_prices)) -
@@ -204,35 +205,59 @@ class WeightedAvgPeak(Strategy):
         return trade_direction, pip_limit, stop_pips
 
 
-    def calculate_stop_loss(self, prices):
+    def calculate_stop_loss(self, close_prices, high_prices, low_prices):
         price_ranges = []
         closing_prices = []
         first_time_round_loop = True
         TR_prices = []
-        price_compare = "bid"
+        # They should be all the same length but just in case to be safe
+        length = min(len(close_prices), len(high_prices), len(low_prices))
 
-        for i in prices['prices']:
+        for index in range(length):
             if first_time_round_loop:
                 # First time round loop cannot get previous
-                closePrice = i['closePrice'][price_compare]
+                closePrice = close_prices[index]
                 closing_prices.append(closePrice)
-                high_price = i['highPrice'][price_compare]
-                low_price = i['lowPrice'][price_compare]
+                high_price = high_prices[index]
+                low_price = low_prices[index]
                 price_range = float(high_price - closePrice)
                 price_ranges.append(price_range)
                 first_time_round_loop = False
             else:
                 prev_close = closing_prices[-1]
-                closePrice = i['closePrice'][price_compare]
+                closePrice = close_prices[index]
                 closing_prices.append(closePrice)
-                high_price = i['highPrice'][price_compare]
-                low_price = i['lowPrice'][price_compare]
+                high_price = high_prices[index]
+                low_price = low_prices[index]
                 price_range = float(high_price - closePrice)
                 price_ranges.append(price_range)
                 TR = max(high_price - low_price,
                         abs(high_price - prev_close),
                         abs(low_price - prev_close))
                 TR_prices.append(TR)
+
+        # for i in prices['prices']:
+        #     if first_time_round_loop:
+        #         # First time round loop cannot get previous
+        #         closePrice = i['closePrice'][price_compare]
+        #         closing_prices.append(closePrice)
+        #         high_price = i['highPrice'][price_compare]
+        #         low_price = i['lowPrice'][price_compare]
+        #         price_range = float(high_price - closePrice)
+        #         price_ranges.append(price_range)
+        #         first_time_round_loop = False
+        #     else:
+        #         prev_close = closing_prices[-1]
+        #         closePrice = i['closePrice'][price_compare]
+        #         closing_prices.append(closePrice)
+        #         high_price = i['highPrice'][price_compare]
+        #         low_price = i['lowPrice'][price_compare]
+        #         price_range = float(high_price - closePrice)
+        #         price_ranges.append(price_range)
+        #         TR = max(high_price - low_price,
+        #                 abs(high_price - prev_close),
+        #                 abs(low_price - prev_close))
+        #         TR_prices.append(TR)
 
         return str(int(float(max(TR_prices))))
 
