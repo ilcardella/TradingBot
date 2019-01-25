@@ -39,8 +39,12 @@ test()
 start_docker()
 {
   echo Starting TradingBot in a Docker container...
-  mkdir -p /home/$USER/.TradingBot/log
-  docker run -dit --rm --name dkr_trading_bot -v /home/alberto/workspace/TradingBot:/app -v /home/$USER/.TradingBot/log:/root/.TradingBot/log python:3 /bin/bash app/run_docker.sh
+  LOG_DIR=$HOME/.TradingBot/log
+  SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
+  CONTAINER_NAME=dkr_trading_bot
+  IMAGE=python:3
+  mkdir -p $LOG_DIR
+  docker run -dit --rm --name $CONTAINER_NAME -v $SCRIPT_DIR:/app -v $LOG_DIR:/root/.TradingBot/log $IMAGE /bin/bash app/run_docker.sh
 }
 
 test_docker()
