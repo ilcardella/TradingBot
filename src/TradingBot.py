@@ -18,6 +18,7 @@ from Utils import Utils, TradeDirection, MarketSource
 from Interfaces.IGInterface import IGInterface
 from Interfaces.AVInterface import AVInterface
 from Strategies.StrategyFactory import StrategyFactory
+from Interfaces.Broker import Broker
 
 class TradingBot:
     """
@@ -42,11 +43,11 @@ class TradingBot:
         # Positions container
         self.positions = None
 
-        # Init trade services
-        services = self.init_trading_services(config, credentials)
+        # Init trade services and create the broker interface
+        self.broker = self.init_trading_services(config, credentials)
 
         # Create strategy from the factory class
-        self.strategy = StrategyFactory(config, services).make_strategy(
+        self.strategy = StrategyFactory(config, self.broker).make_strategy(
             self.active_strategy)
 
 
@@ -76,11 +77,8 @@ class TradingBot:
         self.log_file = config['general']['log_file']
         self.time_zone = config['general']['time_zone']
         self.max_account_usable = config['general']['max_account_usable']
-        self.use_av_api = config['general']['use_av_api']
         self.market_source = MarketSource(config['general']['market_source']['value'])
         self.watchlist_name = config['general']['watchlist_name']
-        # AlphaVantage limits to 5 calls per minute
-        self.timeout = 12 if self.use_av_api else 2
         self.active_strategy = config['general']['active_strategy']
 
 
@@ -113,22 +111,26 @@ class TradingBot:
 
             - **config** The configuration json
             - **credentials** The credentials json
+            - return: An instance of Broker class initialised
         """
         # Create IG interface
-        self.IG = IGInterface(config)
+        ig_index = IGInterface(config)
+        # TODO move the authentication in the constructor
         # Init the IG interface
-        if not self.IG.authenticate(credentials):
+        if not ig_index.authenticate(credentials):
             logging.error("Authentication failed")
             exit()
 
         # Init AlphaVantage interface
-        self.AV = AVInterface(credentials['av_api_key'])
+        alpha_vantage = AVInterface(credentials['av_api_key'])
 
-        # Create dict of services
-        return {
-            "broker": self.IG,
-            "alpha_vantage": self.AV
+        services = {
+            "ig_index": ig_index,
+            "alpha_vantage": alpha_vantage
         }
+
+        # Create the main Broker passing the trading services
+        return Broker(config, services)
 
 
     def load_epic_ids_from_local_file(self, filepath):
@@ -162,7 +164,7 @@ class TradingBot:
         while True:
             if Utils.is_market_open(self.time_zone):
                 # Process open positions
-                self.positions = self.IG.get_open_positions()
+                self.positions = self.broker.get_open_positions()
                 self.process_open_positions(self.positions)
 
                 if self.market_source == MarketSource.LIST:
@@ -189,7 +191,7 @@ class TradingBot:
 
             - **watchlist_name**: IG watchlist name
         """
-        markets = self.IG.get_markets_from_watchlist(self.watchlist_name)
+        markets = self.broker.get_markets_from_watchlist(self.watchlist_name)
         if markets is None:
             logging.error("Watchlist {} not found!".format(watchlist_name))
             return
@@ -204,7 +206,7 @@ class TradingBot:
 
             - **node_id**: The node id to navigate markets in
         """
-        node = self.IG.navigate_market_node(node_id)
+        node = self.broker.navigate_market_node(node_id)
         if 'nodes' in node and isinstance(node['nodes'], list):
             for node in node['nodes']:
                 self.process_market_exploration(node['id'])
@@ -237,7 +239,7 @@ class TradingBot:
             - **epic**: string representing a market epic id
             - Returns **False** if market is closed or if account reach maximum margin, otherwise **True**
         """
-        percent_used = self.IG.get_account_used_perc()
+        percent_used = self.broker.get_account_used_perc()
         if percent_used is None:
             logging.warning("Stop trading because can't fetch percentage of account used")
             return False
@@ -256,7 +258,7 @@ class TradingBot:
         Closes all the open positions in the account
         """
         logging.info("Closing all the open positions...")
-        if self.IG.close_all_positions():
+        if self.broker.close_all_positions():
             logging.info("All the posisions have been closed.")
         else:
             logging.error("Impossible to close all open positions, retry.")
@@ -292,13 +294,13 @@ class TradingBot:
                         logging.info( "There is already an open position for this epic, skip trade")
                     # If a trade in opposite direction exist, close the position
                     elif item['market']['epic'] == epic and trade.name != item['position']['direction']:
-                        self.IG.close_position(item)
-                self.IG.trade(epic, trade.name, limit, stop)
+                        self.broker.close_position(item)
+                self.broker.trade(epic, trade.name, limit, stop)
             else:
                 logging.error(
                     "Unable to fetch open positions! Avoid trading this epic")
         # Sleep for the defined timeout
-        time.sleep(self.timeout)
+        self.broker.wait_after_trade()
 
 
     def process_open_positions(self, positions):

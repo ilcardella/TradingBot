@@ -37,6 +37,15 @@ AVInterface
 .. autoclass:: AVInterface
     :members:
 
+Broker
+""""""
+
+.. automodule:: Interfaces.Broker
+
+.. autoclass:: Broker
+    :members:
+
+
 Strategies
 ^^^^^^^^^^
 

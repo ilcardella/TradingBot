@@ -11,6 +11,7 @@ sys.path.insert(0,'{}/src'.format(parentdir))
 
 from Strategies.WeightedAvgPeak import WeightedAvgPeak
 from Utils import TradeDirection
+from Interfaces.Broker import Broker
 
 class MockBroker:
     """
@@ -73,11 +74,12 @@ def config():
 
 def test_find_trade_signal(config):
     services = {
-        'broker': MockBroker('test/test_data/mock_ig_market_info.json',
+        'ig_index': MockBroker('test/test_data/mock_ig_market_info.json',
                                 'test/test_data/mock_ig_historic_price.json'),
         'alpha_vantage': MockAV('test/test_data/mock_av_weekly.json')
     }
-    strategy = WeightedAvgPeak(config, services)
+    broker = Broker(config, services)
+    strategy = WeightedAvgPeak(config, broker)
     tradeDir, limit, stop = strategy.find_trade_signal('MOCK')
 
     assert tradeDir is not None

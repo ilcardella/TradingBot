@@ -19,8 +19,9 @@ class WeightedAvgPeak(Strategy):
     """
     All credits of this strategy goes to GitHub user @tg12.
     """
-    def __init__(self, config, services):
-        super().__init__(config, services)
+    def __init__(self, config, broker):
+        super().__init__(config, broker)
+        logging.info('Weighted Average Peak strategy initialised.')
 
     def read_configuration(self, config):
         """
@@ -56,7 +57,7 @@ class WeightedAvgPeak(Strategy):
         current_mid = Utils.midpoint(current_bid, current_offer)
 
         if self.use_av_api:
-            px = self.AV.weekly(marketId)
+            px = self.broker.weekly(marketId)
             if px is None:
                 return TradeDirection.NONE, None, None
             px.index = range(len(px))

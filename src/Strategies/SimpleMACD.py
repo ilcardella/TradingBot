@@ -25,8 +25,8 @@ class SimpleMACD(Strategy):
     Sell when the MACD cross below the MACD signal.
     """
 
-    def __init__(self, config, services):
-        super().__init__(config, services)
+    def __init__(self, config, broker):
+        super().__init__(config, broker)
         logging.info('Simple MACD strategy initialised.')
 
     def read_configuration(self, config):
@@ -153,7 +153,7 @@ class SimpleMACD(Strategy):
 
     def get_dataframe_from_historic_prices(self, marketId, epic_id):
         if self.use_av_api:
-            px = self.AV.macdext(marketId, AVIntervals.DAILY)
+            px = self.broker.macdext(marketId, AVIntervals.DAILY)
             if px is None:
                 return None
             px.index = range(len(px))

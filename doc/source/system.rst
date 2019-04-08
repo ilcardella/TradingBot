@@ -72,9 +72,9 @@ to decide whether to buy, sell or hold a specific market.
     # Import any other required module
 
     class my_strategy(Strategy): # Extends Strategy module
-        def __init__(self, config, services):
+        def __init__(self, config, broker):
             # Call parent constructor
-            super().__init__(config)
+            super().__init__(config, broker)
 
         def read_configuration(self, config):
             # Read from the config json and store config parameters
@@ -101,11 +101,11 @@ to decide whether to buy, sell or hold a specific market.
 
         def make_strategy(self, strategy_name):
             if strategy_name == StrategyNames.SIMPLE_MACD.value:
-                return SimpleMACD(self.config, self.services)
+                return SimpleMACD(self.config, self.broker)
             elif strategy_name == StrategyNames.FAIG.value:
-                return FAIG_iqr(self.config, self.services)
+                return FAIG_iqr(self.config, self.broker)
             elif strategy.name == StrateyNames.MY_STRATEGY.value:
-                return MY_STRATEGY(self.config, self.services)
+                return MY_STRATEGY(self.config, self.broker)
             else:
                 logging.error('Impossible to create strategy {}. It does not exist'.format(strategy_name))
 
