@@ -1,7 +1,5 @@
 import logging
 import numpy as np
-import pandas as pd
-import requests
 import os
 import inspect
 import sys
@@ -58,7 +56,8 @@ class SimpleMACD(Strategy):
             return TradeDirection.NONE, None, None
 
         # Fetch historic prices and build a list with them ordered cronologically
-        px = self.get_dataframe_from_historic_prices(marketId, epic_id)
+        #px = self.get_dataframe_from_historic_prices(marketId, epic_id)
+        px = self.broker.macd_dataframe(epic_id, marketId, AVIntervals.DAILY)
 
         # Find where macd and signal cross each other
         px = self.generate_signals_from_dataframe(px)
@@ -130,39 +129,6 @@ class SimpleMACD(Strategy):
         current_offer = market['snapshot']['offer']
 
         return marketId, current_bid, current_offer, limit_perc, stop_perc
-
-
-    def compute_macd_from_timeseries(self, prices):
-        prevBid = 0
-        hist_data = []
-        for p in prices['prices']:
-            if p['closePrice']['bid'] is None:
-                hist_data.append(prevBid)
-            else:
-                hist_data.append(p['closePrice']['bid'])
-                prevBid = p['closePrice']['bid']
-        # Calculate the MACD indicator
-        px = pd.DataFrame({'close': hist_data})
-        px['26_ema'] = pd.DataFrame.ewm(px['close'], span=26).mean()
-        px['12_ema'] = pd.DataFrame.ewm(px['close'], span=12).mean()
-        px['MACD'] = (px['12_ema'] - px['26_ema'])
-        px['MACD_Signal'] = px['MACD'].rolling(9).mean()
-        px['MACD_Hist'] = (px['MACD'] - px['MACD_Signal'])
-        return px
-
-
-    def get_dataframe_from_historic_prices(self, marketId, epic_id):
-        if self.use_av_api:
-            px = self.broker.macdext(marketId, AVIntervals.DAILY)
-            if px is None:
-                return None
-            px.index = range(len(px))
-        else:
-            prices = self.broker.get_prices(epic_id, 'DAY', 26)
-            if prices is None:
-                return None
-            px = self.compute_macd_from_timeseries(prices)
-        return px
 
 
     def generate_signals_from_dataframe(self, dataframe):

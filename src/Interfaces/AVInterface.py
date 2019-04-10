@@ -107,6 +107,9 @@ class AVInterface():
             data, meta_data = self.TI.get_macdext(market, interval=interval.value, series_type='close',
                                                   fastperiod=12, slowperiod=26, signalperiod=9, fastmatype=2,
                                                   slowmatype=1, signalmatype=0)
+            if data is None:
+                return None
+            data.index = range(len(data))
             return data
         except:
             logging.error(

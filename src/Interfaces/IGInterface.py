@@ -5,6 +5,7 @@ import os
 import inspect
 import sys
 from enum import Enum
+import pandas as pd
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
@@ -417,3 +418,28 @@ class IGInterface():
                 return data
         except:
             return None
+
+    def macd_dataframe(self, epic, interval):
+        """
+        Return a datafram with MACD data for the requested market
+        """
+        prices = self.get_prices(epic, 'DAY', 26)
+        if prices is None:
+            return None
+        # Prepare data
+        prevBid = 0
+        hist_data = []
+        for p in prices['prices']:
+            if p['closePrice']['bid'] is None:
+                hist_data.append(prevBid)
+            else:
+                hist_data.append(p['closePrice']['bid'])
+                prevBid = p['closePrice']['bid']
+        # Calculate the MACD indicator
+        px = pd.DataFrame({'close': hist_data})
+        px['26_ema'] = pd.DataFrame.ewm(px['close'], span=26).mean()
+        px['12_ema'] = pd.DataFrame.ewm(px['close'], span=12).mean()
+        px['MACD'] = (px['12_ema'] - px['26_ema'])
+        px['MACD_Signal'] = px['MACD'].rolling(9).mean()
+        px['MACD_Hist'] = (px['MACD'] - px['MACD_Signal'])
+        return px

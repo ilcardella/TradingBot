@@ -17,13 +17,14 @@ class Broker():
     actions/tasks wrapping the actual implementation class internally
     """
     def __init__(self, config, services):
+        self.read_configuration(config)
         self.ig_index = services['ig_index']
         self.alpha_vantage = services['alpha_vantage']
 
     def read_configuration(self, config):
-        self.use_alpha_vantage = config['general']['use_av_api']
+        self.use_av_api = config['general']['use_av_api']
         # AlphaVantage limits to 5 calls per minute
-        self.trade_timeout = 12 if self.use_alpha_vantage else 2
+        self.trade_timeout = 12 if self.use_av_api else 2
 
     def wait_after_trade(self):
         """
@@ -80,11 +81,16 @@ class Broker():
         """
         return self.ig_index.get_market_info(epic)
 
-    def macdext(self, market_id, interval):
+    def macd_dataframe(self, epic, market_id, interval):
         """
-        TODO
+        Return a dataframe containing MACD tech indicator date for the requested
+        market with requested interval and range of data
         """
-        return self.alpha_vantage.macdext(market_id, interval)
+        if self.use_av_api:
+            return self.alpha_vantage.macdext(market_id, interval)
+        else:
+            return self.ig_index.macd_dataframe(epic, None)
+        return None
 
     def get_prices(self, epic, interval, range):
         """
