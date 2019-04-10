@@ -34,13 +34,16 @@ class IGInterface():
     """
     IG broker interface class, provides functions to use the IG REST API
     """
-    def __init__(self, config):
+    def __init__(self, config, credentials):
         self.read_configuration(config)
         demoPrefix = IG_API_URL.DEMO_PREFIX.value if self.useDemo else ''
         self.apiBaseURL = IG_API_URL.BASE_URI.value.replace('@', demoPrefix)
         self.authenticated_headers = {}
         if self.paperTrading:
             logging.info('Paper trading is active')
+        if not self.authenticate(credentials):
+            logging.error("Authentication failed")
+            exit()
         logging.info("IG initialised.")
 
 

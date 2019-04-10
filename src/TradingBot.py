@@ -113,23 +113,10 @@ class TradingBot:
             - **credentials** The credentials json
             - return: An instance of Broker class initialised
         """
-        # Create IG interface
-        ig_index = IGInterface(config)
-        # TODO move the authentication in the constructor
-        # Init the IG interface
-        if not ig_index.authenticate(credentials):
-            logging.error("Authentication failed")
-            exit()
-
-        # Init AlphaVantage interface
-        alpha_vantage = AVInterface(credentials['av_api_key'])
-
         services = {
-            "ig_index": ig_index,
-            "alpha_vantage": alpha_vantage
+            "ig_index": IGInterface(config, credentials),
+            "alpha_vantage": AVInterface(credentials['av_api_key'])
         }
-
-        # Create the main Broker passing the trading services
         return Broker(config, services)
 
 

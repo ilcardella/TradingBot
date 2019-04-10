@@ -44,13 +44,25 @@ def credentials():
         "av_api_key": "12345"
     }
 
+@pytest.fixture
+def mock_auth(requests_mock):
+    # Define mock requests
+    mock_headers = {
+        'CST': 'mock',
+        'X-SECURITY-TOKEN': 'mock'
+    }
+    data = read_json('test/test_data/mock_ig_login.json')
+    requests_mock.post('https://demo-api.ig.com/gateway/deal/session',
+                       json=data, headers=mock_headers)
+    data = read_json('test/test_data/mock_ig_set_account.json')
+    requests_mock.put('https://demo-api.ig.com/gateway/deal/session', json=data)
 
 @pytest.fixture
-def ig(config):
+def ig(config, credentials, mock_auth):
     """
     Returns a instance of IGInterface
     """
-    return IGInterface(config)
+    return IGInterface(config, credentials)
 
 
 def read_json(filepath):
