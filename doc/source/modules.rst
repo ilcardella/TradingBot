@@ -1,3 +1,5 @@
+.. _modules:
+
 Modules
 =======
 
@@ -19,7 +21,9 @@ Interfaces
 
 The ``Interfaces`` module contains all those interfaces with external
 services used by TradingBot.
-Ideally these interfaces should be completely independent and reusable.
+The ``Broker`` class is the wrapper of all the trading services and provides
+the main interface for the ``strategies`` to access market data and perform
+trades.
 
 IGInterface
 """""""""""
@@ -36,6 +40,15 @@ AVInterface
 
 .. autoclass:: AVInterface
     :members:
+
+Broker
+""""""
+
+.. automodule:: Interfaces.Broker
+
+.. autoclass:: Broker
+    :members:
+
 
 Strategies
 ^^^^^^^^^^

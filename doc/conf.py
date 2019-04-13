@@ -20,7 +20,7 @@ sys.path.insert(0, os.path.abspath('../src'))
 # -- Project information -----------------------------------------------------
 
 project = 'TradingBot'
-copyright = '2018, Alberto Cardellini'
+copyright = '2019, Alberto Cardellini'
 author = 'Alberto Cardellini'
 
 # The short X.Y version
@@ -42,6 +42,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.coverage',
     'sphinx.ext.napoleon',
+    'sphinx.ext.viewcode',
     'm2r'
 ]
 

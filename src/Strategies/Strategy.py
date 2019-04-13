@@ -4,10 +4,9 @@ class Strategy:
     Provide safety checks for new trades and handling of open positions.
     """
 
-    def __init__(self, config, services):
+    def __init__(self, config, broker):
         self.positions = {}
-        self.broker = services['broker']
-        self.AV = services['alpha_vantage']
+        self.broker = broker
         # This can be overwritten in children class
         self.spin_interval = 3600
         # This must be the last operation of this function to override possible values in children class

@@ -60,6 +60,27 @@ test_docker()
   docker run -it --rm -v $(pwd):/app python:3 /bin/bash -cx "cd app && ./trading_bot_ctl test"
 }
 
+docs()
+{
+  sphinx-build -nWT -b html doc doc/_build/html
+}
+
+help()
+{
+  echo "Invalid command!"
+  echo "Try with:"
+  echo "  help - Show this help message"
+  echo "  start - Start TradingBot"
+  echo "  stop - Stop TradingBot"
+  echo "  close_positions - Close all open positions and stop TradingBot"
+  echo "  install_deps - Install TradingBot dependencies"
+  echo "  test - Run TradingBot automatic test suite"
+  echo "  test_docker - Run TradingBot automatic test suite inside docker containers"
+  echo "  start_docker - Run TradingBot in a docker container"
+  echo "  docs - Build TradingBot documentation"
+}
+
 case $1 in
-  start|stop|close_positions|install_deps|test|test_docker|start_docker) "$1" ;;
+  start|stop|close_positions|install_deps|test|test_docker|start_docker|docs) "$1" ;;
+  *) help ;;
 esac

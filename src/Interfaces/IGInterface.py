@@ -1,11 +1,11 @@
 import requests
 import json
 import logging
-import time
 import os
 import inspect
 import sys
 from enum import Enum
+import pandas as pd
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
@@ -34,13 +34,16 @@ class IGInterface():
     """
     IG broker interface class, provides functions to use the IG REST API
     """
-    def __init__(self, config):
+    def __init__(self, config, credentials):
         self.read_configuration(config)
         demoPrefix = IG_API_URL.DEMO_PREFIX.value if self.useDemo else ''
         self.apiBaseURL = IG_API_URL.BASE_URI.value.replace('@', demoPrefix)
         self.authenticated_headers = {}
         if self.paperTrading:
             logging.info('Paper trading is active')
+        if not self.authenticate(credentials):
+            logging.error("Authentication failed")
+            exit()
         logging.info("IG initialised.")
 
 
@@ -181,19 +184,16 @@ class IGInterface():
         return market if market is not None else None
 
 
-    def get_prices(self, epic_id, resolution, interval):
+    def get_prices(self, epic_id, interval, data_range):
         """
         Returns past prices for the given epic
 
             - **epic_id**: market epic as string
-            - **resolution**: resolution of the time series: minute, hours, etc.
-            - **interval**: amount of datapoint to fetch
+            - **interval**: resolution of the time series: minute, hours, etc.
+            - **data_range**: amount of datapoint to fetch
             - Returns **None** if an error occurs otherwise the json object returned by IG API
         """
-        # Price resolution (MINUTE, MINUTE_2, MINUTE_3, MINUTE_5,
-        # MINUTE_10, MINUTE_15, MINUTE_30, HOUR, HOUR_2, HOUR_3,
-        # HOUR_4, DAY, WEEK, MONTH)
-        url = '{}/{}/{}/{}/{}'.format(self.apiBaseURL, IG_API_URL.PRICES.value, epic_id, resolution, interval)
+        url = '{}/{}/{}/{}/{}'.format(self.apiBaseURL, IG_API_URL.PRICES.value, epic_id, interval, data_range)
         d = self.http_get(url)
         if d is not None and 'allowance' in d:
             remaining_allowance = d['allowance']['remainingAllowance']
@@ -418,3 +418,28 @@ class IGInterface():
                 return data
         except:
             return None
+
+    def macd_dataframe(self, epic, interval):
+        """
+        Return a datafram with MACD data for the requested market
+        """
+        prices = self.get_prices(epic, 'DAY', 26)
+        if prices is None:
+            return None
+        # Prepare data
+        prevBid = 0
+        hist_data = []
+        for p in prices['prices']:
+            if p['closePrice']['bid'] is None:
+                hist_data.append(prevBid)
+            else:
+                hist_data.append(p['closePrice']['bid'])
+                prevBid = p['closePrice']['bid']
+        # Calculate the MACD indicator
+        px = pd.DataFrame({'close': hist_data})
+        px['26_ema'] = pd.DataFrame.ewm(px['close'], span=26).mean()
+        px['12_ema'] = pd.DataFrame.ewm(px['close'], span=12).mean()
+        px['MACD'] = (px['12_ema'] - px['26_ema'])
+        px['MACD_Signal'] = px['MACD'].rolling(9).mean()
+        px['MACD_Hist'] = (px['MACD'] - px['MACD_Signal'])
+        return px

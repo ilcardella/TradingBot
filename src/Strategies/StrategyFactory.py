@@ -21,18 +21,18 @@ class StrategyFactory:
     Factory class to create instances of Strategies. The class provide an
     interface to instantiate new objects of a given Strategy name
     """
-    def __init__(self, config, services):
+    def __init__(self, config, broker):
         """
         Constructor of the StrategyFactory
 
             - **config**: config json used to initialise Strategies
-            - **services**: dictionary including interfaces used to initialise
+            - **broker**: instance of Broker class
               Strategies
             - Return the instance of the StrategyFactory
         """
         self.read_configuration(config)
         self.config = config
-        self.services = services
+        self.broker = broker
 
     def read_configuration(self, config):
         pass
@@ -48,8 +48,8 @@ class StrategyFactory:
               error occurres
         """
         if strategy_name == StrategyNames.SIMPLE_MACD.value:
-            return SimpleMACD(self.config, self.services)
+            return SimpleMACD(self.config, self.broker)
         elif strategy_name == StrategyNames.WEIGHTED_AVG_PEAK.value:
-            return WeightedAvgPeak(self.config, self.services)
+            return WeightedAvgPeak(self.config, self.broker)
         else:
             logging.error('Strategy {} does not exist'.format(strategy_name))

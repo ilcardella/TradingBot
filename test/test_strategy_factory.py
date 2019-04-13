@@ -28,22 +28,19 @@ def config():
 
 
 @pytest.fixture
-def services():
-    return {
-        "broker": "mock",
-        "alpha_vantage": "mock"
-    }
+def broker():
+    return "mock"
 
-def test_make_strategy_fail(config, services):
-    sf = StrategyFactory(config, services)
+def test_make_strategy_fail(config, broker):
+    sf = StrategyFactory(config, broker)
     strategy = sf.make_strategy('')
     assert strategy is None
 
     strategy = sf.make_strategy('wrong')
     assert strategy is None
 
-def test_make_strategy(config, services):
-    sf = StrategyFactory(config,services)
+def test_make_strategy(config, broker):
+    sf = StrategyFactory(config,broker)
     strategy = sf.make_strategy('simple_macd')
     assert isinstance(strategy, SimpleMACD)
 
