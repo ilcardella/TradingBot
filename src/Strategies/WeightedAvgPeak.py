@@ -28,7 +28,6 @@ class WeightedAvgPeak(Strategy):
         Read the json configuration
         """
         self.spin_interval = config['strategies']['weighted_avg_peak']['spin_interval']
-        self.controlledRisk = config['ig_interface']['controlled_risk']
         self.max_spread = config['strategies']['weighted_avg_peak']['max_spread']
         self.limit_p = config['strategies']['weighted_avg_peak']['limit_perc']
         self.stop_p = config['strategies']['weighted_avg_peak']['stop_perc']
@@ -45,8 +44,15 @@ class WeightedAvgPeak(Strategy):
         TODO add description of strategy key points
         """
         # Fetch data for the market
-        marketId, current_bid, current_offer, limit_perc, stop_perc = self.get_market_snapshot(
-            epic_id)
+        snapshot = self.broker.get_market_info(epic_id)
+        if snapshot is None:
+            return TradeDirection.NONE, None, None
+
+        market_id = snapshot['market_id']
+        current_bid = snapshot['bid']
+        current_offer = snapshot['offer']
+        limit_perc = self.limit_p
+        stop_perc = max(snapshot['stop_distance_min'], self.stop_p)
 
         # Spread constraint
         if current_bid - current_offer > self.max_spread:
@@ -56,9 +62,9 @@ class WeightedAvgPeak(Strategy):
         current_mid = Utils.midpoint(current_bid, current_offer)
 
         # Fetch past prices of the market with weekly resolution
-        data = self.broker.get_prices(epic_id, marketId, Interval.WEEK, 18)
+        data = self.broker.get_prices(epic_id, market_id, Interval.WEEK, 18)
         if data is None:
-            logging.error('No historic data available for {} ({})'.format(epic_id, marketId))
+            logging.error('No historic data available for {} ({})'.format(epic_id, market_id))
             return TradeDirection.NONE, None, None
         high_prices = data['high']
         low_prices = data['low']
@@ -145,7 +151,7 @@ class WeightedAvgPeak(Strategy):
         if trade_direction is TradeDirection.NONE:
             return trade_direction, None, None
 
-        logging.info("Strategy says: {} {}".format(trade_direction.name, marketId))
+        logging.info("Strategy says: {} {}".format(trade_direction.name, market_id))
 
         ATR = self.calculate_stop_loss(close_prices, high_prices, low_prices)
 
@@ -338,36 +344,6 @@ class WeightedAvgPeak(Strategy):
         elif TRADE_DIR is TradeDirection.SELL:
             return float(Price) + float(ATR) * int(self.ce_multiplier)
 
-
-    def get_market_snapshot(self, epic_id):
-        """
-        Fetch a market snapshot from the given epic id, and returns
-        the **marketId** and the bid/offer prices
-
-            - **epic_id**: market epic as string
-            - Returns marketId, bidPrice, offerPrice
-        """
-        # Fetch current market data
-        market = self.broker.get_market_info(epic_id)
-        # Safety checks
-        if (market is None
-            or 'markets' in market  # means that epic_id is wrong
-                or market['snapshot']['bid'] is None
-                or market['snapshot']['offer'] is None):
-            raise Exception("Cannot fetch market snapshot")
-
-        limit_perc = self.limit_p
-        stop_perc = max(
-            [market['dealingRules']['minNormalStopOrLimitDistance']['value'], self.stop_p])
-        if self.controlledRisk:
-            # +1 to avoid rejection
-            stop_perc = market['dealingRules']['minControlledRiskStopDistance']['value'] + 1
-        # Extract market Id
-        marketId = market['instrument']['marketId']
-        current_bid = market['snapshot']['bid']
-        current_offer = market['snapshot']['offer']
-
-        return marketId, current_bid, current_offer, limit_perc, stop_perc
 
     def get_seconds_to_next_spin(self):
         # Return the amount of seconds between each spin of the strategy

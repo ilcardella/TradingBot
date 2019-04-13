@@ -181,7 +181,7 @@ class IGInterface():
         """
         url = '{}/{}/{}'.format(self.apiBaseURL, IG_API_URL.MARKETS.value, epic_id)
         market = self.http_get(url)
-        return market if market is not None else None
+        return market
 
 
     def get_prices(self, epic_id, interval, data_range):
@@ -201,7 +201,7 @@ class IGInterface():
             if remaining_allowance < 100:
                 logging.warn("Remaining API calls left: {}".format(str(remaining_allowance)))
                 logging.warn("Time to API Key reset: {}".format(str(reset_time)))
-        return d if d is not None else None
+        return d
 
 
     def trade(self, epic_id, trade_direction, limit, stop):

@@ -83,7 +83,13 @@ class MockBroker:
         self.use_av_api = config['alpha_vantage']['enable']
 
     def get_market_info(self, epic):
-        return self.ig.get_market_info(epic)
+        data = {}
+        info = self.ig.get_market_info(epic)
+        data['market_id'] = info['instrument']['marketId']
+        data['bid'] = info['snapshot']['bid']
+        data['offer'] = info['snapshot']['offer']
+        data['stop_distance_min'] = info['dealingRules']['minNormalStopOrLimitDistance']['value']
+        return data
 
     def get_prices(self, epic, market_id, interval, range):
         data = {'high': [], 'low': [], 'close': [], 'volume': []}

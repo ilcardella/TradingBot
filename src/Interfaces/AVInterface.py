@@ -44,9 +44,11 @@ class AVInterface():
         self.TI = TechIndicators(key=apiKey, output_format='pandas')
         logging.info('AlphaVantage initialised.')
 
+
     def read_configuration(self, config):
         self.enable = config['alpha_vantage']['enable']
         self.api_timeout = config['alpha_vantage']['api_timeout']
+
 
     def get_prices(self, market_id, interval):
         """
@@ -67,6 +69,7 @@ class AVInterface():
         else:
             return None
 
+
     def daily(self, marketId):
         """
         Calls AlphaVantage API and return the Daily time series for the given market
@@ -84,6 +87,7 @@ class AVInterface():
             logging.error(
                 "AlphaVantage wrong api call for {}".format(market))
         return None
+
 
     def intraday(self, marketId, interval):
         """
@@ -108,6 +112,7 @@ class AVInterface():
                 "AlphaVantage wrong api call for {}".format(market))
         return None
 
+
     def weekly(self, marketId):
         """
         Calls AlphaVantage API and return the Weekly time series for the given market
@@ -125,6 +130,27 @@ class AVInterface():
             logging.error(
                 "AlphaVantage wrong api call for {}".format(market))
         return None
+
+
+    def quote_endpoint(self, market_id):
+        """
+        Calls AlphaVantage API and return the Quote Endpoint data for the given market
+
+            - **market_id**: string representing the market id to fetch data of
+            - Returns **None** if an error occurs otherwise the pandas dataframe
+        """
+        self._wait_before_call()
+        market = self._format_market_id(market_id)
+        try:
+            data, meta_data = self.TS.get_quote_endpoint(
+                symbol=market, outputsize='full')
+            return data
+        except:
+            logging.error(
+                "AlphaVantage wrong api call for {}".format(market))
+        return None
+
+# Technical indicators
 
     def macdext(self, marketId, interval):
         """
@@ -168,12 +194,15 @@ class AVInterface():
                 "AlphaVantage wrong api call for {}".format(market))
         return None
 
+# Utils functions
+
     def _format_market_id(self, marketId):
         """
         Convert a standard market id to be compatible with AlphaVantage API.
         Adds the market exchange prefix (i.e. London is LON:)
         """
         return '{}:{}'.format('LON', marketId.split('-')[0])
+
 
     def _wait_before_call(self):
         """
