@@ -43,6 +43,7 @@ class Broker():
 
     def read_configuration(self, config):
         self.use_av_api = config['alpha_vantage']['enable']
+        self.controlled_risk = config['ig_interface']['controlled_risk']
 
 
     def get_open_positions(self):
@@ -103,10 +104,24 @@ class Broker():
 
     def get_market_info(self, epic):
         """
-        Return the last available snapshot of the requested market including
-        prices and volume info
+        **IG INDEX API ONLY**
+        Return the last available snapshot of the requested market as a dict:
+        - data = {'market_id': <value>, 'bid': <value>,'offer': <value>, 'stop_distance_min': <value>}
         """
-        return self.ig_index.get_market_info(epic)
+        data = {'market_id': None, 'bid': None,
+                'offer': None, 'stop_distance_min': None}
+        info = self.ig_index.get_market_info(epic)
+        if (info is None or
+            'markets' in info or # means that epic_id is wrong
+            info['snapshot']['bid'] is None or
+            info['snapshot']['offer'] is None):
+            return None
+        data['market_id'] = info['instrument']['marketId']
+        data['bid'] = info['snapshot']['bid']
+        data['offer'] = info['snapshot']['offer']
+        stop_dist_key = 'minControlledRiskStopDistance' if self.controlled_risk else 'minNormalStopOrLimitDistance'
+        data['stop_distance_min'] = info['dealingRules'][stop_dist_key]['value']
+        return data
 
 
     def macd_dataframe(self, epic, market_id, interval):

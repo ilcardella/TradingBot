@@ -106,21 +106,6 @@ def test_calculate_stop_limit(strategy):
     assert limit is None
     assert stop is None
 
-def test_get_market_snapshot(strategy):
-    marketId, current_bid, current_offer, limit_perc, stop_perc = strategy.get_market_snapshot('mock')
-
-    # TODO MockBroker should save a self instance of the json read from file
-    # These asserts should refer to the values in that json object rather than being hardcoded
-    assert marketId == 'GSK-UK'
-    assert current_bid == 1562.0
-    assert current_offer == 1565.8
-    assert limit_perc == strategy.limit_p
-    assert stop_perc == strategy.stop_p
-
-def test_get_market_snapshot_invalid(strategy):
-    # TODO add exception test cases, wrong id, null bid, null offer, etc.
-    assert True
-
 def test_generate_signals_from_dataframe(strategy):
     px = strategy.broker.macd_dataframe('mock', 'mock', 'mock')
     px = strategy.generate_signals_from_dataframe(px)

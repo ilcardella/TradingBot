@@ -32,7 +32,6 @@ class SimpleMACD(Strategy):
         Read the json configuration
         """
         self.spin_interval = config['strategies']['simple_macd']['spin_interval']
-        self.controlledRisk = config['ig_interface']['controlled_risk']
         self.max_spread_perc = config['strategies']['simple_macd']['max_spread_perc']
         self.limit_p = config['strategies']['simple_macd']['limit_perc']
         self.stop_p = config['strategies']['simple_macd']['stop_perc']
@@ -47,16 +46,22 @@ class SimpleMACD(Strategy):
             - Returns TradeDirection, limit_level, stop_level or TradeDirection.NONE, None, None
         """
         # Fetch data for the market
-        marketId, current_bid, current_offer, limit_perc, stop_perc = self.get_market_snapshot(
-            epic_id)
+        snapshot = self.broker.get_market_info(epic_id)
+        if snapshot is None:
+            return TradeDirection.NONE, None, None
+
+        market_id = snapshot['market_id']
+        current_bid = snapshot['bid']
+        current_offer = snapshot['offer']
+        limit_perc = self.limit_p
+        stop_perc = max(snapshot['stop_distance_min'], self.stop_p)
 
         # Spread constraint
         if current_bid - current_offer > self.max_spread_perc:
             return TradeDirection.NONE, None, None
 
         # Fetch historic prices and build a list with them ordered cronologically
-        #px = self.get_dataframe_from_historic_prices(marketId, epic_id)
-        px = self.broker.macd_dataframe(epic_id, marketId, Interval.DAY)
+        px = self.broker.macd_dataframe(epic_id, market_id, Interval.DAY)
 
         # Find where macd and signal cross each other
         px = self.generate_signals_from_dataframe(px)
@@ -66,7 +71,7 @@ class SimpleMACD(Strategy):
         # Log only tradable epics
         if tradeDirection is not TradeDirection.NONE:
             logging.info("SimpleMACD says: {} {}".format(
-                tradeDirection.name, marketId))
+                tradeDirection.name, market_id))
 
         # Calculate stop and limit distances
         limit, stop = self.calculate_stop_limit(
@@ -97,37 +102,6 @@ class SimpleMACD(Strategy):
         """
         # Run this strategy at market opening
         return Utils.get_seconds_to_market_opening(datetime.now())
-
-
-    def get_market_snapshot(self, epic_id):
-        """
-        Fetch a market snapshot from the given epic id, and returns
-        the **marketId** and the bid/offer prices
-
-            - **epic_id**: market epic as string
-            - Returns marketId, bidPrice, offerPrice
-        """
-        # Fetch current market data
-        market = self.broker.get_market_info(epic_id)
-        # Safety checks
-        if (market is None
-            or 'markets' in market  # means that epic_id is wrong
-                or market['snapshot']['bid'] is None
-                or market['snapshot']['offer'] is None):
-            raise Exception
-
-        limit_perc = self.limit_p
-        stop_perc = max(
-            [market['dealingRules']['minNormalStopOrLimitDistance']['value'], self.stop_p])
-        if self.controlledRisk:
-            # +1 to avoid rejection
-            stop_perc = market['dealingRules']['minControlledRiskStopDistance']['value'] + 1
-        # Extract market Id
-        marketId = market['instrument']['marketId']
-        current_bid = market['snapshot']['bid']
-        current_offer = market['snapshot']['offer']
-
-        return marketId, current_bid, current_offer, limit_perc, stop_perc
 
 
     def generate_signals_from_dataframe(self, dataframe):
