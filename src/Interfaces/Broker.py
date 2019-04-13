@@ -106,7 +106,6 @@ class Broker():
         Return the last available snapshot of the requested market including
         prices and volume info
         """
-        # TODO use AlphaVantage Quote Endpoint call if av enabled
         return self.ig_index.get_market_info(epic)
 
 
