@@ -139,12 +139,7 @@ class Broker():
     def get_prices(self, epic, market_id, interval, data_range):
         """
         Return historic price of the requested market as a dictionary:
-            - data = {
-                'high': [],
-                'low': [],
-                'close' [],
-                'volume' []
-              }
+            - data = {'high': [], 'low': [], 'close': [], 'volume': []}
         """
         data = {'high': [], 'low': [], 'close': [], 'volume': []}
         if self.use_av_api:

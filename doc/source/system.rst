@@ -31,6 +31,8 @@ it should be independent from its underlying implementation.
 
 At the current status, the only supported broker is IGIndex. This broker
 provides a very good set of API to analyse the market and manage the account.
+TradingBot makes also use of other 3rd party services to fetch market data such
+as price snapshot or technical indicators.
 
 Strategy
 """"""""
@@ -81,17 +83,23 @@ to decide whether to buy, sell or hold a specific market.
 
         def find_trade_signal(self, epic_id):
             # Given an IG epic decide the trade direction
+            # Here is where you want to implement your own code!
             # return TradeDirection.XXX, stop_level, limit_level
 
         def get_seconds_to_next_spin(self):
             # Return the amount of seconds between each spin of the strategy
-            # Each spin analyse all the markets in the list/watchlist
+            # Each spin analyses all the markets in a list/watchlist
 
 #. Add the implementation for these functions:
 
    * *read_configuration*: ``config`` is the json object loaded from the ``config.json`` file
    * *find_trade_signal*: it is the core of your custom strategy, here you can use the broker interface to decide if trade the given epic
    * *get_seconds_to_next_spin*: the *find_trade_signal* is called for every epic requested. After that TradingBot will wait for the amount of seconds defined in this function
+
+#. ``Strategy`` parent class provides a ``Broker`` type internal member that
+   can be accessed with ``self.broker``. This member is the TradingBot broker
+   interface and provide functions to fetch market data, historic prices and
+   technical indicators. See the :ref:`modules` section for more details.
 
 #. Edit the ``StrategyFactory`` module inporting the new strategy and adding
    its name to the ``StrategyNames`` enum. Then add it to the *make* function
