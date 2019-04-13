@@ -8,6 +8,7 @@ import os
 import sys
 import inspect
 from random import shuffle
+import traceback
 
 currentdir = os.path.dirname(os.path.abspath(
     inspect.getfile(inspect.currentframe())))
@@ -271,6 +272,9 @@ class TradingBot:
             trade, limit, stop = self.strategy.find_trade_signal(epic)
         except Exception as e:
             logging.error('Exception: {}'.format(e))
+            logging.debug(e)
+            logging.debug(traceback.format_exc())
+            logging.debug(sys.exc_info()[0])
             trade = TradeDirection.NONE
 
         if trade is not TradeDirection.NONE:

@@ -85,6 +85,7 @@ class Utils:
 
             - **timezone**: string representing the timezone
         """
+        return True
         tz = pytz.timezone(timezone)
         now_time = datetime.now(tz=tz).strftime('%H:%M')
         return (BankHolidays().is_work_day(datetime.now(tz=tz)) and
