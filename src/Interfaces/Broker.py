@@ -2,7 +2,6 @@ import logging
 import os
 import inspect
 import sys
-import time
 from enum import Enum
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
@@ -43,17 +42,7 @@ class Broker():
 
 
     def read_configuration(self, config):
-        self.use_av_api = config['general']['use_av_api']
-        # AlphaVantage limits to 5 calls per minute
-        self.trade_timeout = 12 if self.use_av_api else 2
-
-
-    def wait_after_trade(self):
-        """
-        Wait for the required amount of time after a trade call. Depends on
-        broker API calls restrictions
-        """
-        time.sleep(self.trade_timeout)
+        self.use_av_api = config['alpha_vantage']['enable']
 
 
     def get_open_positions(self):

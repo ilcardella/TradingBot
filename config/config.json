@@ -1,5 +1,5 @@
 {
-    "general" : {
+    "general": {
         "max_account_usable": 50,
         "esma_stocks_margin_perc": 20,
         "time_zone": "Europe/London",
@@ -7,7 +7,6 @@
         "log_file": "{home}/.TradingBot/log/trading_bot_{timestamp}.log",
         "debug_log": false,
         "credentials_filepath": "../data/.credentials",
-        "use_av_api": false,
         "market_source": {
             "value": "api",
             "options": [
@@ -20,7 +19,7 @@
         "watchlist_name": "trading_bot",
         "active_strategy": "weighted_avg_peak"
     },
-    "ig_interface" : {
+    "ig_interface": {
         "order_type": "MARKET",
         "order_size": 1,
         "order_expiry": "DFB",
@@ -30,6 +29,10 @@
         "use_demo_account": true,
         "controlled_risk": false,
         "paper_trading": false
+    },
+    "alpha_vantage": {
+        "enable": true,
+        "api_timeout": 12
     },
     "strategies": {
         "faig": {
