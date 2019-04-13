@@ -167,18 +167,12 @@ Read the documentation at:
 
 https://tradingbot.readthedocs.io
 
-You can build it locally from the project root folder:
+You can build it locally with:
 ```
-sphinx-build -b html doc doc/_build/html
-```
-or
-
-```
-cd doc
-make html
+./trading_bot_ctl docs
 ```
 
-The generated html files will be under `doc/_build/html`.
+The generated html files will be in `doc/_build/html`.
 
 # Automate
 
