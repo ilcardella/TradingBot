@@ -22,7 +22,7 @@ def config():
     try:
         with open('config/config.json', 'r') as file:
             config = json.load(file)
-            config['general']['use_av_api'] = True
+            config['alpha_vantage']['enable'] = True
     except IOError:
         exit()
     return config

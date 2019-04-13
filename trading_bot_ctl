@@ -2,17 +2,17 @@
 
 start()
 {
-  echo Starting TradingBot...
   cd src
   python3 main.py & echo $! > pid.txt
+  echo TradingBot started
 }
 
 stop()
 {
-  echo Stopping TradingBot...
   cd src
   cat pid.txt | xargs kill
   rm pid.txt
+  echo TradingBot stopped
 }
 
 close_positions()

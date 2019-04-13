@@ -84,13 +84,11 @@ how TradingBot work. These are the description of each parameter:
 #### General
 
 - **max_account_usable**: The maximum percentage of account funds to use (A safe value is around 50%)
-- **esma_stocks_margin_perc**: The ESMA new margin percentage for shares (currently 20%)
 - **time_zone**: The timezone to use (i.e. 'Europe/London)
 - **enable_log**: Enable the log in a file rather than on stdout
 - **log_file**: Define the full file path for the log file to use, if enabled. {home} and {timestamp} placeholders are replaced with the user home directory and the timestamp when TradingBot started
 - **debug_log**: Enable the debug level in the logging
 - **credentials_filepath**: Filepath for the `.credentials` file
-- **use_av_api**: Enable the use of AlphaVantage to fetch historic market prices
 - **market_source**: The source to use to fetch the market ids. Available values are explained in the `Setup` section below.
 - **epic_ids_filepath**:  The full file path for the local file containing the list of epic ids
 - **watchlist_name**: The watchlist name to use as market source, if selected
@@ -107,6 +105,11 @@ how TradingBot work. These are the description of each parameter:
 - **use_demo_account**: Trade on the DEMO IG account. If enabled remember to setup the demo account credentials too
 - **controlled_risk**: Enable the controlled risk stop loss calculation. Enable only if you have a controlled risk account.
 - **paper_trading**: Enable the `paper trading`. No real trades will be done on the IG account.
+
+#### Alpha Vantage
+
+- **enable**: Enable the use of AlphaVantage API
+- **api_timeout**: Timeout in seconds between each API call
 
 #### Strategies
 

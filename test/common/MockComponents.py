@@ -80,7 +80,7 @@ class MockBroker:
     def __init__(self, config, services):
         self.ig = services['ig_index']
         self.av = services['alpha_vantage']
-        self.use_av_api = config['general']['use_av_api']
+        self.use_av_api = config['alpha_vantage']['enable']
 
     def get_market_info(self, epic):
         return self.ig.get_market_info(epic)

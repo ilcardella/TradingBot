@@ -33,7 +33,6 @@ class SimpleMACD(Strategy):
         """
         self.spin_interval = config['strategies']['simple_macd']['spin_interval']
         self.controlledRisk = config['ig_interface']['controlled_risk']
-        self.use_av_api = config['general']['use_av_api']
         self.max_spread_perc = config['strategies']['simple_macd']['max_spread_perc']
         self.limit_p = config['strategies']['simple_macd']['limit_perc']
         self.stop_p = config['strategies']['simple_macd']['stop_perc']

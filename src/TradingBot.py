@@ -115,7 +115,7 @@ class TradingBot:
         """
         services = {
             "ig_index": IGInterface(config, credentials),
-            "alpha_vantage": AVInterface(credentials['av_api_key'])
+            "alpha_vantage": AVInterface(credentials['av_api_key'], config)
         }
         return Broker(config, services)
 
@@ -286,8 +286,6 @@ class TradingBot:
             else:
                 logging.error(
                     "Unable to fetch open positions! Avoid trading this epic")
-        # Sleep for the defined timeout
-        self.broker.wait_after_trade()
 
 
     def process_open_positions(self, positions):

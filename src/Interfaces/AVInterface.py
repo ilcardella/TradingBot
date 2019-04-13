@@ -5,6 +5,8 @@ from enum import Enum
 import os
 import sys
 import inspect
+import datetime as dt
+import time
 
 from alpha_vantage.timeseries import TimeSeries
 from alpha_vantage.techindicators import TechIndicators
@@ -34,11 +36,17 @@ class AVInterface():
     and return the result in useful format handling possible errors.
     """
 
-    def __init__(self, apiKey):
+    def __init__(self, apiKey, config):
+        self.read_configuration(config)
+        self._last_call_ts = dt.datetime.now()
         self.TS = TimeSeries(
             key=apiKey, output_format='pandas', indexing_type='integer', treat_info_as_error=True)
         self.TI = TechIndicators(key=apiKey, output_format='pandas')
         logging.info('AlphaVantage initialised.')
+
+    def read_configuration(self, config):
+        self.enable = config['alpha_vantage']['enable']
+        self.api_timeout = config['alpha_vantage']['api_timeout']
 
     def get_prices(self, market_id, interval):
         """
@@ -66,6 +74,7 @@ class AVInterface():
             - **marketId**: string representing an AlphaVantage compatible market id
             - Returns **None** if an error occurs otherwise the pandas dataframe
         """
+        self._wait_before_call()
         market = self._format_market_id(marketId)
         try:
             data, meta_data = self.TS.get_daily(
@@ -84,6 +93,7 @@ class AVInterface():
             - **interval**: string representing an AlphaVantage interval type
             - Returns **None** if an error occurs otherwise the pandas dataframe
         """
+        self._wait_before_call()
         if (interval is AVIntervals.DAILY):
             logging.error(
                 "AlphaVantage Intraday does not support DAILY interval")
@@ -105,6 +115,7 @@ class AVInterface():
             - **marketId**: string representing an AlphaVantage compatible market id
             - Returns **None** if an error occurs otherwise the pandas dataframe
         """
+        self._wait_before_call()
         market = self._format_market_id(marketId)
         try:
             data, meta_data = self.TS.get_weekly(
@@ -123,6 +134,7 @@ class AVInterface():
             - **interval**: string representing an AlphaVantage interval type
             - Returns **None** if an error occurs otherwise the pandas dataframe
         """
+        self._wait_before_call()
         market = self._format_market_id(marketId)
         try:
             data, meta_data = self.TI.get_macdext(market, interval=interval.value, series_type='close',
@@ -145,6 +157,7 @@ class AVInterface():
             - **interval**: string representing an AlphaVantage interval type
             - Returns **None** if an error occurs otherwise the pandas dataframe
         """
+        self._wait_before_call()
         market = self._format_market_id(marketId)
         try:
             data, meta_data = self.TI.get_macd(market, interval=interval.value, series_type='close',
@@ -161,3 +174,11 @@ class AVInterface():
         Adds the market exchange prefix (i.e. London is LON:)
         """
         return '{}:{}'.format('LON', marketId.split('-')[0])
+
+    def _wait_before_call(self):
+        """
+        Wait between API calls to not overload the server
+        """
+        while (dt.datetime.now() - self._last_call_ts) <= dt.timedelta(seconds=self.api_timeout):
+            time.sleep(0.5)
+        self._last_call_ts = dt.datetime.now()
