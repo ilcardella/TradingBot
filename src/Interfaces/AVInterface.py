@@ -14,16 +14,18 @@ parentdir = os.path.dirname(currentdir)
 sys.path.insert(0,parentdir)
 
 
-class AVIntervals(Enum):
+class AVInterval(Enum):
     """
     AlphaVantage interval types: '1min', '5min', '15min', '30min', '60min'
     """
-    DAILY = 'daily'
-    MIN_60 = '60min'
-    MIN_30 = '30min'
-    MIN_15 = '15min'
-    MIN_5 = '5min'
     MIN_1 = '1min'
+    MIN_5 = '5min'
+    MIN_15 = '15min'
+    MIN_30 = '30min'
+    MIN_60 = '60min'
+    DAILY = 'daily'
+    WEEKLY = 'weekly'
+    MONTHLY = 'monthly'
 
 
 class AVInterface():
@@ -38,6 +40,25 @@ class AVInterface():
         self.TI = TechIndicators(key=apiKey, output_format='pandas')
         logging.info('AlphaVantage initialised.')
 
+    def get_prices(self, market_id, interval):
+        """
+        Return the price time series of the requested market with the interval
+        granularity. Return None if the interval is invalid
+        """
+        if (interval == AVInterval.MIN_1 or
+            interval == AVInterval.MIN_5 or
+            interval == AVInterval.MIN_15 or
+            interval == AVInterval.MIN_30 or
+            interval == AVInterval.MIN_60):
+            return self.intraday(market_id, interval)
+        elif interval == AVInterval.DAILY:
+            return self.daily(market_id)
+        elif interval == AVInterval.WEEKLY:
+            return self.weekly(market_id)
+        # TODO implement monthly call
+        else:
+            return None
+
     def daily(self, marketId):
         """
         Calls AlphaVantage API and return the Daily time series for the given market
@@ -45,14 +66,14 @@ class AVInterface():
             - **marketId**: string representing an AlphaVantage compatible market id
             - Returns **None** if an error occurs otherwise the pandas dataframe
         """
-        market = _format_market_id(marketId)
+        market = self._format_market_id(marketId)
         try:
             data, meta_data = self.TS.get_daily(
                 symbol=market, outputsize='full')
             return data
         except:
             logging.error(
-                "AlphaVantage wrong api call for {}".format(marketId))
+                "AlphaVantage wrong api call for {}".format(market))
         return None
 
     def intraday(self, marketId, interval):
@@ -67,14 +88,14 @@ class AVInterface():
             logging.error(
                 "AlphaVantage Intraday does not support DAILY interval")
             return None
-        market = _format_market_id(marketId)
+        market = self._format_market_id(marketId)
         try:
             data, meta_data = self.TS.get_intraday(
                 symbol=market, interval=interval.value, outputsize='full')
             return data
         except:
             logging.error(
-                "AlphaVantage wrong api call for {}".format(marketId))
+                "AlphaVantage wrong api call for {}".format(market))
         return None
 
     def weekly(self, marketId):
@@ -84,14 +105,14 @@ class AVInterface():
             - **marketId**: string representing an AlphaVantage compatible market id
             - Returns **None** if an error occurs otherwise the pandas dataframe
         """
-        market = _format_market_id(marketId)
+        market = self._format_market_id(marketId)
         try:
             data, meta_data = self.TS.get_weekly(
                 symbol=market, outputsize='full')
             return data
         except:
             logging.error(
-                "AlphaVantage wrong api call for {}".format(marketId))
+                "AlphaVantage wrong api call for {}".format(market))
         return None
 
     def macdext(self, marketId, interval):
@@ -113,7 +134,7 @@ class AVInterface():
             return data
         except:
             logging.error(
-                "AlphaVantage wrong api call for {}".format(marketId))
+                "AlphaVantage wrong api call for {}".format(market))
         return None
 
     def macd(self, marketId, interval):
@@ -131,7 +152,7 @@ class AVInterface():
             return data
         except:
             logging.error(
-                "AlphaVantage wrong api call for {}".format(marketId))
+                "AlphaVantage wrong api call for {}".format(market))
         return None
 
     def _format_market_id(self, marketId):

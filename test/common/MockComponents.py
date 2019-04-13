@@ -26,7 +26,7 @@ class MockIG:
             exit()
         return mock
 
-    def get_prices(self, epic_id, interval, range):
+    def get_prices(self, epic_id, interval, data_range):
         # Read mock file
         try:
             with open(self.mockPricesFilepath, 'r') as file:
@@ -85,8 +85,20 @@ class MockBroker:
     def get_market_info(self, epic):
         return self.ig.get_market_info(epic)
 
-    def get_prices(self, epic, interval, range):
-        return self.ig.get_prices(epic, interval, range)
+    def get_prices(self, epic, market_id, interval, range):
+        data = {'high': [], 'low': [], 'close': [], 'volume': []}
+        prices = self.ig.get_prices(epic, interval, range)
+        for i in prices['prices']:
+            if i['highPrice']['bid'] is not None:
+                data['high'].append(i['highPrice']['bid'])
+            if i['lowPrice']['bid'] is not None:
+                data['low'].append(i['lowPrice']['bid'])
+            if i['closePrice']['bid'] is not None:
+                data['close'].append(i['closePrice']['bid'])
+            if isinstance(i['lastTradedVolume'], int):
+                data['volume'].append(int(i['lastTradedVolume']))
+        return data
+
 
     def macd_dataframe(self, epic, market_id, interval):
         if self.use_av_api:

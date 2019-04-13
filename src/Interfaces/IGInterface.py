@@ -184,19 +184,16 @@ class IGInterface():
         return market if market is not None else None
 
 
-    def get_prices(self, epic_id, resolution, interval):
+    def get_prices(self, epic_id, interval, data_range):
         """
         Returns past prices for the given epic
 
             - **epic_id**: market epic as string
-            - **resolution**: resolution of the time series: minute, hours, etc.
-            - **interval**: amount of datapoint to fetch
+            - **interval**: resolution of the time series: minute, hours, etc.
+            - **data_range**: amount of datapoint to fetch
             - Returns **None** if an error occurs otherwise the json object returned by IG API
         """
-        # Price resolution (MINUTE, MINUTE_2, MINUTE_3, MINUTE_5,
-        # MINUTE_10, MINUTE_15, MINUTE_30, HOUR, HOUR_2, HOUR_3,
-        # HOUR_4, DAY, WEEK, MONTH)
-        url = '{}/{}/{}/{}/{}'.format(self.apiBaseURL, IG_API_URL.PRICES.value, epic_id, resolution, interval)
+        url = '{}/{}/{}/{}/{}'.format(self.apiBaseURL, IG_API_URL.PRICES.value, epic_id, interval, data_range)
         d = self.http_get(url)
         if d is not None and 'allowance' in d:
             remaining_allowance = d['allowance']['remainingAllowance']

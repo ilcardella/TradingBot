@@ -13,7 +13,7 @@ sys.path.insert(0,parentdir)
 
 from .Strategy import Strategy
 from Utils import Utils, TradeDirection
-from Interfaces.AVInterface import AVIntervals
+from Interfaces.Broker import Interval
 
 class WeightedAvgPeak(Strategy):
     """
@@ -29,7 +29,6 @@ class WeightedAvgPeak(Strategy):
         """
         self.spin_interval = config['strategies']['weighted_avg_peak']['spin_interval']
         self.controlledRisk = config['ig_interface']['controlled_risk']
-        self.use_av_api = config['general']['use_av_api']
         self.max_spread = config['strategies']['weighted_avg_peak']['max_spread']
         self.limit_p = config['strategies']['weighted_avg_peak']['limit_perc']
         self.stop_p = config['strategies']['weighted_avg_peak']['stop_perc']
@@ -43,7 +42,7 @@ class WeightedAvgPeak(Strategy):
 
     def find_trade_signal(self, epic_id):
         """
-        TODO add description of strategy foundation
+        TODO add description of strategy key points
         """
         # Fetch data for the market
         marketId, current_bid, current_offer, limit_perc, stop_perc = self.get_market_snapshot(
@@ -56,33 +55,15 @@ class WeightedAvgPeak(Strategy):
         # Compute mid price
         current_mid = Utils.midpoint(current_bid, current_offer)
 
-        if self.use_av_api:
-            px = self.broker.weekly(marketId)
-            if px is None:
-                return TradeDirection.NONE, None, None
-            px.index = range(len(px))
-            high_prices = px['2. high'].values
-            low_prices = px['3. low'].values
-            close_prices = px['4. close'].values
-            ltv = px['5. volume'].values
-        else:
-            prices = self.broker.get_prices(epic_id, 'WEEK', 18)
-            if prices is None:
-                logging.error('No historic prices available for {}'.format(epic_id))
-                return TradeDirection.NONE, None, None
-            high_prices = []
-            low_prices = []
-            close_prices = []
-            ltv = []
-            for i in prices['prices']:
-                if i['highPrice']['bid'] is not None:
-                    high_prices.append(i['highPrice']['bid'])
-                if i['lowPrice']['bid'] is not None:
-                    low_prices.append(i['lowPrice']['bid'])
-                if i['closePrice']['bid'] is not None:
-                    close_prices.append(i['closePrice']['bid'])
-                if isinstance(i['lastTradedVolume'], int):
-                    ltv.append(int(i['lastTradedVolume']))
+        # Fetch past prices of the market with weekly resolution
+        data = self.broker.get_prices(epic_id, marketId, Interval.WEEK, 18)
+        if data is None:
+            logging.error('No historic data available for {} ({})'.format(epic_id, marketId))
+            return TradeDirection.NONE, None, None
+        high_prices = data['high']
+        low_prices = data['low']
+        close_prices = data['close']
+        ltv = data['volume']
 
         # Check dataset integrity
         array_len_check = []

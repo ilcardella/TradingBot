@@ -10,7 +10,7 @@ currentdir = os.path.dirname(os.path.abspath(
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir)
 
-from Interfaces.AVInterface import AVIntervals
+from Interfaces.Broker import Interval
 from .Strategy import Strategy
 from Utils import Utils, TradeDirection
 
@@ -57,7 +57,7 @@ class SimpleMACD(Strategy):
 
         # Fetch historic prices and build a list with them ordered cronologically
         #px = self.get_dataframe_from_historic_prices(marketId, epic_id)
-        px = self.broker.macd_dataframe(epic_id, marketId, AVIntervals.DAILY)
+        px = self.broker.macd_dataframe(epic_id, marketId, Interval.DAY)
 
         # Find where macd and signal cross each other
         px = self.generate_signals_from_dataframe(px)
