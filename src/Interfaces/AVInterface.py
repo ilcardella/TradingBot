@@ -177,8 +177,8 @@ class AVInterface():
 
     def _wait_before_call(self):
         """
-        Wait between API calls
+        Wait between API calls to not overload the server
         """
         while (dt.datetime.now() - self._last_call_ts) <= dt.timedelta(seconds=self.api_timeout):
-            time.sleep(1)
+            time.sleep(0.5)
         self._last_call_ts = dt.datetime.now()

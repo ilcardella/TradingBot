@@ -87,4 +87,5 @@ class Utils:
         """
         tz = pytz.timezone(timezone)
         now_time = datetime.now(tz=tz).strftime('%H:%M')
-        return Utils.is_between(str(now_time), ("07:55", "16:35"))
+        return (BankHolidays().is_work_day(datetime.now(tz=tz)) and
+            Utils.is_between(str(now_time), ("07:55", "16:35")))

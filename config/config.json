@@ -1,7 +1,6 @@
 {
     "general": {
         "max_account_usable": 50,
-        "esma_stocks_margin_perc": 20,
         "time_zone": "Europe/London",
         "enable_log": false,
         "log_file": "{home}/.TradingBot/log/trading_bot_{timestamp}.log",
@@ -35,10 +34,6 @@
         "api_timeout": 12
     },
     "strategies": {
-        "faig": {
-            "stop_loss_multiplier": 3,
-            "too_high_margin": 100
-        },
         "simple_macd": {
             "spin_interval": -1,
             "max_spread_perc": 5,

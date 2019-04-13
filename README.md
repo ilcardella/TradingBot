@@ -84,7 +84,6 @@ how TradingBot work. These are the description of each parameter:
 #### General
 
 - **max_account_usable**: The maximum percentage of account funds to use (A safe value is around 50%)
-- **esma_stocks_margin_perc**: The ESMA new margin percentage for shares (currently 20%)
 - **time_zone**: The timezone to use (i.e. 'Europe/London)
 - **enable_log**: Enable the log in a file rather than on stdout
 - **log_file**: Define the full file path for the log file to use, if enabled. {home} and {timestamp} placeholders are replaced with the user home directory and the timestamp when TradingBot started
