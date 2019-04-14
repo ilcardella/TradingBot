@@ -3,7 +3,7 @@
 start()
 {
   cd src
-  python3 main.py & echo $! > pid.txt
+  nohup python3 -u main.py > log.txt 2>&1 & echo $! > pid.txt
   echo TradingBot started
 }
 

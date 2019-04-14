@@ -2,7 +2,7 @@
     "general": {
         "max_account_usable": 50,
         "time_zone": "Europe/London",
-        "enable_log": false,
+        "enable_log": true,
         "log_file": "{home}/.TradingBot/log/trading_bot_{timestamp}.log",
         "debug_log": false,
         "credentials_filepath": "../data/.credentials",
