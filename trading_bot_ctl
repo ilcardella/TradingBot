@@ -67,7 +67,6 @@ docs()
 
 help()
 {
-  echo "Invalid command!"
   echo "Try with:"
   echo "  help - Show this help message"
   echo "  start - Start TradingBot"
