@@ -5,7 +5,7 @@
         "enable_log": true,
         "log_file": "{home}/.TradingBot/log/trading_bot_{timestamp}.log",
         "debug_log": false,
-        "credentials_filepath": "../data/.credentials",
+        "credentials_filepath": "{home}/.TradingBot/data/.credentials",
         "market_source": {
             "value": "api",
             "options": [
@@ -14,7 +14,7 @@
                 "watchlist"
             ]
         },
-        "epic_ids_filepath": "../data/epic_ids.txt",
+        "epic_ids_filepath": "{home}/.TradingBot/data/epic_ids.txt",
         "watchlist_name": "trading_bot",
         "active_strategy": "weighted_avg_peak"
     },
