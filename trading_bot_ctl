@@ -69,7 +69,13 @@ start_docker()
   echo Starting TradingBot in a Docker container...
   CONTAINER_NAME=dkr_trading_bot
   IMAGE=python:3
-  docker run -dit --rm --name $CONTAINER_NAME -v $INSTALL_DIR:/app -v $TRADINGBOT_DIR:/root/.TradingBot -w "/app" $IMAGE /bin/bash -cx run_docker.sh
+  docker run -dit --rm --name $CONTAINER_NAME -v $INSTALL_DIR:$INSTALL_DIR -v $TRADINGBOT_DIR:/root/.TradingBot -w "/app" $IMAGE /bin/bash -cx "$INSTALL_DIR/trading_bot_ctl run_docker"
+}
+
+run_docker()
+{
+  $INSTALL_DIR/trading_bot_ctl install_deps
+  $INSTALL_DIR/trading_bot_ctl start
 }
 
 test_docker()
@@ -132,6 +138,6 @@ install()
 }
 
 case $1 in
-  start|stop|close_positions|install_deps|test|test_docker|start_docker|docs|install) "$1" ;;
+  start|stop|close_positions|install_deps|test|test_docker|start_docker|docs|install|run_docker) "$1" ;;
   *) help ;;
 esac
