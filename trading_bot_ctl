@@ -16,17 +16,16 @@ LOG_FILE=$LOG_DIR/log.txt
 CONFIG_FILE=$CONFIG_DIR/config.json
 CREDENTIALS_FILE=$DATA_DIR/.credentials
 RUN_ARGS=""
-#RUN_COMMAND="nohup /usr/bin/python3 -u $INSTALL_DIR/main.py $RUN_ARGS > $LOG_FILE 2>&1 & echo $! > $PID_FILE"
 PYTHON_BIN="$(command -v python3) -u"
 MAIN_BIN="$INSTALL_DIR/main.py"
-#RUN_COMMAND="nohup $PYTHON_BIN $MAIN_BIN $RUN_ARGS >$LOG_FILE 2>&1 & echo $! > $PID_FILE"
 RUN_COMMAND="$PYTHON_BIN $MAIN_BIN $RUN_ARGS"
 PIP_BIN="pip3"
+
+CONTAINER_NAME=dkr_trading_bot
 
 start()
 {
   RUN_ARGS=""
-  #$RUN_COMMAND
   nohup $RUN_COMMAND >$LOG_FILE 2>&1 & echo $! > $PID_FILE
   echo TradingBot started
 }
@@ -48,7 +47,6 @@ close_positions()
 install_deps()
 {
   echo Installing dependencies...
-  # TODO check if pip is installed and install it
   if ! command -v $PIP_BIN > /dev/null 2>&1;
   then
       apt-get install -y python3-pip
@@ -67,15 +65,21 @@ test()
 start_docker()
 {
   echo Starting TradingBot in a Docker container...
-  CONTAINER_NAME=dkr_trading_bot
   IMAGE=python:3
-  docker run -dit --rm --name $CONTAINER_NAME -v $INSTALL_DIR:$INSTALL_DIR -v $TRADINGBOT_DIR:/root/.TradingBot -w "/app" $IMAGE /bin/bash -cx "$INSTALL_DIR/trading_bot_ctl run_docker"
+  docker run -dit --rm --name $CONTAINER_NAME \
+    -v $INSTALL_DIR:$INSTALL_DIR -v $TRADINGBOT_DIR:/root/.TradingBot \
+    -w "/app" $IMAGE /bin/bash -cx "$INSTALL_DIR/trading_bot_ctl run_docker"
 }
 
 run_docker()
 {
   $INSTALL_DIR/trading_bot_ctl install_deps
   $INSTALL_DIR/trading_bot_ctl start
+}
+
+stop_docker()
+{
+  docker kill $CONTAINER_NAME
 }
 
 test_docker()
@@ -138,6 +142,6 @@ install()
 }
 
 case $1 in
-  start|stop|close_positions|install_deps|test|test_docker|start_docker|docs|install|run_docker) "$1" ;;
+  start|stop|close_positions|install_deps|test|test_docker|start_docker|docs|install|run_docker|stop_docker) "$1" ;;
   *) help ;;
 esac

@@ -23,15 +23,22 @@ starting point for this project. Thank you.
 
 View file `requirements.txt` for the full list of dependencies.
 
+# Install
+
+TradingBot can be controlled by the `trading_bot_ctl` shell script which provides several commands to perform different actions.
+After cloning this repo, to install TradingBot simply run:
+```
+sudo ./trading_bot_ctl install
+```
+
+The required dependencies will be installed and all necessary files installed in ``/opt/TradingBot`` by default. It is recommended to add this path to your ``PATH`` environment variable.
+
+The last step is to set file permissions on the installed folders for your user with the following command:
+```
+sudo chown -R $USER: $HOME/.TradingBot
+```
+
 # Setup
-
-It is recommended to use a virtual environment or a Docker container (see below
-for Docker instructions).
-
-Install dependencies with pip
-```
-pip install -r requirements.txt
-```
 
 Login to your IG Dashboard
 
@@ -122,27 +129,23 @@ Settings specific for each strategy
 - **limit_perc**: Limit percentage to take profit for each trade
 - **stop_perc**: Stop percentage to stop any loss
 
-# Run
 
-TradingBot can be controlled by the `trading_bot_ctl` shell script.
-The script provides several commands to perform different actions:
+# Start TradingBot
 
-### Start TradingBot
-:
 ```
 ./trading_bot_ctl start
 ```
 
-### Stop TradingBot
-
-```
-./trading_bot_ctl stop
-```
-
-### Close all the open positions
+## Close all the open positions
 
 ```
 ./trading_bot_ctl close_positions
+```
+
+# Stop TradingBot
+
+```
+./trading_bot_ctl stop
 ```
 
 # Test
@@ -200,7 +203,11 @@ You can run TradingBot in a Docker container (https://docs.docker.com/):
 ```
 The container will be called `dkr_trading_bot` and the logs will still be stored in the configured folder in the host machine. By default `~/.TradingBot/log`.
 
-To stop TradingBot just kill the container:
+To stop TradingBot:
+```
+./trading_bot_ctl stop_docker
+```
+or just kill the container:
 ```
 docker kill dkr_trading_bot
 ```
