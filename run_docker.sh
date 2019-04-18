@@ -1,6 +1,4 @@
 #!/bin/bash
 
-cd app
-pip install -r requirements.txt
-cd src
-python main.py
+/opt/TradingBot/trading_bot_ctl install_deps
+/opt/TradingBot/trading_bot_ctl start

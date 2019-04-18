@@ -9,18 +9,25 @@ CONFIG_DIR=$TRADINGBOT_DIR/config
 INSTALL_DIR=/opt/TradingBot
 
 SCRIPT_FILE=$SCRIPT_DIR/trading_bot_ctl
+DOCKER_SCRIPT_FILE=$SCRIPT_DIR/run_docker.sh
+REQUIREMENTS_FILE=$SCRIPT_DIR/requirements.txt
 PID_FILE=$LOG_DIR/pid.txt
 LOG_FILE=$LOG_DIR/log.txt
 CONFIG_FILE=$CONFIG_DIR/config.json
 CREDENTIALS_FILE=$DATA_DIR/.credentials
 RUN_ARGS=""
-RUN_COMMAND="nohup /usr/bin/python3 -u $INSTALL_DIR/main.py $RUN_ARGS > $LOG_FILE 2>&1 & echo $! > $PID_FILE"
-echo $RUN_COMMAND
+#RUN_COMMAND="nohup /usr/bin/python3 -u $INSTALL_DIR/main.py $RUN_ARGS > $LOG_FILE 2>&1 & echo $! > $PID_FILE"
+PYTHON_BIN="$(command -v python3) -u"
+MAIN_BIN="$INSTALL_DIR/main.py"
+#RUN_COMMAND="nohup $PYTHON_BIN $MAIN_BIN $RUN_ARGS >$LOG_FILE 2>&1 & echo $! > $PID_FILE"
+RUN_COMMAND="$PYTHON_BIN $MAIN_BIN $RUN_ARGS"
+PIP_BIN="pip3"
 
 start()
 {
   RUN_ARGS=""
-  $RUN_COMMAND
+  #$RUN_COMMAND
+  nohup $RUN_COMMAND >$LOG_FILE 2>&1 & echo $! > $PID_FILE
   echo TradingBot started
 }
 
@@ -35,13 +42,18 @@ close_positions()
 {
   echo Starting TradingBot to close positions...
   RUN_ARGS="-c"
-  $RUN_COMMAND
+  nohup $RUN_COMMAND >$LOG_FILE 2>&1 & echo $! > $PID_FILE
 }
 
 install_deps()
 {
   echo Installing dependencies...
-  pip install -r requirements.txt
+  # TODO check if pip is installed and install it
+  if ! command -v $PIP_BIN > /dev/null 2>&1;
+  then
+      apt-get install -y python3-pip
+  fi
+  $PIP_BIN install -r $REQUIREMENTS_FILE
 }
 
 test()
@@ -57,8 +69,7 @@ start_docker()
   echo Starting TradingBot in a Docker container...
   CONTAINER_NAME=dkr_trading_bot
   IMAGE=python:3
-  mkdir -p $LOG_DIR
-  docker run -dit --rm --name $CONTAINER_NAME -v $SCRIPT_DIR:/app -v $LOG_DIR:/root/.TradingBot/log $IMAGE /bin/bash app/run_docker.sh
+  docker run -dit --rm --name $CONTAINER_NAME -v $INSTALL_DIR:/app -v $TRADINGBOT_DIR:/root/.TradingBot -w "/app" $IMAGE /bin/bash -cx run_docker.sh
 }
 
 test_docker()
@@ -97,12 +108,16 @@ help()
 install()
 {
   echo Installing TradingBot...
+  # Install dependencies
+  install_deps
   # Create installation directory
   mkdir -p $INSTALL_DIR
   # Copy sources in installation directory
   rsync -avm --include='*.py' -f 'hide,! */' $SCRIPT_DIR/src/ $INSTALL_DIR
-  # Copy this script too
+  # Copy scripts too
   cp $SCRIPT_FILE $INSTALL_DIR
+  cp $DOCKER_SCRIPT_FILE $INSTALL_DIR
+  cp $REQUIREMENTS_FILE $INSTALL_DIR
   # Create TradingBot user folder
   mkdir -p $TRADINGBOT_DIR
   mkdir -p $CONFIG_DIR
@@ -110,6 +125,10 @@ install()
   mkdir -p $DATA_DIR
   # Copy config file
   cp -p $SCRIPT_DIR/config/config.json $CONFIG_DIR/config.json
+  # Message
+  echo IMPORTANT: change ownership of the following folder: $TRADINGBOT_DIR
+  echo Use the following command: sudo chown -R '$USER': $TRADINGBOT_DIR
+
 }
 
 case $1 in
