@@ -10,6 +10,6 @@ pytz==2018.9
 requests==2.20.1
 requests-mock==1.5.2
 Sphinx==1.8.5
-sphinx-rtd-theme==0.4.2
+sphinx-rtd-theme==0.4.3
 m2r==0.2.1
 scipy==1.2.1
