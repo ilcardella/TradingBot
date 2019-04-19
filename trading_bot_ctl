@@ -9,7 +9,6 @@ CONFIG_DIR=$TRADINGBOT_DIR/config
 INSTALL_DIR=/opt/TradingBot
 
 SCRIPT_FILE=$SCRIPT_DIR/trading_bot_ctl
-DOCKER_SCRIPT_FILE=$SCRIPT_DIR/run_docker.sh
 REQUIREMENTS_FILE=$SCRIPT_DIR/requirements.txt
 PID_FILE=$LOG_DIR/pid.txt
 LOG_FILE=$LOG_DIR/log.txt
@@ -126,7 +125,6 @@ install()
   rsync -avm --include='*.py' -f 'hide,! */' $SCRIPT_DIR/src/ $INSTALL_DIR
   # Copy scripts too
   cp $SCRIPT_FILE $INSTALL_DIR
-  cp $DOCKER_SCRIPT_FILE $INSTALL_DIR
   cp $REQUIREMENTS_FILE $INSTALL_DIR
   # Create TradingBot user folder
   mkdir -p $TRADINGBOT_DIR
