@@ -9,7 +9,7 @@ pytest==4.4.1
 pytz==2019.1
 requests==2.21.0
 requests-mock==1.5.2
-Sphinx==1.8.5
+Sphinx==2.0.1
 sphinx-rtd-theme==0.4.3
 m2r==0.2.1
 scipy==1.2.1
