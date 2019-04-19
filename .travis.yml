@@ -8,11 +8,6 @@ python:
 
 cache: pip
 
-# command to install dependencies
-install:
-  - pip install -r requirements.txt
-
 # command to run tests
 script:
-  - sphinx-build -nWT -b dummy doc doc/_build/html
-  - pytest
+  - ./trading_bot_ctl test
