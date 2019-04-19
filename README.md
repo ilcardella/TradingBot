@@ -136,7 +136,7 @@ Settings specific for each strategy
 ./trading_bot_ctl start
 ```
 
-## Close all the open positions
+### Close all the open positions
 
 ```
 ./trading_bot_ctl close_positions
