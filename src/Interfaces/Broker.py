@@ -148,10 +148,13 @@ class Broker():
         if self.use_av_api:
             av_interval = self.to_av_interval(interval)
             if av_interval is None:
+                logging.error('Error converting interval {} to AVInterval'.format(interval.name))
                 return None
 
             dataframe = self.alpha_vantage.get_prices(market_id, av_interval)
             if dataframe is None:
+                logging.error("Error fetching prices from AlphaVantage API for {} with {}".format(
+                    market_id, av_interval.name))
                 return None
 
             #dataframe.index = range(len(dataframe)

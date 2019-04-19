@@ -8,6 +8,7 @@ import os
 import sys
 import inspect
 from random import shuffle
+import traceback
 
 currentdir = os.path.dirname(os.path.abspath(
     inspect.getfile(inspect.currentframe())))
@@ -31,7 +32,9 @@ class TradingBot:
         set(pytz.all_timezones_set)
 
         # Load configuration
-        config = self.load_json_file('../config/config.json')
+        home_path = os.path.expanduser('~')
+        config_filepath='{}/.TradingBot/config/config.json'.format(home_path)
+        config = self.load_json_file(config_filepath)
         self.read_configuration(config)
 
         # Read credentials file
@@ -70,11 +73,12 @@ class TradingBot:
         """
         Read the configuration from the config json
         """
-        self.epic_ids_filepath = config['general']['epic_ids_filepath']
-        self.credentials_filepath = config['general']['credentials_filepath']
+        home = os.path.expanduser('~')
+        self.epic_ids_filepath = config['general']['epic_ids_filepath'].replace('{home}', home)
+        self.credentials_filepath = config['general']['credentials_filepath'].replace('{home}', home)
         self.debug_log = config['general']['debug_log']
         self.enable_log = config['general']['enable_log']
-        self.log_file = config['general']['log_file']
+        self.log_file = config['general']['log_file'].replace('{home}', home)
         self.time_zone = config['general']['time_zone']
         self.max_account_usable = config['general']['max_account_usable']
         self.market_source = MarketSource(config['general']['market_source']['value'])
@@ -93,8 +97,7 @@ class TradingBot:
             log_filename = self.log_file
             time_str = dt.datetime.now().isoformat()
             time_suffix = time_str.replace(':', '_').replace('.', '_')
-            home = str(Path.home())
-            log_filename = log_filename.replace('{timestamp}', time_suffix).replace('{home}', home)
+            log_filename = log_filename.replace('{timestamp}', time_suffix)
             os.makedirs(os.path.dirname(log_filename), exist_ok=True)
             logging.basicConfig(filename=log_filename,
                             level=debugLevel,
@@ -271,6 +274,9 @@ class TradingBot:
             trade, limit, stop = self.strategy.find_trade_signal(epic)
         except Exception as e:
             logging.error('Exception: {}'.format(e))
+            logging.debug(e)
+            logging.debug(traceback.format_exc())
+            logging.debug(sys.exc_info()[0])
             trade = TradeDirection.NONE
 
         if trade is not TradeDirection.NONE:

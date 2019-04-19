@@ -7,6 +7,7 @@ import sys
 import inspect
 import datetime as dt
 import time
+import traceback
 
 from alpha_vantage.timeseries import TimeSeries
 from alpha_vantage.techindicators import TechIndicators
@@ -40,8 +41,8 @@ class AVInterface():
         self.read_configuration(config)
         self._last_call_ts = dt.datetime.now()
         self.TS = TimeSeries(
-            key=apiKey, output_format='pandas', indexing_type='integer', treat_info_as_error=True)
-        self.TI = TechIndicators(key=apiKey, output_format='pandas')
+            key=apiKey, output_format='pandas', indexing_type='integer', treat_info_as_error=True, retries=0)
+        self.TI = TechIndicators(key=apiKey, output_format='pandas', retries=0)
         logging.info('AlphaVantage initialised.')
 
 
@@ -83,9 +84,12 @@ class AVInterface():
             data, meta_data = self.TS.get_daily(
                 symbol=market, outputsize='full')
             return data
-        except:
+        except Exception as e:
             logging.error(
                 "AlphaVantage wrong api call for {}".format(market))
+            logging.debug(e)
+            logging.debug(traceback.format_exc())
+            logging.debug(sys.exc_info()[0])
         return None
 
 
@@ -107,9 +111,12 @@ class AVInterface():
             data, meta_data = self.TS.get_intraday(
                 symbol=market, interval=interval.value, outputsize='full')
             return data
-        except:
+        except Exception as e:
             logging.error(
                 "AlphaVantage wrong api call for {}".format(market))
+            logging.debug(e)
+            logging.debug(traceback.format_exc())
+            logging.debug(sys.exc_info()[0])
         return None
 
 
@@ -123,12 +130,14 @@ class AVInterface():
         self._wait_before_call()
         market = self._format_market_id(marketId)
         try:
-            data, meta_data = self.TS.get_weekly(
-                symbol=market, outputsize='full')
+            data, meta_data = self.TS.get_weekly(symbol=market)
             return data
-        except:
+        except Exception as e:
             logging.error(
                 "AlphaVantage wrong api call for {}".format(market))
+            logging.debug(e)
+            logging.debug(traceback.format_exc())
+            logging.debug(sys.exc_info()[0])
         return None
 
 
@@ -170,9 +179,12 @@ class AVInterface():
                 return None
             data.index = range(len(data))
             return data
-        except:
+        except Exception as e:
             logging.error(
                 "AlphaVantage wrong api call for {}".format(market))
+            logging.debug(e)
+            logging.debug(traceback.format_exc())
+            logging.debug(sys.exc_info()[0])
         return None
 
     def macd(self, marketId, interval):
@@ -189,9 +201,12 @@ class AVInterface():
             data, meta_data = self.TI.get_macd(market, interval=interval.value, series_type='close',
                                                fastperiod=12, slowperiod=26, signalperiod=9)
             return data
-        except:
+        except Exception as e:
             logging.error(
                 "AlphaVantage wrong api call for {}".format(market))
+            logging.debug(e)
+            logging.debug(traceback.format_exc())
+            logging.debug(sys.exc_info()[0])
         return None
 
 # Utils functions
