@@ -4,6 +4,7 @@ import inspect
 import pytest
 from datetime import datetime, timedelta
 import pytz
+from govuk_bank_holidays.bank_holidays import BankHolidays
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
@@ -68,7 +69,8 @@ def test_is_market_open():
     timezone = 'Europe/London'
     tz = pytz.timezone(timezone)
     now_time = datetime.now(tz=tz).strftime('%H:%M')
-    expected = Utils.is_between(str(now_time), ("07:55", "16:35"))
+    expected = Utils.is_between(str(now_time), ("07:55", "16:35")) and BankHolidays(
+    ).is_work_day(datetime.now(tz=tz))
 
     result = Utils.is_market_open(timezone)
 
