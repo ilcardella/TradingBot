@@ -5,7 +5,7 @@ numpy==1.16.2
 panda==0.3.1
 pandas==0.22.0; python_version < '3.5'
 pandas==0.23.4; python_version >= '3.5'
-pytest==4.4.1
+pytest==4.4.2
 pytz==2019.1
 requests==2.21.0
 requests-mock==1.5.2
