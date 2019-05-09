@@ -1,6 +1,6 @@
 alpha-vantage==2.1.0
 docutils==0.14
-govuk-bank-holidays==0.3
+govuk-bank-holidays==0.4
 numpy==1.16.2; python_version < '3.5'
 numpy==1.16.3; python_version >= '3.5'
 panda==0.3.1
