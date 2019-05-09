@@ -1,14 +1,15 @@
 alpha-vantage==2.1.0
 docutils==0.14
-govuk-bank-holidays==0.3
-numpy==1.16.2
+govuk-bank-holidays==0.4
+numpy==1.16.2; python_version < '3.5'
+numpy==1.16.3; python_version >= '3.5'
 panda==0.3.1
 pandas==0.22.0; python_version < '3.5'
 pandas==0.23.4; python_version >= '3.5'
-pytest==4.4.1
+pytest==4.4.2
 pytz==2019.1
 requests==2.21.0
-requests-mock==1.5.2
+requests-mock==1.6.0
 Sphinx==1.8.5; python_version < '3.5'
 Sphinx==2.0.1; python_version >= '3.5'
 sphinx-rtd-theme==0.4.3
