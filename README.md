@@ -218,7 +218,16 @@ docker exec -it dkr_trading_bot bash
 ```
 
 # Contributing
-I am really happy to receive any help so please just open a pull request
-with your changes and I will handle it.
 
-If you instead find problems or have ideas for future improvements open an Issue. Thanks for all the support!
+Any contribution or suggestion is welcome, please follow the suggested workflow.
+
+### Pull Requests
+
+To add a new feature or to resolve a bug, create a feature branch from the
+`develop` branch.
+
+Commit your changes and if possible add unit/integration test cases.
+Eventually push your branch and create a Pull Request against `develop`.
+
+If you instead find problems or you have ideas and suggestions for future
+improvements, please open an Issue. Thanks for the support!
