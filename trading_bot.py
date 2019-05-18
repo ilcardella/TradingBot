@@ -127,8 +127,8 @@ def test_docker():
             SCRIPT_DIR: {'bind': '/test', 'mode': 'ro'}
         }
         command = './trading_bot.py --test'
-        generator = client.containers.run(img, command, auto_remove=True, init=True,
-                                volumes=volumes, working_dir='/test',
+        generator = client.containers.run(img, command, remove=True, auto_remove=True,
+                                init=True, volumes=volumes, working_dir='/test',
                                 stdout=True, stderr=True, stream=True)
         for log in generator:
             print('>>> {}'.format(log))
