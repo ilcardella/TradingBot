@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python3 -u
 
 import os
 from shutil import which
@@ -126,13 +126,14 @@ def test_docker():
         volumes = {
             SCRIPT_DIR: {'bind': '/test', 'mode': 'ro'}
         }
-        command = './trading_bot.py --test'
-        generator = client.containers.run(img, command, remove=True, auto_remove=True,
+        command = 'python -u trading_bot.py --test'
+        container = client.containers.run(img, command, remove=True, auto_remove=True,
                                 init=True, volumes=volumes, working_dir='/test',
-                                stdout=True, stderr=True, stream=True)
-        for log in generator:
+                                #stdout=True, stderr=True, stream=True)
+                                detach=True)
+        for log in container.logs(stdout=True, stderr=True, stream=True):
             print('>>> {}'.format(log))
-        print('Test on {} complete'.format(img))
+        print('Test with {} complete'.format(img))
 
 def docs(dummy_build=False):
     print('Building documentation (dummy={})...'.format(dummy_build))
