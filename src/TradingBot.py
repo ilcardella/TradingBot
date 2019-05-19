@@ -9,6 +9,7 @@ import sys
 import inspect
 from random import shuffle
 import traceback
+import argparse
 
 currentdir = os.path.dirname(os.path.abspath(
     inspect.getfile(inspect.currentframe())))
@@ -308,3 +309,15 @@ class TradingBot:
         else:
             logging.warning("Unable to fetch open positions!")
         return False
+
+if __name__ == '__main__':
+    # Argument management
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-c", "--close_positions",
+                        help="Close all the open positions", action="store_true")
+    args = parser.parse_args()
+
+    if args.close_positions:
+        TradingBot().close_open_positions()
+    else:
+        TradingBot().start(args)

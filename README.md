@@ -25,13 +25,17 @@ View file `requirements.txt` for the full list of dependencies.
 
 # Install
 
-TradingBot can be controlled by the `trading_bot_ctl` shell script which provides several commands to perform different actions.
-After cloning this repo, to install TradingBot simply run:
+TradingBot can be controlled by the `trading_bot.py` script which provides several commands to perform different actions.
+To display the available commands run:
 ```
-sudo ./trading_bot_ctl install
+./trading_bot.py --help
+```
+After cloning this repo in your workspace you should install TradingBot:
+```
+sudo ./trading_bot.py --install
 ```
 
-The required dependencies will be installed and all necessary files installed in ``/opt/TradingBot`` by default. It is recommended to add this path to your ``PATH`` environment variable.
+The required dependencies will be installed and all necessary files copied in ``/opt/TradingBot`` by default. It is recommended to add this path to your ``PATH`` environment variable.
 
 The last step is to set file permissions on the installed folders for your user with the following command:
 ```
@@ -59,11 +63,11 @@ This must be in json format
     "av_api_key": "apiKey"
 }
 ```
-- Copy the `.credentials` file in the `data` folder
-- Revoke permissions to read the file if you are paranoid
+- Copy the `.credentials` file into the `$HOME/.TradingBot/data` folder
+- Revoke permissions to read the file
 ```
 cd data
-sudo chmod 600 .credentials
+sudo chmod 600 $HOME/.TradingBot/data/.credentials
 ```
 
 ### Market source
@@ -96,7 +100,7 @@ how TradingBot work. These are the description of each parameter:
 - **log_file**: Define the full file path for the log file to use, if enabled. {home} and {timestamp} placeholders are replaced with the user home directory and the timestamp when TradingBot started
 - **debug_log**: Enable the debug level in the logging
 - **credentials_filepath**: Filepath for the `.credentials` file
-- **market_source**: The source to use to fetch the market ids. Available values are explained in the `Setup` section below.
+- **market_source**: The source to use to fetch the market ids. Available values as explained above are: [`list`, `watchlist`, `api`]
 - **epic_ids_filepath**:  The full file path for the local file containing the list of epic ids
 - **watchlist_name**: The watchlist name to use as market source, if selected
 - **active_strategy**: The strategy name to use. Must match one of the names in the `Strategies` section below
@@ -132,34 +136,38 @@ Settings specific for each strategy
 
 # Start TradingBot
 
+You can start TradingBot in your current terminal
 ```
-./trading_bot_ctl start
+./trading_bot.py
+```
+or you can start it in detached mode, letting it run in the background
+```
+./trading_bot.py --detached
 ```
 
 ### Close all the open positions
 
 ```
-./trading_bot_ctl close_positions
+./trading_bot.py --close-positions
 ```
 
 # Stop TradingBot
 
+To stop a TradingBot instance running in the background
 ```
-./trading_bot_ctl stop
+./trading_bot.py --stop
 ```
 
 # Test
 
-If you have setup a virtual environment you can run the test by running `pytest` from the project root folder.
-
-You can run the test from a clean environment with:
+You can run the test from a workspace environment with:
 ```
-./trading_bot_ctl test
+./trading_bot.py --test
 ```
 
-You can run the test in Docker containers against different python versions:
+You can run the test suite in Docker containers against different python versions:
 ```
-./trading_bot_ctl test_docker
+./trading_bot.py --test-docker
 ```
 
 # Documentation
@@ -175,7 +183,7 @@ https://tradingbot.readthedocs.io
 
 You can build it locally with:
 ```
-./trading_bot_ctl docs
+./trading_bot.py --docs
 ```
 
 The generated html files will be in `doc/_build/html`.
@@ -191,21 +199,26 @@ crontab -e
 ```
 As an example this will start TradingBot at 8:00 in the morning and will stop it at 16:35 in the afternoon, every week day (Mon to Fri):
 ```
-00 08 * * 1-5 /.../TradingBot/trading_bot_ctl start
-35 16 * * 1-5 /.../TradingBot/trading_bot_ctl stop
+00 08 * * 1-5 /opt/TradingBot/trading_bot.py --detached
+35 16 * * 1-5 /opt/TradingBot/trading_bot.py --stop
 ```
 NOTE: Remember to set the correct timezone in your machine!
 
 # Docker
-You can run TradingBot in a Docker container (https://docs.docker.com/):
+You can run TradingBot in a Docker container (https://docs.docker.com/).
+First you need to build the Docker image used by TradingBot:
 ```
-./trading_bot_ctl start_docker
+./trading_bot.py --build-docker
 ```
-The container will be called `dkr_trading_bot` and the logs will still be stored in the configured folder in the host machine. By default `~/.TradingBot/log`.
+Once the image is built you can install TradingBot and then run it in a Docker container:
+```
+./trading_bot.py --start-docker
+```
+The container will be called `dkr_trading_bot` and the logs will still be stored in the configured folder in the host machine. By default `$HOME/.TradingBot/log`.
 
-To stop TradingBot:
+To stop the TradingBot container:
 ```
-./trading_bot_ctl stop_docker
+./trading_bot.py --stop-docker
 ```
 or just kill the container:
 ```
