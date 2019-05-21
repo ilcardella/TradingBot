@@ -138,6 +138,7 @@ def test_docker():
 def docs(dummy_build=False):
     print('Building documentation (dummy={})...'.format(dummy_build))
     builder = 'dummy' if dummy_build else 'html'
+    _find_package('python3-sphinx', 'sphinx-build')
     _run_command('sphinx-build -nWT -b {} doc doc/_build/html'.format(builder))
 
 def install():
