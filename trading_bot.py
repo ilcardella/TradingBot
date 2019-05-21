@@ -25,7 +25,7 @@ LOG_FILE='{}/log.txt'.format(LOG_DIR)
 CONFIG_FILE='{}/config.json'.format(CONFIG_DIR)
 TRADINGBOT_BIN='{}/trading_bot.py'.format(INSTALL_DIR)
 PYTHON_BIN=which('python3')
-MAIN_BIN='{}/TradingBot.py'.format(INSTALL_DIR)
+MAIN_BIN='{}/src/TradingBot.py'.format(INSTALL_DIR)
 
 DOCKER_IMAGE_NAME = 'trading_bot'
 DOCKER_CONTAINER_NAME='dkr_trading_bot'
@@ -147,7 +147,9 @@ def install():
     if os.path.exists(INSTALL_DIR):
         shutil.rmtree(INSTALL_DIR)
     # Copy all sources
-    shutil.copytree(os.path.join(SCRIPT_DIR, 'src'), INSTALL_DIR, ignore=shutil.ignore_patterns('*.pc'))
+    shutil.copytree(os.path.join(SCRIPT_DIR, 'src'),
+                    os.path.join(INSTALL_DIR, 'src'),
+                    ignore=shutil.ignore_patterns('*.pc'))
     # Copy other files
     shutil.copy(SCRIPT_FILE, INSTALL_DIR)
     shutil.copy(REQUIREMENTS_FILE, INSTALL_DIR)
@@ -217,6 +219,7 @@ def _find_package(package, binary):
         _run_command(command)
     else:
         print('Found {}: {}'.format(binary, bin_path))
+        _run_command('{} --version'.format(binary))
 
 def _run_command(command, pipe_output=True):
     """
@@ -275,7 +278,6 @@ if __name__ == '__main__':
         _check_installed(False)
         docs()
     elif args.install_dep:
-        _check_installed(False)
         install_dependencies()
     elif args.build_docker:
         build_docker_image()
