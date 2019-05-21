@@ -5,6 +5,7 @@ import os
 import inspect
 import sys
 from enum import Enum
+import numpy
 import pandas as pd
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
