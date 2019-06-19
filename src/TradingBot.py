@@ -10,6 +10,7 @@ import inspect
 from random import shuffle
 import traceback
 import argparse
+import numpy
 
 currentdir = os.path.dirname(os.path.abspath(
     inspect.getfile(inspect.currentframe())))
