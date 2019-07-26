@@ -1,12 +1,13 @@
 alpha-vantage==2.1.0
-docutils==0.15.1
+docutils==0.15.1.post1
 govuk-bank-holidays==0.4
 numpy==1.16.2; python_version < '3.5'
 numpy==1.16.3; python_version >= '3.5'
 panda==0.3.1
 pandas==0.22.0; python_version < '3.5'
 pandas==0.23.4; python_version >= '3.5'
-pytest==4.6.4
+pytest==4.6.4; python_version < '3.5'
+pytest==5.0.1; python_version >= '3.5'
 pytz==2019.1
 requests==2.21.0; python_version < '3.5'
 requests==2.22.0; python_version >= '3.5'
