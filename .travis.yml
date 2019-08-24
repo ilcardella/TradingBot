@@ -9,5 +9,7 @@ python:
 cache: pip
 
 # command to run tests
-script:
-  - ./trading_bot.py --test
+install:
+  - pip install pipenv
+  - pipenv install --dev
+  - pytest
