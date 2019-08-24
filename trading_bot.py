@@ -83,7 +83,7 @@ def install_dependencies():
 def test():
     print('Starting TradingBot automatic test suite...')
     install_dependencies()
-    _run_command('pytest')
+    _run_command('pipenv run pytest')
     print('Testing documentation...')
     docs(True)
 
@@ -139,7 +139,7 @@ def docs(dummy_build=False):
     print('Building documentation (dummy={})...'.format(dummy_build))
     builder = 'dummy' if dummy_build else 'html'
     _find_package('python3-sphinx', 'sphinx-build')
-    _run_command('sphinx-build -nWT -b {} doc doc/_build/html'.format(builder))
+    _run_command('pipenv run sphinx-build -nWT -b {} doc doc/_build/html'.format(builder))
 
 def install():
     print('Installing TradingBot...')
