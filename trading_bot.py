@@ -18,7 +18,6 @@ CONFIG_DIR='{}/config'.format(TRADINGBOT_DIR)
 INSTALL_DIR='/opt/TradingBot'
 
 SCRIPT_FILE=os.path.realpath(__file__)
-REQUIREMENTS_FILE='{}/requirements.txt'.format(SCRIPT_DIR)
 DOCKERFILE='{}/Dockerfile'.format(SCRIPT_DIR)
 PID_FILE='{}/pid.txt'.format(LOG_DIR)
 LOG_FILE='{}/log.txt'.format(LOG_DIR)
@@ -78,7 +77,8 @@ def install_dependencies():
     _run_command('apt-get update')
     _find_package('python3', 'python3')
     _find_package('python3-pip', 'pip3')
-    _run_command('{} install -r {}'.format(which('pip3'), REQUIREMENTS_FILE))
+    _run_command('{} install pipenv'.format(which('pip3')))
+    _run_command('pipenv install --dev')
 
 def test():
     print('Starting TradingBot automatic test suite...')
@@ -153,7 +153,6 @@ def install():
                     ignore=shutil.ignore_patterns('*.pc'))
     # Copy other files
     shutil.copy(SCRIPT_FILE, INSTALL_DIR)
-    shutil.copy(REQUIREMENTS_FILE, INSTALL_DIR)
     shutil.copy(DOCKERFILE, INSTALL_DIR)
     # Create TradingBot user folder
     os.makedirs(TRADINGBOT_DIR, exist_ok=True)
