@@ -11,5 +11,5 @@ cache: pip
 # command to run tests
 install:
   - pip install pipenv
-  - pipenv install --dev
+  - PIPENV_IGNORE_VIRTUALENVS=1 pipenv install --dev
   - pytest
