@@ -6,10 +6,7 @@ python:
   - "3.6"
   - "3.7-dev"
 
-cache: pip
-
-# command to run tests
 install:
   - pip install pipenv
   - PIPENV_IGNORE_VIRTUALENVS=1 pipenv install --dev
-  - pytest
+  - pipenv run pytest
