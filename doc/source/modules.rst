@@ -93,7 +93,7 @@ Weighted Average Peak Detection
 Utils
 ^^^^^
 
-.. automodule:: Utils
+.. automodule:: Utility.Utils
 
 .. autoclass:: Utils
     :members:

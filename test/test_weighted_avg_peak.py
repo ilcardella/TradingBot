@@ -10,7 +10,7 @@ parentdir = os.path.dirname(currentdir)
 sys.path.insert(0,'{}/src'.format(parentdir))
 
 from Strategies.WeightedAvgPeak import WeightedAvgPeak
-from Utils import TradeDirection
+from Utility.Utils import TradeDirection
 from common.MockComponents import MockBroker, MockIG, MockAV
 
 @pytest.fixture

@@ -17,11 +17,12 @@ currentdir = os.path.dirname(os.path.abspath(
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir)
 
-from Utils import Utils, TradeDirection, MarketSource
+from Utility.Utils import Utils, TradeDirection
 from Interfaces.IGInterface import IGInterface
 from Interfaces.AVInterface import AVInterface
 from Strategies.StrategyFactory import StrategyFactory
 from Interfaces.Broker import Broker
+from Interfaces.MarketProvider import MarketProvider, MarketSource
 
 class TradingBot:
     """
@@ -55,6 +56,9 @@ class TradingBot:
         self.strategy = StrategyFactory(config, self.broker).make_strategy(
             self.active_strategy)
 
+        # Create the market provider
+        self.market_provider = MarketProvider(config, self.broker)
+
 
     def load_json_file(self, filepath):
         """
@@ -83,8 +87,6 @@ class TradingBot:
         self.log_file = config['general']['log_file'].replace('{home}', home)
         self.time_zone = config['general']['time_zone']
         self.max_account_usable = config['general']['max_account_usable']
-        self.market_source = MarketSource(config['general']['market_source']['value'])
-        self.watchlist_name = config['general']['watchlist_name']
         self.active_strategy = config['general']['active_strategy']
 
 
@@ -125,30 +127,6 @@ class TradingBot:
         return Broker(config, services)
 
 
-    def load_epic_ids_from_local_file(self, filepath):
-        """
-        Read a file from filesystem containing a list of epic ids.
-        The filepath is defined in config.json file
-        Returns a 'list' of strings where each string is a market epic
-        """
-        # define empty list
-        epic_ids = []
-        try:
-            # open file and read the content in a list
-            with open(filepath, 'r') as filehandle:
-                filecontents = filehandle.readlines()
-                for line in filecontents:
-                    # remove linebreak which is the last character of the string
-                    current_epic_id = line[:-1]
-                    epic_ids.append(current_epic_id)
-        except IOError:
-            # Create the file empty
-            logging.error('{} does not exist!'.format(filepath))
-        if len(epic_ids) < 1:
-            logging.error("Epic list is empty!")
-        return epic_ids
-
-
     def start(self, argv):
         """
         Starts the TradingBot
@@ -159,90 +137,17 @@ class TradingBot:
                 self.positions = self.broker.get_open_positions()
                 self.process_open_positions(self.positions)
 
-                if self.market_source == MarketSource.LIST:
-                    self.process_epic_list(
-                        self.load_epic_ids_from_local_file(
-                            self.epic_ids_filepath))
-                elif self.market_source == MarketSource.WATCHLIST:
-                    self.process_watchlist(self.watchlist_name)
-                elif self.market_source == MarketSource.API:
-                    # Calling with empty strings starts market navigation from highest level
-                    self.process_market_exploration('180500')
-
-                # Wait for next spin loop as configured in the strategy
-                seconds = self.strategy.get_seconds_to_next_spin()
-                logging.info("Wait for {0:.2f} seconds before next spin".format(seconds))
-                time.sleep(seconds)
+                try:
+                    market = self.market_provider.next()
+                    self.process_trade(market)
+                except StopIteration:
+                    self.market_provider.reset()
+                    # Wait for next spin loop as configured in the strategy
+                    seconds = self.strategy.get_seconds_to_next_spin()
+                    logging.info("Wait for {0:.2f} seconds before next spin".format(seconds))
+                    time.sleep(seconds)
             else:
                 self.wait_for_next_market_opening()
-
-
-    def process_watchlist(self, watchlist_name):
-        """
-        Process the markets included in the given IG watchlist
-
-            - **watchlist_name**: IG watchlist name
-        """
-        markets = self.broker.get_markets_from_watchlist(self.watchlist_name)
-        if markets is None:
-            logging.error("Watchlist {} not found!".format(watchlist_name))
-            return
-        for m in markets:
-            if not self.process_market(m['epic']):
-                return
-
-
-    def process_market_exploration(self, node_id):
-        """
-        Navigate the markets using IG API to fetch markets id dinamically
-
-            - **node_id**: The node id to navigate markets in
-        """
-        node = self.broker.navigate_market_node(node_id)
-        if 'nodes' in node and isinstance(node['nodes'], list):
-            for node in node['nodes']:
-                self.process_market_exploration(node['id'])
-        if 'markets' in node and isinstance(node['markets'], list):
-            for market in node['markets']:
-                if any(["DFB" in str(market['epic']),
-                        "TODAY" in str(market['epic']),
-                        "DAILY" in str(market['epic'])]):
-                    if not self.process_market(market['epic']):
-                        return
-
-
-    def process_epic_list(self, epic_list):
-        """
-        Process the given list of epic ids, one by one to find new trades
-
-            - **epic_list**: list of epic ids as strings
-        """
-        shuffle(epic_list)
-        logging.info("Processing epic list of length: {}".format(len(epic_list)))
-        for epic in epic_list:
-            if not self.process_market(epic):
-                return
-
-
-    def process_market(self, epic):
-        """
-        Process the givem epic using the defined strategy
-
-            - **epic**: string representing a market epic id
-            - Returns **False** if market is closed or if account reach maximum margin, otherwise **True**
-        """
-        percent_used = self.broker.get_account_used_perc()
-        if percent_used is None:
-            logging.warning("Stop trading because can't fetch percentage of account used")
-            return False
-        if percent_used >= self.max_account_usable:
-            logging.warning("Stop trading because {}% of account is used".format(str(percent_used)))
-            return False
-        if not Utils.is_market_open(self.time_zone):
-            logging.warn("Market is closed: stop processing")
-            return False
-        self.process_trade(epic)
-        return True
 
 
     def close_open_positions(self):
@@ -271,9 +176,22 @@ class TradingBot:
         Process a trade checking if it is a "close position" trade or a new action
         """
         logging.info("Processing {}".format(epic))
+
+        # Perform safety checks
+        percent_used = self.broker.get_account_used_perc()
+        if percent_used is None:
+            logging.warning("Stop trading because can't fetch percentage of account used")
+            return
+        if percent_used >= self.max_account_usable:
+            logging.warning("Stop trading because {}% of account is used".format(str(percent_used)))
+            return
+        if not Utils.is_market_open(self.time_zone):
+            logging.warn("Market is closed: stop processing")
+            return
+
         # Use strategy to analyse market
         try:
-            trade, limit, stop = self.strategy.find_trade_signal(epic)
+            trade, limit, stop = self.strategy.run(epic)
         except Exception as e:
             logging.error('Exception: {}'.format(e))
             logging.debug(e)
@@ -281,6 +199,7 @@ class TradingBot:
             logging.debug(sys.exc_info()[0])
             trade = TradeDirection.NONE
 
+        # Perform trade if required
         if trade is not TradeDirection.NONE:
             if self.positions is not None:
                 for item in self.positions['positions']:

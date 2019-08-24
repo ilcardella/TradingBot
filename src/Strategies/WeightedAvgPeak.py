@@ -12,7 +12,7 @@ parentdir = os.path.dirname(currentdir)
 sys.path.insert(0,parentdir)
 
 from .Strategy import Strategy
-from Utils import Utils, TradeDirection
+from Utility.Utils import Utils, TradeDirection
 from Interfaces.Broker import Interval
 
 class WeightedAvgPeak(Strategy):
@@ -39,7 +39,21 @@ class WeightedAvgPeak(Strategy):
         self.ce_multiplier = 2
         self.greed_indicator = 99999
 
-    def find_trade_signal(self, epic_id):
+    def initialise(self):
+        """
+        Initialise the strategy
+        """
+        pass
+
+
+    def get_price_settings(self):
+        """
+        Returns the SimpleMACD price settings
+        """
+        return [(Interval.WEEK, 18)]
+
+
+    def find_trade_signal(self, epic_id, prices):
         """
         TODO add description of strategy key points
         """
@@ -62,14 +76,11 @@ class WeightedAvgPeak(Strategy):
         current_mid = Utils.midpoint(current_bid, current_offer)
 
         # Fetch past prices of the market with weekly resolution
-        data = self.broker.get_prices(epic_id, market_id, Interval.WEEK, 18)
-        if data is None:
-            logging.error('No historic data available for {} ({})'.format(epic_id, market_id))
-            return TradeDirection.NONE, None, None
-        high_prices = data['high']
-        low_prices = data['low']
-        close_prices = data['close']
-        ltv = data['volume']
+
+        high_prices = prices['high']
+        low_prices = prices['low']
+        close_prices = prices['close']
+        ltv = prices['volume']
 
         # Check dataset integrity
         array_len_check = []

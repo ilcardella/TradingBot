@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Moved sources in `src` installation folder
 - Corrected IGInterface numpy dependency
 - Added Pipenv integration
+- Exported logic from Custom Strategy to simplify workflow
 
 ## [1.0.1] - 2019-05-09
 ### Changed

@@ -10,7 +10,7 @@ currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfram
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0,'{}/src'.format(parentdir))
 
-from Utils import Utils
+from Utility.Utils import Utils
 
 def test_midpoint():
     assert Utils.midpoint(0,10) == 5

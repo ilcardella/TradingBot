@@ -70,7 +70,7 @@ to decide whether to buy, sell or hold a specific market.
     sys.path.insert(0,parentdir)
 
     from .Strategy import Strategy
-    from Utils import Utils, TradeDirection
+    from Utility.Utils import Utils, TradeDirection
     # Import any other required module
 
     class my_strategy(Strategy): # Extends Strategy module

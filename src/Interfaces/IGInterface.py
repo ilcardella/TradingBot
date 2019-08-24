@@ -12,7 +12,7 @@ currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfram
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0,parentdir)
 
-from Utils import Utils, TradeDirection
+from Utility.Utils import Utils, TradeDirection
 
 class IG_API_URL(Enum):
     """
