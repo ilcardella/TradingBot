@@ -30,12 +30,18 @@ To display the available commands run:
 ```
 ./trading_bot.py --help
 ```
-After cloning this repo in your workspace you should install TradingBot:
+After cloning this repo in your workspace you should prepare the environment:
+```
+./trading_bot.py --prepare
+```
+You can install development packages with the flag `--prepare-dev`
+
+The following step is to install TradingBot:
 ```
 sudo ./trading_bot.py --install
 ```
 
-The required dependencies will be installed and all necessary files copied in ``/opt/TradingBot`` by default. It is recommended to add this path to your ``PATH`` environment variable.
+All necessary files are copied in ``/opt/TradingBot`` by default. It is recommended to add this path to your ``PATH`` environment variable.
 
 The last step is to set file permissions on the installed folders for your user with the following command:
 ```

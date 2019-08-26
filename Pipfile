@@ -9,7 +9,7 @@ pytest = "*"
 requests-mock = "*"
 sphinx-rtd-theme = "*"
 m2r = "*"
-Sphinx = "*"
+sphinx = "*"
 
 [packages]
 govuk-bank-holidays = "*"

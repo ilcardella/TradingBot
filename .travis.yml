@@ -1,12 +1,10 @@
 language: python
 
 python:
-  - "3.4"
   - "3.5"
   - "3.6"
   - "3.7-dev"
 
-install:
-  - pip install pipenv
-  - PIPENV_IGNORE_VIRTUALENVS=1 pipenv install --dev
-  - pipenv run pytest
+script:
+  - ./trading_bot.py --prepare-dev
+  - ./trading_bot.py --test
