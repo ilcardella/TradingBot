@@ -5,6 +5,9 @@ python:
   - "3.6"
   - "3.7-dev"
 
+install:
+  - pipenv install --three --dev
+
 script:
-  - ./trading_bot.py --prepare-dev
-  - ./trading_bot.py --test
+  - pipenv run pytest
+  - pipenv run sphinx-build -nWT -b dummy doc doc/_build/html

@@ -19,31 +19,36 @@ starting point for this project. Thank you.
 
 # Dependencies
 
-- Python 3.4+
+- Python 3.5+
+- Pipenv
 
-View file `requirements.txt` for the full list of dependencies.
+View file `Pipfile` for the full list of required python packages.
 
 # Install
 
-TradingBot can be controlled by the `trading_bot.py` script which provides several commands to perform different actions.
-To display the available commands run:
+First if you have not yet done so, install python 3.5+ and pipenv
 ```
-./trading_bot.py --help
+sudo apt-get update && sudo apt-get install python3 python3-pip
+sudo -H pip3 install -U pipenv
 ```
-After cloning this repo in your workspace you should prepare the environment:
+
+Clone this repo in your workspace and setup the python virtual environment
+by running the following commands in the repository root folder
 ```
-./trading_bot.py --prepare
+pipenv install
 ```
-You can install development packages with the flag `--prepare-dev`
+You can install development packages adding the flag `--dev`
 
 The following step is to install TradingBot:
 ```
-sudo ./trading_bot.py --install
+sudo ./install.py
 ```
 
-All necessary files are copied in ``/opt/TradingBot`` by default. It is recommended to add this path to your ``PATH`` environment variable.
+All necessary files are copied in ``/opt/TradingBot`` by default.
+It is recommended to add this path to your ``PATH`` environment variable.
 
-The last step is to set file permissions on the installed folders for your user with the following command:
+The last step is to set file permissions for your user on the installed folders with the
+following command:
 ```
 sudo chown -R $USER: $HOME/.TradingBot
 ```
@@ -144,36 +149,31 @@ Settings specific for each strategy
 
 You can start TradingBot in your current terminal
 ```
-./trading_bot.py
+/opt/TradingBot/src/TradingBot.py
 ```
 or you can start it in detached mode, letting it run in the background
 ```
-./trading_bot.py --detached
+nohup /opt/TradingBot/src/TradingBot.py >/dev/null 2>&1 &
 ```
 
 ### Close all the open positions
 
 ```
-./trading_bot.py --close-positions
+/opt/TradingBot/src/TradingBot.py -c
 ```
 
 # Stop TradingBot
 
 To stop a TradingBot instance running in the background
 ```
-./trading_bot.py --stop
+ps -ef | grep TradingBot | xargs kill -9
 ```
 
 # Test
 
-You can run the test from a workspace environment with:
+You can run the test from the workspace with:
 ```
-./trading_bot.py --test
-```
-
-You can run the test suite in Docker containers against different python versions:
-```
-./trading_bot.py --test-docker
+pipenv run pytest
 ```
 
 # Documentation
@@ -189,7 +189,7 @@ https://tradingbot.readthedocs.io
 
 You can build it locally with:
 ```
-./trading_bot.py --docs
+pipenv run sphinx-build -nWT -b html doc doc/_build/html
 ```
 
 The generated html files will be in `doc/_build/html`.
@@ -205,8 +205,8 @@ crontab -e
 ```
 As an example this will start TradingBot at 8:00 in the morning and will stop it at 16:35 in the afternoon, every week day (Mon to Fri):
 ```
-00 08 * * 1-5 /opt/TradingBot/trading_bot.py --detached
-35 16 * * 1-5 /opt/TradingBot/trading_bot.py --stop
+00 08 * * 1-5 /opt/TradingBot/src/TradingBot.py
+35 16 * * 1-5 kill -9 $(ps | grep "/opt/TradingBot/src/TradingBot.py" | grep -v grep | awk '{ print $1 }')
 ```
 NOTE: Remember to set the correct timezone in your machine!
 
@@ -214,24 +214,23 @@ NOTE: Remember to set the correct timezone in your machine!
 You can run TradingBot in a Docker container (https://docs.docker.com/).
 First you need to build the Docker image used by TradingBot:
 ```
-./trading_bot.py --build-docker
+./docker_run.sh build
 ```
+
 Once the image is built you can install TradingBot and then run it in a Docker container:
 ```
-./trading_bot.py --start-docker
+./docker_run.sh start
 ```
 The container will be called `dkr_trading_bot` and the logs will still be stored in the configured folder in the host machine. By default `$HOME/.TradingBot/log`.
 
+Check the `Dockerfile` and the  `docker_run.sh` for more details
+
 To stop the TradingBot container:
-```
-./trading_bot.py --stop-docker
-```
-or just kill the container:
 ```
 docker kill dkr_trading_bot
 ```
 
-If you need to start a bash shell into the container
+If you need to start a bash shell into a running container
 ```
 docker exec -it dkr_trading_bot bash
 ```
