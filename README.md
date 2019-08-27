@@ -35,7 +35,7 @@ sudo -H pip3 install -U pipenv
 Clone this repo in your workspace and setup the python virtual environment
 by running the following commands in the repository root folder
 ```
-pipenv install
+pipenv install --three
 ```
 You can install development packages adding the flag `--dev`
 
