@@ -3,15 +3,18 @@ import os
 import inspect
 import sys
 from collections import deque
+from enum import Enum
+
 
 class MarketSource(Enum):
     """
     Available market sources: local file list, watch list, market navigation
     through API, etc.
     """
-    LIST = 'list'
-    WATCHLIST = 'watchlist'
-    API = 'api'
+
+    LIST = "list"
+    WATCHLIST = "watchlist"
+    API = "api"
 
 
 class MarketProvider:
@@ -42,14 +45,16 @@ class MarketProvider:
         """
         Reset internal market pointer to the beginning
         """
-        logging.info('Resetting MarketProvider')
+        logging.info("Resetting MarketProvider")
         self._initialise()
 
     def _read_configuration(self, config):
-        home = os.path.expanduser('~')
-        self.epic_ids_filepath = config['general']['epic_ids_filepath'].replace('{home}', home)
-        self.market_source = MarketSource(config['general']['market_source']['value'])
-        self.watchlist_name = config['general']['watchlist_name']
+        home = os.path.expanduser("~")
+        self.epic_ids_filepath = config["general"]["epic_ids_filepath"].replace(
+            "{home}", home
+        )
+        self.market_source = MarketSource(config["general"]["market_source"]["value"])
+        self.watchlist_name = config["general"]["watchlist_name"]
 
     def _initialise(self):
         # Initialise epic list
@@ -63,7 +68,7 @@ class MarketProvider:
         elif self.market_source == MarketSource.WATCHLIST:
             self.epic_list = self._load_epic_ids_from_watchlist(self.watchlist_name)
         elif self.market_source == MarketSource.API:
-            self.epic_list = self._load_epic_ids_from_api_node('180500')
+            self.epic_list = self._load_epic_ids_from_api_node("180500")
         else:
             raise RuntimeError("ERROR: invalid market_source configuration")
         self.epic_list_iter = iter(self.epic_list)
@@ -78,7 +83,7 @@ class MarketProvider:
         epic_ids = []
         try:
             # open file and read the content in a list
-            with open(filepath, 'r') as filehandle:
+            with open(filepath, "r") as filehandle:
                 filecontents = filehandle.readlines()
                 for line in filecontents:
                     # remove linebreak which is the last character of the string
@@ -86,7 +91,7 @@ class MarketProvider:
                     epic_ids.append(current_epic_id)
         except IOError:
             # Create the file empty
-            logging.error('{} does not exist!'.format(filepath))
+            logging.error("{} does not exist!".format(filepath))
         if len(epic_ids) < 1:
             logging.error("Epic list is empty!")
         shuffle(epic_ids)
@@ -105,18 +110,26 @@ class MarketProvider:
             message = "Watchlist {} not found!".format(watchlist_name)
             logging.error(message)
             raise RuntimeError(message)
-        return [m['epic'] for m in markets]
+        return [m["epic"] for m in markets]
 
     def _load_epic_ids_from_api_node(self, node_id):
         node = self.broker.navigate_market_node(node_id)
-        if 'nodes' in node and isinstance(node['nodes'], list):
-            for node in node['nodes']:
-                self.node_stack.append(node['id'])
+        if "nodes" in node and isinstance(node["nodes"], list):
+            for node in node["nodes"]:
+                self.node_stack.append(node["id"])
             return self._load_epic_ids_from_api_node(self.node_stack.pop())
-        if 'markets' in node and isinstance(node['markets'], list):
-            return [market['epic'] for market in node['markets'] if any(["DFB" in str(market['epic']),
-                                                                        "TODAY" in str(market['epic']),
-                                                                        "DAILY" in str(market['epic'])])]
+        if "markets" in node and isinstance(node["markets"], list):
+            return [
+                market["epic"]
+                for market in node["markets"]
+                if any(
+                    [
+                        "DFB" in str(market["epic"]),
+                        "TODAY" in str(market["epic"]),
+                        "DAILY" in str(market["epic"]),
+                    ]
+                )
+            ]
         return []
 
     def _next_from_api(self):

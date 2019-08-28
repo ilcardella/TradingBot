@@ -44,9 +44,7 @@ class Strategy:
                 prices.append(data)
 
         if len(prices) < 1:
-            logging.error(
-                    "No price settings defined for active strategy"
-                )
+            logging.error("No price settings defined for active strategy")
             return TradeDirection.NONE, None, None
 
         return self.find_trade_signal(epic_id, prices)

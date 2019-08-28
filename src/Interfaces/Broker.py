@@ -6,30 +6,33 @@ from enum import Enum
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
-sys.path.insert(0,parentdir)
+sys.path.insert(0, parentdir)
 
 from .AVInterface import AVInterval
 
+
 class Interval(Enum):
-        """
+    """
         Time intervals for price and technical indicators requests
         """
-        MINUTE_1 = 'MINUTE_1'
-        MINUTE_2 = 'MINUTE_2'
-        MINUTE_3 = 'MINUTE_3'
-        MINUTE_5 = 'MINUTE_5'
-        MINUTE_10 = 'MINUTE_10'
-        MINUTE_15 = 'MINUTE_15'
-        MINUTE_30 = 'MINUTE_30'
-        HOUR = 'HOUR'
-        HOUR_2 = 'HOUR_2'
-        HOUR_3 = 'HOUR_3'
-        HOUR_4 = 'HOUR_4'
-        DAY = 'DAY'
-        WEEK = 'WEEK'
-        MONTH = 'MONTH'
 
-class Broker():
+    MINUTE_1 = "MINUTE_1"
+    MINUTE_2 = "MINUTE_2"
+    MINUTE_3 = "MINUTE_3"
+    MINUTE_5 = "MINUTE_5"
+    MINUTE_10 = "MINUTE_10"
+    MINUTE_15 = "MINUTE_15"
+    MINUTE_30 = "MINUTE_30"
+    HOUR = "HOUR"
+    HOUR_2 = "HOUR_2"
+    HOUR_3 = "HOUR_3"
+    HOUR_4 = "HOUR_4"
+    DAY = "DAY"
+    WEEK = "WEEK"
+    MONTH = "MONTH"
+
+
+class Broker:
     """
     This class provides a template interface for all those broker related
     actions/tasks wrapping the actual implementation class internally
@@ -37,14 +40,12 @@ class Broker():
 
     def __init__(self, config, services):
         self.read_configuration(config)
-        self.ig_index = services['ig_index']
-        self.alpha_vantage = services['alpha_vantage']
-
+        self.ig_index = services["ig_index"]
+        self.alpha_vantage = services["alpha_vantage"]
 
     def read_configuration(self, config):
-        self.use_av_api = config['alpha_vantage']['enable']
-        self.controlled_risk = config['ig_interface']['controlled_risk']
-
+        self.use_av_api = config["alpha_vantage"]["enable"]
+        self.controlled_risk = config["ig_interface"]["controlled_risk"]
 
     def get_open_positions(self):
         """
@@ -53,14 +54,12 @@ class Broker():
         """
         return self.ig_index.get_open_positions()
 
-
     def get_market_from_watchlist(self, watchlist_name):
         """
         **IG INDEX API ONLY**
         Return a name list of the markets in the required watchlist
         """
         return self.ig_index.get_market_from_watchlist(watchlist_name)
-
 
     def navigate_market_node(self, node_id):
         """
@@ -69,14 +68,12 @@ class Broker():
         """
         return self.ig_index.navigate_market_node(node_id)
 
-
     def get_account_used_perc(self):
         """
         **IG INDEX API ONLY**
         Returns the account used value in percentage
         """
         return self.ig_index.get_account_used_perc()
-
 
     def close_all_positions(self):
         """
@@ -85,14 +82,12 @@ class Broker():
         """
         return self.ig_index.close_all_positions()
 
-
     def close_position(self, position):
         """
         **IG INDEX API ONLY**
         Attempt to close the requested open position
         """
         return self.ig_index.close_position(position)
-
 
     def trade(self, epic, trade_direction, limit, stop):
         """
@@ -101,28 +96,36 @@ class Broker():
         """
         return self.ig_index.trade(epic, trade_direction, limit, stop)
 
-
     def get_market_info(self, epic):
         """
         **IG INDEX API ONLY**
         Return the last available snapshot of the requested market as a dict:
         - data = {'market_id': <value>, 'bid': <value>,'offer': <value>, 'stop_distance_min': <value>}
         """
-        data = {'market_id': None, 'bid': None,
-                'offer': None, 'stop_distance_min': None}
+        data = {
+            "market_id": None,
+            "bid": None,
+            "offer": None,
+            "stop_distance_min": None,
+        }
         info = self.ig_index.get_market_info(epic)
-        if (info is None or
-            'markets' in info or # means that epic_id is wrong
-            info['snapshot']['bid'] is None or
-            info['snapshot']['offer'] is None):
+        if (
+            info is None
+            or "markets" in info
+            or info["snapshot"]["bid"] is None  # means that epic_id is wrong
+            or info["snapshot"]["offer"] is None
+        ):
             return None
-        data['market_id'] = info['instrument']['marketId']
-        data['bid'] = info['snapshot']['bid']
-        data['offer'] = info['snapshot']['offer']
-        stop_dist_key = 'minControlledRiskStopDistance' if self.controlled_risk else 'minNormalStopOrLimitDistance'
-        data['stop_distance_min'] = info['dealingRules'][stop_dist_key]['value']
+        data["market_id"] = info["instrument"]["marketId"]
+        data["bid"] = info["snapshot"]["bid"]
+        data["offer"] = info["snapshot"]["offer"]
+        stop_dist_key = (
+            "minControlledRiskStopDistance"
+            if self.controlled_risk
+            else "minNormalStopOrLimitDistance"
+        )
+        data["stop_distance_min"] = info["dealingRules"][stop_dist_key]["value"]
         return data
-
 
     def macd_dataframe(self, epic, market_id, interval):
         """
@@ -138,46 +141,49 @@ class Broker():
             return self.ig_index.macd_dataframe(epic, None)
         return None
 
-
     def get_prices(self, epic, market_id, interval, data_range):
         """
         Return historic price of the requested market as a dictionary:
             - data = {'high': [], 'low': [], 'close': [], 'volume': []}
         """
-        data = {'high': [], 'low': [], 'close': [], 'volume': []}
+        data = {"high": [], "low": [], "close": [], "volume": []}
         if self.use_av_api:
             av_interval = self.to_av_interval(interval)
             if av_interval is None:
-                logging.error('Error converting interval {} to AVInterval'.format(interval.name))
+                logging.error(
+                    "Error converting interval {} to AVInterval".format(interval.name)
+                )
                 return None
 
             dataframe = self.alpha_vantage.get_prices(market_id, av_interval)
             if dataframe is None:
-                logging.error("Error fetching prices from AlphaVantage API for {} with {}".format(
-                    market_id, av_interval.name))
+                logging.error(
+                    "Error fetching prices from AlphaVantage API for {} with {}".format(
+                        market_id, av_interval.name
+                    )
+                )
                 return None
 
-            #dataframe.index = range(len(dataframe)
-            data['high'] = dataframe['2. high'].values
-            data['low'] = dataframe['3. low'].values
-            data['close'] = dataframe['4. close'].values
-            data['volume'] = dataframe['5. volume'].values
+            # dataframe.index = range(len(dataframe)
+            data["high"] = dataframe["2. high"].values
+            data["low"] = dataframe["3. low"].values
+            data["close"] = dataframe["4. close"].values
+            data["volume"] = dataframe["5. volume"].values
         else:
             prices = self.ig_index.get_prices(epic, interval.value, data_range)
             if prices is None:
                 return None
 
-            for i in prices['prices']:
-                if i['highPrice']['bid'] is not None:
-                    data['high'].append(i['highPrice']['bid'])
-                if i['lowPrice']['bid'] is not None:
-                    data['low'].append(i['lowPrice']['bid'])
-                if i['closePrice']['bid'] is not None:
-                    data['close'].append(i['closePrice']['bid'])
-                if isinstance(i['lastTradedVolume'], int):
-                    data['volume'].append(int(i['lastTradedVolume']))
+            for i in prices["prices"]:
+                if i["highPrice"]["bid"] is not None:
+                    data["high"].append(i["highPrice"]["bid"])
+                if i["lowPrice"]["bid"] is not None:
+                    data["low"].append(i["lowPrice"]["bid"])
+                if i["closePrice"]["bid"] is not None:
+                    data["close"].append(i["closePrice"]["bid"])
+                if isinstance(i["lastTradedVolume"], int):
+                    data["volume"].append(int(i["lastTradedVolume"]))
         return data
-
 
     def to_av_interval(self, interval):
         """
@@ -201,6 +207,9 @@ class Broker():
         elif interval == Interval.MONTH:
             return AVInterval.MONTHLY
         else:
-            logging.error('Unable to convert interval {} to AlphaVantage equivalent'.format(
-                interval.value))
+            logging.error(
+                "Unable to convert interval {} to AlphaVantage equivalent".format(
+                    interval.value
+                )
+            )
             return None
