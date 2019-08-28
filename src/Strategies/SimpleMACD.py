@@ -107,7 +107,7 @@ class SimpleMACD(Strategy):
     def generate_signals_from_dataframe(self, dataframe):
         dataframe['positions'] = 0
         #px.loc[9:, 'positions'] = np.where(px.loc[9:, 'MACD'] >= px.loc[9:, 'MACD_Signal'] , 1, 0)
-        dataframe.loc[9:, 'positions'] = np.where(dataframe.loc[9:, 'MACD_Hist'] >= 0, 1, 0)
+        dataframe['positions'] = np.where(dataframe['MACD_Hist'] >= 0, 1, 0)
         # Highlight the direction of the crossing
         dataframe['signals'] = dataframe['positions'].diff()
         return dataframe
@@ -115,8 +115,8 @@ class SimpleMACD(Strategy):
 
     def get_trade_direction_from_signals(self, dataframe):
         tradeDirection = TradeDirection.NONE
-        if len(dataframe['signals']) > 0 and dataframe['signals'].iloc[-1] > 0:
+        if len(dataframe['signals']) > 0 and dataframe['signals'].iloc[1] < 0:
             tradeDirection = TradeDirection.BUY
-        elif len(dataframe['signals']) > 0 and dataframe['signals'].iloc[-1] < 0:
+        elif len(dataframe['signals']) > 0 and dataframe['signals'].iloc[1] > 0:
             tradeDirection = TradeDirection.SELL
         return tradeDirection
