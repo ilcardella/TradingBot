@@ -5,7 +5,11 @@ FROM ${BASELINE}
 COPY . /workspace
 WORKDIR /workspace
 
-# Install TradingBot with all the dependencies
-RUN ./trading_bot.py --install
+# Prepare environment
+RUN pip install pipenv
+RUN pipenv install
+
+# Install TradingBot
+RUN ./install.py
 
 CMD ["/bin/bash"]

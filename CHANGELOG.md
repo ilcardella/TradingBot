@@ -8,8 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Replaced bash script with python
 - Moved sources in `src` installation folder
-- Corrected IGInterface numpt dependency
-- Enabled --install-dep from install path
+- Corrected IGInterface numpy dependency
+- Added Pipenv integration
 
 ## [1.0.1] - 2019-05-09
 ### Changed

@@ -1,13 +1,16 @@
 language: python
 
 python:
-  - "3.4"
   - "3.5"
   - "3.6"
   - "3.7-dev"
+  - "3.8-dev"
+  - "nightly"
 
-cache: pip
+install:
+  - export PIPENV_IGNORE_VIRTUALENVS=1
+  - pipenv install --three --dev
 
-# command to run tests
 script:
-  - ./trading_bot.py --test
+  - pipenv run pytest
+  - pipenv run sphinx-build -nWT -b dummy doc doc/_build/html
