@@ -19,6 +19,4 @@ pandas = "*"
 pytz = "*"
 requests = "*"
 scipy = "*"
-docker = "*"
 alpha_vantage = "*"
-

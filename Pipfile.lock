@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "194177b70b04493a16e97ef447d85c0b29893bfacec15267e4a333e892f38222"
+            "sha256": "beb20c31c2d2a43fe2518c4b4c111293ffa7994c112abbb4f27969fe6d51ae8d"
         },
         "pipfile-spec": 6,
         "requires": {},
@@ -34,14 +34,6 @@
                 "sha256:fc323ffcaeaed0e0a02bf4d117757b98aed530d9ed4531e3e15460124c106691"
             ],
             "version": "==3.0.4"
-        },
-        "docker": {
-            "hashes": [
-                "sha256:acf51b5e3e0d056925c3b780067a6f753c915fffaa46c5f2d79eb0fc1cbe6a01",
-                "sha256:cc5b2e94af6a2b1e1ed9d7dcbdc77eff56c36081757baf9ada6e878ea0213164"
-            ],
-            "index": "pypi",
-            "version": "==4.0.2"
         },
         "govuk-bank-holidays": {
             "hashes": [
@@ -166,13 +158,6 @@
                 "sha256:dbe59173209418ae49d485b87d1681aefa36252ee85884c31346debd19463232"
             ],
             "version": "==1.25.3"
-        },
-        "websocket-client": {
-            "hashes": [
-                "sha256:1151d5fb3a62dc129164292e1227655e4bbc5dd5340a5165dfae61128ec50aa9",
-                "sha256:1fd5520878b68b84b5748bb30e592b10d0a91529d5383f74f4964e72b297fd3a"
-            ],
-            "version": "==0.56.0"
         }
     },
     "develop": {
