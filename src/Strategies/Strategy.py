@@ -13,11 +13,10 @@ from Utility.Utils import TradeDirection
 class Strategy:
     """
     Generic strategy template to use as a parent class for custom strategies.
-    Provide safety checks for new trades and handling of open positions.
     """
 
     def __init__(self, config, broker):
-        self.positions = {}
+        self.positions = None
         self.broker = broker
         # This can be overwritten in children class
         self.spin_interval = 3600
@@ -25,6 +24,12 @@ class Strategy:
         self.read_configuration(config)
         # Initialise derived Strategy
         self.initialise()
+
+    def set_open_positions(self, positions):
+        """
+        Set the account open positions
+        """
+        self.positions = positions
 
     def run(self, market):
         """

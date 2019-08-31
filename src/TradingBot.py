@@ -16,7 +16,12 @@ currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfram
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir)
 
-from Utility.Utils import Utils, TradeDirection, NotSafeToTradeException, MarketClosedException
+from Utility.Utils import (
+    Utils,
+    TradeDirection,
+    NotSafeToTradeException,
+    MarketClosedException,
+)
 from Interfaces.IGInterface import IGInterface
 from Interfaces.AVInterface import AVInterface
 from Strategies.StrategyFactory import StrategyFactory
@@ -45,9 +50,6 @@ class TradingBot:
 
         # Setup the global logger
         self.setup_logging()
-
-        # Positions container
-        self.positions = None
 
         # Init trade services and create the broker interface
         self.broker = self.init_trading_services(config, credentials)
@@ -144,6 +146,8 @@ class TradingBot:
                 self.process_open_positions()
                 # Now process markets from the configured market source
                 self.process_market_source()
+                # Wait for the next spin before starting over
+                self.wait_for_strategy_spin_period()
             except MarketClosedException:
                 self.wait_for_next_market_opening()
             except NotSafeToTradeException:
@@ -161,14 +165,14 @@ class TradingBot:
         Fetch open positions markets and run the strategy against them closing the
         trades if required
         """
-        self.positions = self.broker.get_open_positions()
+        positions = self.broker.get_open_positions()
         # Do not run until we know the current open positions
-        if self.positions is None:
+        if positions is None:
             logging.warning("Unable to fetch open positions! Will try again...")
             raise RuntimeError("Unable to fetch open positions")
         for epic in [item["market"]["epic"] for item in positions["positions"]]:
             market = self.market_provider.get_market_from_epic(epic)
-            self.process_market(market)
+            self.process_market(market, positions)
 
     def process_market_source(self):
         """
@@ -176,21 +180,25 @@ class TradingBot:
         """
         while True:
             market = self.market_provider.next()
-            self.process_market(market)
+            positions = self.broker.get_open_positions()
+            if positions is None:
+                logging.warning("Unable to fetch open positions! Will try again...")
+                raise RuntimeError("Unable to fetch open positions")
+            self.process_market(market, positions)
 
-    def process_market(self, market):
+    def process_market(self, market, open_positions):
         """Spin the strategy on all the markets"""
         self.safety_checks()
         logging.info("Processing {}".format(market.id))
         try:
-            # TODO pass also open positions
+            self.strategy.set_open_positions(open_positions)
             trade, limit, stop = self.strategy.run(market)
+            self.process_trade(market, trade, limit, stop, open_positions)
         except Exception as e:
             logging.error("Strategy exception caught: {}".format(e))
             logging.debug(traceback.format_exc())
             logging.debug(sys.exc_info()[0])
             return
-        self.process_trade(market, trade, limit, stop)
 
     def close_open_positions(self):
         """
@@ -219,9 +227,7 @@ class TradingBot:
         """
         # Wait for next spin loop as configured in the strategy
         seconds = self.strategy.get_seconds_to_next_spin()
-        logging.info(
-            "Wait for {0:.2f} seconds before next spin".format(seconds)
-        )
+        logging.info("Wait for {0:.2f} seconds before next spin".format(seconds))
         time.sleep(seconds)
 
     def safety_checks(self):
@@ -245,15 +251,14 @@ class TradingBot:
             logging.warning("Market is closed: stop processing")
             raise MarketClosedException()
 
-    def process_trade(self, market, direction, limit, stop):
+    def process_trade(self, market, direction, limit, stop, open_positions):
         """
-        Process a trade checking if it is a "close position" trade or a new action
+        Process a trade checking if it is a "close position" trade or a new trade
         """
-        # TODO double check if there are pieces to remove
         # Perform trade only if required
         if direction is not TradeDirection.NONE:
-            if self.positions is not None:
-                for item in self.positions["positions"]:
+            if open_positions is not None:
+                for item in open_positions["positions"]:
                     # If a same direction trade already exist, don't trade
                     if (
                         item["market"]["epic"] == market.epic
@@ -262,18 +267,20 @@ class TradingBot:
                         logging.info(
                             "There is already an open position for this epic, skip trade"
                         )
+                        return
                     # If a trade in opposite direction exist, close the position
                     elif (
                         item["market"]["epic"] == market.epic
                         and direction.name != item["position"]["direction"]
                     ):
                         self.broker.close_position(item)
+                        return
                 self.broker.trade(market.epic, direction.name, limit, stop)
             else:
                 logging.error("Unable to fetch open positions! Avoid trading this epic")
 
 
-if __name__ == "__main__":
+def main():
     # Argument management
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -288,3 +295,7 @@ if __name__ == "__main__":
         TradingBot().close_open_positions()
     else:
         TradingBot().start()
+
+
+if __name__ == "__main__":
+    main()
