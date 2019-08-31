@@ -1,5 +1,6 @@
 #!/bin/bash
 
+THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 DOCKER_IMAGE=trading_bot
 DOCKER_CONTAINER=dkr_trading_bot
 
@@ -18,8 +19,8 @@ build()
         --rm \
         --no-cache \
         --build-arg BASELINE=python:3 \
-        -f /opt/TradingBot/Dockerfile \
-        -t ${DOCKER_IMAGE}
+        -f ${THIS_DIR}/Dockerfile \
+        -t ${DOCKER_IMAGE} ${THIS_DIR}
 }
 
 help()

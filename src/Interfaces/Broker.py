@@ -129,6 +129,7 @@ class Broker:
         )
         data["stop_distance_min"] = info["dealingRules"][stop_dist_key]["value"]
         data["epic"] = info["instrument"]["epic"]
+        data["name"] = info["instrument"]["name"]
         data["high"] = info["snapshot"]["high"]
         data["low"] = info["snapshot"]["low"]
         return data

@@ -4,6 +4,7 @@ import inspect
 import sys
 from collections import deque
 from enum import Enum
+from random import shuffle
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
@@ -39,11 +40,11 @@ class MarketProvider:
         Return the next market from the configured source
         """
         if self.market_source == MarketSource.LIST:
-            return _next_from_list()
+            return self._next_from_list()
         elif self.market_source == MarketSource.WATCHLIST:
-            return _next_from_list()
+            return self._next_from_list()
         elif self.market_source == MarketSource.API:
-            return _next_from_api()
+            return self._next_from_api()
         else:
             raise RuntimeError("ERROR: invalid market_source configuration")
 
@@ -111,13 +112,13 @@ class MarketProvider:
 
     def _next_from_list(self):
         try:
-            epic = self.epic_list_iter.next()
+            epic = next(self.epic_list_iter)
             return self._create_market(epic)
         except Exception as e:
             raise StopIteration
 
     def _load_epic_ids_from_watchlist(self, watchlist_name):
-        markets = self.broker.get_markets_from_watchlist(self.watchlist_name)
+        markets = self.broker.get_market_from_watchlist(self.watchlist_name)
         if markets is None:
             message = "Watchlist {} not found!".format(watchlist_name)
             logging.error(message)
