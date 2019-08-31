@@ -4,23 +4,25 @@ import inspect
 from enum import Enum
 import logging
 
-currentdir = os.path.dirname(os.path.abspath(
-    inspect.getfile(inspect.currentframe())))
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir)
 
 from .SimpleMACD import SimpleMACD
 from .WeightedAvgPeak import WeightedAvgPeak
 
+
 class StrategyNames(Enum):
-    SIMPLE_MACD = 'simple_macd'
-    WEIGHTED_AVG_PEAK = 'weighted_avg_peak'
+    SIMPLE_MACD = "simple_macd"
+    WEIGHTED_AVG_PEAK = "weighted_avg_peak"
+
 
 class StrategyFactory:
     """
     Factory class to create instances of Strategies. The class provide an
     interface to instantiate new objects of a given Strategy name
     """
+
     def __init__(self, config, broker):
         """
         Constructor of the StrategyFactory
@@ -52,4 +54,4 @@ class StrategyFactory:
         elif strategy_name == StrategyNames.WEIGHTED_AVG_PEAK.value:
             return WeightedAvgPeak(self.config, self.broker)
         else:
-            logging.error('Strategy {} does not exist'.format(strategy_name))
+            logging.error("Strategy {} does not exist".format(strategy_name))

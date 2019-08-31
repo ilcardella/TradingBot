@@ -9,67 +9,68 @@ import math
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
-sys.path.insert(0,parentdir)
+sys.path.insert(0, parentdir)
 
 from .Strategy import Strategy
-from Utils import Utils, TradeDirection
+from Utility.Utils import Utils, TradeDirection
 from Interfaces.Broker import Interval
+
 
 class WeightedAvgPeak(Strategy):
     """
     All credits of this strategy goes to GitHub user @tg12.
     """
+
     def __init__(self, config, broker):
         super().__init__(config, broker)
-        logging.info('Weighted Average Peak strategy initialised.')
+        logging.info("Weighted Average Peak strategy initialised.")
 
     def read_configuration(self, config):
         """
         Read the json configuration
         """
-        self.spin_interval = config['strategies']['weighted_avg_peak']['spin_interval']
-        self.max_spread = config['strategies']['weighted_avg_peak']['max_spread']
-        self.limit_p = config['strategies']['weighted_avg_peak']['limit_perc']
-        self.stop_p = config['strategies']['weighted_avg_peak']['stop_perc']
+        self.spin_interval = config["strategies"]["weighted_avg_peak"]["spin_interval"]
+        self.max_spread = config["strategies"]["weighted_avg_peak"]["max_spread"]
+        self.limit_p = config["strategies"]["weighted_avg_peak"]["limit_perc"]
+        self.stop_p = config["strategies"]["weighted_avg_peak"]["stop_perc"]
         # TODO add these to the config file
         self.profit_indicator_multiplier = 0.3
-        self.ESMA_new_margin = 21                    # (20% for stocks)
-        self.too_high_margin = 100                   # No stupidly high pip limit per trade
+        self.ESMA_new_margin = 21  # (20% for stocks)
+        self.too_high_margin = 100  # No stupidly high pip limit per trade
         # Normally would be 3/22 days but dull stocks require a lower multiplier
         self.ce_multiplier = 2
         self.greed_indicator = 99999
 
-    def find_trade_signal(self, epic_id):
+    def initialise(self):
+        """
+        Initialise the strategy
+        """
+        pass
+
+    def get_price_settings(self):
+        """
+        Returns the SimpleMACD price settings
+        """
+        return [(Interval.WEEK, 18)]
+
+    def find_trade_signal(self, market, prices):
         """
         TODO add description of strategy key points
         """
-        # Fetch data for the market
-        snapshot = self.broker.get_market_info(epic_id)
-        if snapshot is None:
-            return TradeDirection.NONE, None, None
-
-        market_id = snapshot['market_id']
-        current_bid = snapshot['bid']
-        current_offer = snapshot['offer']
         limit_perc = self.limit_p
-        stop_perc = max(snapshot['stop_distance_min'], self.stop_p)
+        stop_perc = max(market.stop_distance_min, self.stop_p)
 
         # Spread constraint
-        if current_bid - current_offer > self.max_spread:
+        if market.bid - market.offer > self.max_spread:
             return TradeDirection.NONE, None, None
 
         # Compute mid price
-        current_mid = Utils.midpoint(current_bid, current_offer)
+        current_mid = Utils.midpoint(market.bid, market.offer)
 
-        # Fetch past prices of the market with weekly resolution
-        data = self.broker.get_prices(epic_id, market_id, Interval.WEEK, 18)
-        if data is None:
-            logging.error('No historic data available for {} ({})'.format(epic_id, market_id))
-            return TradeDirection.NONE, None, None
-        high_prices = data['high']
-        low_prices = data['low']
-        close_prices = data['close']
-        ltv = data['volume']
+        high_prices = prices["high"]
+        low_prices = prices["low"]
+        close_prices = prices["close"]
+        ltv = prices["volume"]
 
         # Check dataset integrity
         array_len_check = []
@@ -78,7 +79,7 @@ class WeightedAvgPeak(Strategy):
         array_len_check.append(len(close_prices))
         array_len_check.append(len(ltv))
         if not all(x == array_len_check[0] for x in array_len_check):
-            logging.error('Historic prices dataset incomplete for {}'.format(epic_id))
+            logging.error("Historic prices dataset incomplete for {}".format(market.epic))
             return TradeDirection.NONE, None, None
 
         # compute weighted average and std deviation of prices using volume as weight
@@ -86,9 +87,11 @@ class WeightedAvgPeak(Strategy):
         high_prices = numpy.ma.asarray(high_prices)
         ltv = numpy.ma.asarray(ltv)
         low_weighted_avg, low_weighted_std_dev = self.weighted_avg_and_std(
-            low_prices, ltv)
+            low_prices, ltv
+        )
         high_weighted_avg, high_weighted_std_dev = self.weighted_avg_and_std(
-            high_prices, ltv)
+            high_prices, ltv
+        )
 
         # The VWAP can be used similar to moving averages, where prices above
         # the VWAP reflect a bullish sentiment and prices below the VWAP
@@ -101,8 +104,8 @@ class WeightedAvgPeak(Strategy):
         # e.g
         # series = [0,0,0,2,0,0,0,-2,0,0,0,2,0,0,0,-2,0]
 
-        maxtab_high, _mintab_high = self.peakdet(high_prices, .3)
-        _maxtab_low, mintab_low = self.peakdet(low_prices, .3)
+        maxtab_high, _mintab_high = self.peakdet(high_prices, 0.3)
+        _maxtab_low, mintab_low = self.peakdet(low_prices, 0.3)
 
         # convert to array so can work on min/max
         mintab_low_a = array(mintab_low)[:, 1]
@@ -112,9 +115,11 @@ class WeightedAvgPeak(Strategy):
         xc = range(0, len(maxtab_high_a))
 
         mintab_low_a_slope, mintab_low_a_intercept, mintab_low_a_lo_slope, mintab_low_a_hi_slope = stats.mstats.theilslopes(
-            mintab_low_a, xb, 0.99)
+            mintab_low_a, xb, 0.99
+        )
         maxtab_high_a_slope, maxtab_high_a_intercept, maxtab_high_a_lo_slope, maxtab_high_a_hi_slope = stats.mstats.theilslopes(
-            maxtab_high_a, xc, 0.99)
+            maxtab_high_a, xc, 0.99
+        )
 
         peak_count_high = 0
         peak_count_low = 0
@@ -130,17 +135,21 @@ class WeightedAvgPeak(Strategy):
 
         additional_checks_sell = [
             int(peak_count_low) > int(peak_count_high),
-            float(mintab_low_a_slope) < float(maxtab_high_a_slope)]
+            float(mintab_low_a_slope) < float(maxtab_high_a_slope),
+        ]
         additional_checks_buy = [
             int(peak_count_high) > int(peak_count_low),
-            float(maxtab_high_a_slope) > float(mintab_low_a_slope)]
+            float(maxtab_high_a_slope) > float(mintab_low_a_slope),
+        ]
 
         sell_rules = [
-            float(current_mid) >= float(
-                numpy.max(maxtab_high_a)),all(additional_checks_sell)]
+            float(current_mid) >= float(numpy.max(maxtab_high_a)),
+            all(additional_checks_sell),
+        ]
         buy_rules = [
-            float(current_mid) <= float(
-                numpy.min(mintab_low_a)), all(additional_checks_buy)]
+            float(current_mid) <= float(numpy.min(mintab_low_a)),
+            all(additional_checks_buy),
+        ]
 
         trade_direction = TradeDirection.NONE
         if any(buy_rules):
@@ -151,27 +160,32 @@ class WeightedAvgPeak(Strategy):
         if trade_direction is TradeDirection.NONE:
             return trade_direction, None, None
 
-        logging.info("Strategy says: {} {}".format(trade_direction.name, market_id))
+        logging.info("Strategy says: {} {}".format(trade_direction.name, market.id))
 
         ATR = self.calculate_stop_loss(close_prices, high_prices, low_prices)
 
         if trade_direction is TradeDirection.BUY:
-            pip_limit = int(abs(float(max(high_prices)) -
-                                float(current_bid)) * self.profit_indicator_multiplier)
+            pip_limit = int(
+                abs(float(max(high_prices)) - float(market.bid))
+                * self.profit_indicator_multiplier
+            )
             ce_stop = self.Chandelier_Exit_formula(
-                trade_direction, ATR, min(low_prices))
-            stop_pips = str(int(abs(float(current_bid) - (ce_stop))))
+                trade_direction, ATR, min(low_prices)
+            )
+            stop_pips = str(int(abs(float(market.bid) - (ce_stop))))
         elif trade_direction is TradeDirection.SELL:
-            pip_limit = int(abs(float(min(low_prices)) -
-                                float(current_bid)) * self.profit_indicator_multiplier)
+            pip_limit = int(
+                abs(float(min(low_prices)) - float(market.bid))
+                * self.profit_indicator_multiplier
+            )
             ce_stop = self.Chandelier_Exit_formula(
-                trade_direction, ATR, max(high_prices))
-        stop_pips = str(int(abs(float(current_bid) - (ce_stop))))
+                trade_direction, ATR, max(high_prices)
+            )
+        stop_pips = str(int(abs(float(market.bid) - (ce_stop))))
 
         esma_new_margin_req = int(
-            Utils.percentage_of(
-                self.ESMA_new_margin,
-                current_bid))
+            Utils.percentage_of(self.ESMA_new_margin, market.bid)
+        )
 
         if int(esma_new_margin_req) > int(stop_pips):
             stop_pips = int(esma_new_margin_req)
@@ -188,10 +202,9 @@ class WeightedAvgPeak(Strategy):
         if int(pip_limit) >= int(self.greed_indicator):
             pip_limit = int(self.greed_indicator - 1)
         if int(stop_pips) > int(self.too_high_margin):
-            logging.warning("Junk data for {}".format(epic_id))
+            logging.warning("Junk data for {}".format(market.epic))
             return TradeDirection.NONE, None, None
         return trade_direction, pip_limit, stop_pips
-
 
     def calculate_stop_loss(self, close_prices, high_prices, low_prices):
         price_ranges = []
@@ -219,9 +232,11 @@ class WeightedAvgPeak(Strategy):
                 low_price = low_prices[index]
                 price_range = float(high_price - closePrice)
                 price_ranges.append(price_range)
-                TR = max(high_price - low_price,
-                        abs(high_price - prev_close),
-                        abs(low_price - prev_close))
+                TR = max(
+                    high_price - low_price,
+                    abs(high_price - prev_close),
+                    abs(low_price - prev_close),
+                )
                 TR_prices.append(TR)
 
         # for i in prices['prices']:
@@ -249,7 +264,6 @@ class WeightedAvgPeak(Strategy):
 
         return str(int(float(max(TR_prices))))
 
-
     def weighted_avg_and_std(self, values, weights):
         """
         Return the weighted average and standard deviation.
@@ -257,9 +271,8 @@ class WeightedAvgPeak(Strategy):
         values, weights -- Numpy ndarrays with the same shape.
         """
         average = numpy.average(values, weights=weights)
-        variance = numpy.average((values - average)**2, weights=weights)
+        variance = numpy.average((values - average) ** 2, weights=weights)
         return (average, math.sqrt(variance))
-
 
     def peakdet(self, v, delta, x=None):
         """
@@ -295,15 +308,15 @@ class WeightedAvgPeak(Strategy):
         v = asarray(v)
 
         if len(v) != len(x):
-            logging.error('Input vectors v and x must have same length')
+            logging.error("Input vectors v and x must have same length")
             return None, None
 
         if not isscalar(delta):
-            logging.error('Input argument delta must be a scalar')
+            logging.error("Input argument delta must be a scalar")
             return None, None
 
         if delta <= 0:
-            logging.error('Input argument delta must be positive')
+            logging.error("Input argument delta must be positive")
             return None, None
 
         mn, mx = Inf, -Inf
@@ -335,7 +348,6 @@ class WeightedAvgPeak(Strategy):
 
         return array(maxtab), array(mintab)
 
-
     def Chandelier_Exit_formula(self, TRADE_DIR, ATR, Price):
         # Chandelier Exit (long) = 22-day High - ATR(22) x 3
         # Chandelier Exit (short) = 22-day Low + ATR(22) x 3
@@ -344,8 +356,8 @@ class WeightedAvgPeak(Strategy):
         elif TRADE_DIR is TradeDirection.SELL:
             return float(Price) + float(ATR) * int(self.ce_multiplier)
 
-
     def get_seconds_to_next_spin(self):
         # Return the amount of seconds between each spin of the strategy
         # Each spin analyse all the markets in the list/watchlist
-        return 3600 * 2 # every 2 hours
+        return 3600 * 2  # every 2 hours
+

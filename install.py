@@ -21,6 +21,7 @@ def install():
     if os.path.exists(INSTALL_DIR):
         shutil.rmtree(INSTALL_DIR)
     # Copy all sources
+    print('Creating installation folder {}'.format(INSTALL_DIR))
     shutil.copytree(
         os.path.join(SCRIPT_DIR, "src"),
         os.path.join(INSTALL_DIR, "src"),
@@ -28,12 +29,14 @@ def install():
     )
     shutil.copy(DOCKER_SCRIPT, INSTALL_DIR)
     # Create TradingBot user folder
+    print('Creating user folders in {}'.format(TRADINGBOT_DIR))
     os.makedirs(TRADINGBOT_DIR, exist_ok=True)
     os.makedirs(CONFIG_DIR, exist_ok=True)
     os.makedirs(LOG_DIR, exist_ok=True)
     os.makedirs(DATA_DIR, exist_ok=True)
     # Backup existing configuration and copy new default configuration
     if os.path.exists(CONFIG_FILE):
+        print('Backing up existing configuration file...')
         os.rename(
             CONFIG_FILE, os.path.join(CONFIG_DIR, "config_{}.json".format(time.time()))
         )

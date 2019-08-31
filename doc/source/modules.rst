@@ -49,6 +49,21 @@ Broker
 .. autoclass:: Broker
     :members:
 
+Market
+""""""
+
+.. automodule:: Interfaces.Market
+
+.. autoclass:: Market
+    :members:
+
+MarketProvider
+""""""""""""""
+
+.. automodule:: Interfaces.MarketProvider
+
+.. autoclass:: MarketProvider
+    :members:
 
 Strategies
 ^^^^^^^^^^
@@ -93,7 +108,7 @@ Weighted Average Peak Detection
 Utils
 ^^^^^
 
-.. automodule:: Utils
+.. automodule:: Utility.Utils
 
 .. autoclass:: Utils
     :members:
