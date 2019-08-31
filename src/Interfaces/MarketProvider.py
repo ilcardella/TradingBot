@@ -167,4 +167,5 @@ class MarketProvider:
         market.offer = info["offer"]
         market.high = info["high"]
         market.low = info["low"]
+        market.stop_distance_min = info["stop_distance_min"]
         return market

@@ -47,31 +47,24 @@ class SimpleMACD(Strategy):
         """
         return [(Interval.DAY, 27)]
 
-    def find_trade_signal(self, epic_id, prices):
+    def find_trade_signal(self, market, prices):
         """
         Calculate the MACD of the previous days and find a cross between MACD
         and MACD signal
 
-            - **epic_id**: market epic as string
+            - **market**: Market object
+            - **prices**: price data for the market with range and interval as configured
             - Returns TradeDirection, limit_level, stop_level or TradeDirection.NONE, None, None
         """
-        # Fetch data for the market
-        snapshot = self.broker.get_market_info(epic_id)
-        if snapshot is None:
-            return TradeDirection.NONE, None, None
-
-        market_id = snapshot["market_id"]
-        current_bid = snapshot["bid"]
-        current_offer = snapshot["offer"]
         limit_perc = self.limit_p
-        stop_perc = max(snapshot["stop_distance_min"], self.stop_p)
+        stop_perc = max(market.stop_distance_min, self.stop_p)
 
         # Spread constraint
-        if current_bid - current_offer > self.max_spread_perc:
+        if market.bid - market.offer > self.max_spread_perc:
             return TradeDirection.NONE, None, None
 
         # Fetch historic prices and build a list with them ordered cronologically
-        px = self.broker.macd_dataframe(epic_id, market_id, Interval.DAY)
+        px = self.broker.macd_dataframe(market.epic, market.id, Interval.DAY)
 
         # Find where macd and signal cross each other
         px = self.generate_signals_from_dataframe(px)
@@ -81,12 +74,12 @@ class SimpleMACD(Strategy):
         # Log only tradable epics
         if tradeDirection is not TradeDirection.NONE:
             logging.info(
-                "SimpleMACD says: {} {}".format(tradeDirection.name, market_id)
+                "SimpleMACD says: {} {}".format(tradeDirection.name, market.id)
             )
 
         # Calculate stop and limit distances
         limit, stop = self.calculate_stop_limit(
-            tradeDirection, current_offer, current_bid, limit_perc, stop_perc
+            tradeDirection, market.offer, market.bid, limit_perc, stop_perc
         )
         return tradeDirection, limit, stop
 

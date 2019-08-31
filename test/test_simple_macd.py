@@ -11,6 +11,7 @@ sys.path.insert(0, "{}/src".format(parentdir))
 
 from Strategies.SimpleMACD import SimpleMACD
 from Utility.Utils import TradeDirection
+from Interfaces.Market import Market
 from common.MockComponents import MockBroker, MockIG, MockAV
 
 
@@ -44,6 +45,19 @@ def strategy(config):
     broker = MockBroker(config, services)
     return SimpleMACD(config, broker)
 
+def create_mock_market(broker):
+    data = broker.get_market_info("mock")
+    market = Market()
+    market.epic = data['epic']
+    market.id = data['market_id']
+    market.name = data['name']
+    market.bid = data['bid']
+    market.offer = data['offer']
+    market.high = data['high']
+    market.low = data['low']
+    market.stop_distance_min = data['stop_distance_min']
+    return market
+
 
 def test_find_trade_signal_buy(config):
     services = {
@@ -56,7 +70,12 @@ def test_find_trade_signal_buy(config):
     broker = MockBroker(config, services)
     strategy = SimpleMACD(config, broker)
     prices = broker.get_prices("", "", "", "")
-    tradeDir, limit, stop = strategy.find_trade_signal("MOCK", prices)
+
+    # Create a mock market data from the json file
+    market = create_mock_market(broker)
+
+    # Call function to test
+    tradeDir, limit, stop = strategy.find_trade_signal(market, prices)
 
     assert tradeDir is not None
     assert limit is not None
@@ -76,7 +95,11 @@ def test_find_trade_signal_sell(config):
     broker = MockBroker(config, services)
     strategy = SimpleMACD(config, broker)
     prices = broker.get_prices("", "", "", "")
-    tradeDir, limit, stop = strategy.find_trade_signal("MOCK", prices)
+
+    # Create a mock market data from the json file
+    market = create_mock_market(broker)
+
+    tradeDir, limit, stop = strategy.find_trade_signal(market, prices)
 
     assert tradeDir is not None
     assert limit is not None
@@ -96,7 +119,11 @@ def test_find_trade_signal_hold(config):
     broker = MockBroker(config, services)
     strategy = SimpleMACD(config, broker)
     prices = broker.get_prices("", "", "", "")
-    tradeDir, limit, stop = strategy.find_trade_signal("MOCK", prices)
+
+    # Create a mock market data from the json file
+    market = create_mock_market(broker)
+
+    tradeDir, limit, stop = strategy.find_trade_signal(market, prices)
 
     assert tradeDir is not None
     assert limit is None

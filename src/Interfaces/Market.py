@@ -11,4 +11,5 @@ class Market:
         self.offer = 0
         self.high = 0
         self.low = 0
+        self.stop_distance_min = 0
 
