@@ -19,6 +19,15 @@ class TradeDirection(Enum):
     SELL = "SELL"
 
 
+class MarketClosedException(Exception):
+    """Error to notify that the market is currently closed"""
+    pass
+
+class NotSafeToTradeException(Exception):
+    """Error to notify that it is not safe to trade"""
+    pass
+
+
 class Utils:
     """
     Utility class containing static methods to perform simple general actions

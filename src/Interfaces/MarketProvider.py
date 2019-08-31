@@ -5,6 +5,12 @@ import sys
 from collections import deque
 from enum import Enum
 
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+sys.path.insert(0, parentdir)
+
+from .Market import Market
+
 
 class MarketSource(Enum):
     """
@@ -47,6 +53,12 @@ class MarketProvider:
         """
         logging.info("Resetting MarketProvider")
         self._initialise()
+
+    def get_market_from_epic(self, epic):
+        """
+        Given a market epic id returns the related market snapshot
+        """
+        return self._create_market(epic)
 
     def _read_configuration(self, config):
         home = os.path.expanduser("~")
@@ -99,9 +111,9 @@ class MarketProvider:
 
     def _next_from_list(self):
         try:
-            return self.epic_list_iter.next()
+            epic = self.epic_list_iter.next()
+            return self._create_market(epic)
         except Exception as e:
-            logging.error(e)
             raise StopIteration
 
     def _load_epic_ids_from_watchlist(self, watchlist_name):
@@ -136,8 +148,22 @@ class MarketProvider:
         # Return the next item in the epic_list, but if the list is finished
         # navigate the next node in the stack and return a new list
         try:
-            return self.epic_list_iter.next()
+            return self._next_from_list()
         except Exception as e:
             self.epic_list = self._load_epic_ids_from_api_node(self.node_stack.pop())
             self.epic_list_iter = iter(self.epic_list)
+            return self._next_from_list()
 
+    def _create_market(self, epic_id):
+        info = self.broker.get_market_info(epic_id)
+        if info is None:
+            raise Exception("Unable to fetch data for {}".format(epic_id))
+        market = Market()
+        market.epic = info["epic"]
+        market.id = info["market_id"]
+        market.name = info["name"]
+        market.bid = info["bid"]
+        market.offer = info["offer"]
+        market.high = info["high"]
+        market.low = info["low"]
+        return market

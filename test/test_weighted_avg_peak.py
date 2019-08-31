@@ -7,11 +7,12 @@ import pandas as pd
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
-sys.path.insert(0,'{}/src'.format(parentdir))
+sys.path.insert(0, "{}/src".format(parentdir))
 
 from Strategies.WeightedAvgPeak import WeightedAvgPeak
 from Utility.Utils import TradeDirection
 from common.MockComponents import MockBroker, MockIG, MockAV
+
 
 @pytest.fixture
 def config():
@@ -20,9 +21,9 @@ def config():
     """
     # Read configuration file
     try:
-        with open('config/config.json', 'r') as file:
+        with open("config/config.json", "r") as file:
             config = json.load(file)
-            config['alpha_vantage']['enable'] = True
+            config["alpha_vantage"]["enable"] = True
     except IOError:
         exit()
     return config
@@ -30,13 +31,16 @@ def config():
 
 def test_find_trade_signal(config):
     services = {
-        'ig_index': MockIG('test/test_data/mock_ig_market_info.json',
-                                'test/test_data/mock_ig_historic_price.json'),
-        'alpha_vantage': MockAV('test/test_data/mock_av_weekly.json')
+        "ig_index": MockIG(
+            "test/test_data/mock_ig_market_info.json",
+            "test/test_data/mock_ig_historic_price.json",
+        ),
+        "alpha_vantage": MockAV("test/test_data/mock_av_weekly.json"),
     }
     broker = MockBroker(config, services)
     strategy = WeightedAvgPeak(config, broker)
-    tradeDir, limit, stop = strategy.find_trade_signal('MOCK')
+    prices = broker.get_prices("", "", "", "")
+    tradeDir, limit, stop = strategy.find_trade_signal("MOCK", prices)
 
     assert tradeDir is not None
     assert limit is None

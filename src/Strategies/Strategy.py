@@ -26,18 +26,19 @@ class Strategy:
         # Initialise derived Strategy
         self.initialise()
 
-    def run(self, epic_id):
+    def run(self, market):
         """
         Run the strategy against the specified market
         """
         settings = self.get_price_settings()
         prices = []
         for interval, time_range in settings:
-            # TODO need to pass also the market_id
-            data = self.broker.get_prices(epic_id, interval, time_range)
+            data = self.broker.get_prices(market.epic, interval, time_range)
             if data is None:
                 logging.error(
-                    "No historic data available for {} ({})".format(epic_id, market_id)
+                    "No historic data available for {} ({})".format(
+                        market.epic, market_id
+                    )
                 )
                 return TradeDirection.NONE, None, None
             else:
@@ -47,7 +48,7 @@ class Strategy:
             logging.error("No price settings defined for active strategy")
             return TradeDirection.NONE, None, None
 
-        return self.find_trade_signal(epic_id, prices)
+        return self.find_trade_signal(market, prices)
 
     #############################################################
     # OVERRIDE THESE FUNCTIONS IN STRATEGY IMPLEMENTATION

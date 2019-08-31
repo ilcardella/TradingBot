@@ -103,9 +103,12 @@ class Broker:
         - data = {'market_id': <value>, 'bid': <value>,'offer': <value>, 'stop_distance_min': <value>}
         """
         data = {
+            "epic": None,
             "market_id": None,
             "bid": None,
             "offer": None,
+            "high": None,
+            "low": None,
             "stop_distance_min": None,
         }
         info = self.ig_index.get_market_info(epic)
@@ -125,6 +128,9 @@ class Broker:
             else "minNormalStopOrLimitDistance"
         )
         data["stop_distance_min"] = info["dealingRules"][stop_dist_key]["value"]
+        data["epic"] = info["instrument"]["epic"]
+        data["high"] = info["snapshot"]["high"]
+        data["low"] = info["snapshot"]["low"]
         return data
 
     def macd_dataframe(self, epic, market_id, interval):

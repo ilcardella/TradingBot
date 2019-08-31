@@ -16,7 +16,7 @@ currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfram
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir)
 
-from Utility.Utils import Utils, TradeDirection
+from Utility.Utils import Utils, TradeDirection, NotSafeToTradeException, MarketClosedException
 from Interfaces.IGInterface import IGInterface
 from Interfaces.AVInterface import AVInterface
 from Strategies.StrategyFactory import StrategyFactory
@@ -130,28 +130,67 @@ class TradingBot:
         }
         return Broker(config, services)
 
-    def start(self, argv):
+    def start(self):
         """
-        Starts the TradingBot
+        Starts the TradingBot main loop
+        - process open positions
+        - process markets from market source
+        - wait for configured wait time
+        - start over
         """
         while True:
-            if Utils.is_market_open(self.time_zone):
-                try:
-                    # Process open positions
-                    self.positions = self.broker.get_open_positions()
-                    self.process_open_positions(self.positions)
-                    market = self.market_provider.next()
-                    self.process_trade(market)
-                except StopIteration:
-                    self.market_provider.reset()
-                    # Wait for next spin loop as configured in the strategy
-                    seconds = self.strategy.get_seconds_to_next_spin()
-                    logging.info(
-                        "Wait for {0:.2f} seconds before next spin".format(seconds)
-                    )
-                    time.sleep(seconds)
-            else:
+            try:
+                # Process current open positions
+                self.process_open_positions()
+                # Now process markets from the configured market source
+                self.process_market_source()
+            except MarketClosedException:
                 self.wait_for_next_market_opening()
+            except NotSafeToTradeException:
+                self.wait_for_strategy_spin_period()
+            except StopIteration:
+                self.wait_for_strategy_spin_period()
+            except Exception as e:
+                logging.error("Generic exception caught: {}".format(e))
+                logging.debug(traceback.format_exc())
+                logging.debug(sys.exc_info()[0])
+                continue
+
+    def process_open_positions(self):
+        """
+        Fetch open positions markets and run the strategy against them closing the
+        trades if required
+        """
+        self.positions = self.broker.get_open_positions()
+        # Do not run until we know the current open positions
+        if self.positions is None:
+            logging.warning("Unable to fetch open positions! Will try again...")
+            raise RuntimeError("Unable to fetch open positions")
+        for epic in [item["market"]["epic"] for item in positions["positions"]]:
+            market = self.market_provider.get_market_from_epic(epic)
+            self.process_market(market)
+
+    def process_market_source(self):
+        """
+        Process markets from the configured market source
+        """
+        while True:
+            market = self.market_provider.next()
+            self.process_market(market)
+
+    def process_market(self, market):
+        """Spin the strategy on all the markets"""
+        self.safety_checks()
+        logging.info("Processing {}".format(market.id))
+        try:
+            # TODO pass also open positions
+            trade, limit, stop = self.strategy.run(market)
+        except Exception as e:
+            logging.error("Strategy exception caught: {}".format(e))
+            logging.debug(traceback.format_exc())
+            logging.debug(sys.exc_info()[0])
+            return
+        self.process_trade(market, trade, limit, stop)
 
     def close_open_positions(self):
         """
@@ -174,76 +213,64 @@ class TradingBot:
         )
         time.sleep(seconds)
 
-    def process_trade(self, epic):
+    def wait_for_strategy_spin_period(self):
         """
-        Process a trade checking if it is a "close position" trade or a new action
+        Sleep for the amount of time configured in the active strategy between each spin
         """
-        logging.info("Processing {}".format(epic))
+        # Wait for next spin loop as configured in the strategy
+        seconds = self.strategy.get_seconds_to_next_spin()
+        logging.info(
+            "Wait for {0:.2f} seconds before next spin".format(seconds)
+        )
+        time.sleep(seconds)
 
-        # Perform safety checks
+    def safety_checks(self):
+        """
+        Perform some safety checks before running the strategy against the next market
+
+        Return True if the trade can proceed, False otherwise
+        """
         percent_used = self.broker.get_account_used_perc()
         if percent_used is None:
             logging.warning(
                 "Stop trading because can't fetch percentage of account used"
             )
-            return
+            raise NotSafeToTradeException()
         if percent_used >= self.max_account_usable:
             logging.warning(
                 "Stop trading because {}% of account is used".format(str(percent_used))
             )
-            return
+            raise NotSafeToTradeException()
         if not Utils.is_market_open(self.time_zone):
-            logging.warn("Market is closed: stop processing")
-            return
+            logging.warning("Market is closed: stop processing")
+            raise MarketClosedException()
 
-        # Use strategy to analyse market
-        try:
-            trade, limit, stop = self.strategy.run(epic)
-        except Exception as e:
-            logging.error("Exception: {}".format(e))
-            logging.debug(e)
-            logging.debug(traceback.format_exc())
-            logging.debug(sys.exc_info()[0])
-            trade = TradeDirection.NONE
-
-        # Perform trade if required
-        if trade is not TradeDirection.NONE:
+    def process_trade(self, market, direction, limit, stop):
+        """
+        Process a trade checking if it is a "close position" trade or a new action
+        """
+        # TODO double check if there are pieces to remove
+        # Perform trade only if required
+        if direction is not TradeDirection.NONE:
             if self.positions is not None:
                 for item in self.positions["positions"]:
                     # If a same direction trade already exist, don't trade
                     if (
-                        item["market"]["epic"] == epic
-                        and trade.name == item["position"]["direction"]
+                        item["market"]["epic"] == market.epic
+                        and direction.name == item["position"]["direction"]
                     ):
                         logging.info(
                             "There is already an open position for this epic, skip trade"
                         )
                     # If a trade in opposite direction exist, close the position
                     elif (
-                        item["market"]["epic"] == epic
-                        and trade.name != item["position"]["direction"]
+                        item["market"]["epic"] == market.epic
+                        and direction.name != item["position"]["direction"]
                     ):
                         self.broker.close_position(item)
-                self.broker.trade(epic, trade.name, limit, stop)
+                self.broker.trade(market.epic, direction.name, limit, stop)
             else:
                 logging.error("Unable to fetch open positions! Avoid trading this epic")
-
-    def process_open_positions(self, positions):
-        """
-        process the open positions to find closing trades
-
-            - **positions**: json object containing open positions
-            - Returns **False** if an error occurs otherwise True
-        """
-        if positions is not None:
-            logging.info("Processing open positions.")
-            self.process_epic_list(
-                [item["market"]["epic"] for item in positions["positions"]]
-            )
-            return True
-        else:
-            logging.warning("Unable to fetch open positions!")
-        return False
 
 
 if __name__ == "__main__":
@@ -260,4 +287,4 @@ if __name__ == "__main__":
     if args.close_positions:
         TradingBot().close_open_positions()
     else:
-        TradingBot().start(args)
+        TradingBot().start()
