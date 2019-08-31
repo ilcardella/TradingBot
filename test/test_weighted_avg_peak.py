@@ -11,6 +11,7 @@ sys.path.insert(0, "{}/src".format(parentdir))
 
 from Strategies.WeightedAvgPeak import WeightedAvgPeak
 from Utility.Utils import TradeDirection
+from Interfaces.Market import Market
 from common.MockComponents import MockBroker, MockIG, MockAV
 
 
@@ -29,6 +30,20 @@ def config():
     return config
 
 
+def create_mock_market(broker):
+    data = broker.get_market_info("mock")
+    market = Market()
+    market.epic = data['epic']
+    market.id = data['market_id']
+    market.name = data['name']
+    market.bid = data['bid']
+    market.offer = data['offer']
+    market.high = data['high']
+    market.low = data['low']
+    market.stop_distance_min = data['stop_distance_min']
+    return market
+
+
 def test_find_trade_signal(config):
     services = {
         "ig_index": MockIG(
@@ -40,7 +55,10 @@ def test_find_trade_signal(config):
     broker = MockBroker(config, services)
     strategy = WeightedAvgPeak(config, broker)
     prices = broker.get_prices("", "", "", "")
-    tradeDir, limit, stop = strategy.find_trade_signal("MOCK", prices)
+
+    market = create_mock_market(broker)
+
+    tradeDir, limit, stop = strategy.find_trade_signal(market, prices)
 
     assert tradeDir is not None
     assert limit is None

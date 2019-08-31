@@ -53,29 +53,19 @@ class WeightedAvgPeak(Strategy):
         """
         return [(Interval.WEEK, 18)]
 
-    def find_trade_signal(self, epic_id, prices):
+    def find_trade_signal(self, market, prices):
         """
         TODO add description of strategy key points
         """
-        # Fetch data for the market
-        snapshot = self.broker.get_market_info(epic_id)
-        if snapshot is None:
-            return TradeDirection.NONE, None, None
-
-        market_id = snapshot["market_id"]
-        current_bid = snapshot["bid"]
-        current_offer = snapshot["offer"]
         limit_perc = self.limit_p
-        stop_perc = max(snapshot["stop_distance_min"], self.stop_p)
+        stop_perc = max(market.stop_distance_min, self.stop_p)
 
         # Spread constraint
-        if current_bid - current_offer > self.max_spread:
+        if market.bid - market.offer > self.max_spread:
             return TradeDirection.NONE, None, None
 
         # Compute mid price
-        current_mid = Utils.midpoint(current_bid, current_offer)
-
-        # Fetch past prices of the market with weekly resolution
+        current_mid = Utils.midpoint(market.bid, market.offer)
 
         high_prices = prices["high"]
         low_prices = prices["low"]
@@ -89,7 +79,7 @@ class WeightedAvgPeak(Strategy):
         array_len_check.append(len(close_prices))
         array_len_check.append(len(ltv))
         if not all(x == array_len_check[0] for x in array_len_check):
-            logging.error("Historic prices dataset incomplete for {}".format(epic_id))
+            logging.error("Historic prices dataset incomplete for {}".format(market.epic))
             return TradeDirection.NONE, None, None
 
         # compute weighted average and std deviation of prices using volume as weight
@@ -170,31 +160,31 @@ class WeightedAvgPeak(Strategy):
         if trade_direction is TradeDirection.NONE:
             return trade_direction, None, None
 
-        logging.info("Strategy says: {} {}".format(trade_direction.name, market_id))
+        logging.info("Strategy says: {} {}".format(trade_direction.name, market.id))
 
         ATR = self.calculate_stop_loss(close_prices, high_prices, low_prices)
 
         if trade_direction is TradeDirection.BUY:
             pip_limit = int(
-                abs(float(max(high_prices)) - float(current_bid))
+                abs(float(max(high_prices)) - float(market.bid))
                 * self.profit_indicator_multiplier
             )
             ce_stop = self.Chandelier_Exit_formula(
                 trade_direction, ATR, min(low_prices)
             )
-            stop_pips = str(int(abs(float(current_bid) - (ce_stop))))
+            stop_pips = str(int(abs(float(market.bid) - (ce_stop))))
         elif trade_direction is TradeDirection.SELL:
             pip_limit = int(
-                abs(float(min(low_prices)) - float(current_bid))
+                abs(float(min(low_prices)) - float(market.bid))
                 * self.profit_indicator_multiplier
             )
             ce_stop = self.Chandelier_Exit_formula(
                 trade_direction, ATR, max(high_prices)
             )
-        stop_pips = str(int(abs(float(current_bid) - (ce_stop))))
+        stop_pips = str(int(abs(float(market.bid) - (ce_stop))))
 
         esma_new_margin_req = int(
-            Utils.percentage_of(self.ESMA_new_margin, current_bid)
+            Utils.percentage_of(self.ESMA_new_margin, market.bid)
         )
 
         if int(esma_new_margin_req) > int(stop_pips):
@@ -212,7 +202,7 @@ class WeightedAvgPeak(Strategy):
         if int(pip_limit) >= int(self.greed_indicator):
             pip_limit = int(self.greed_indicator - 1)
         if int(stop_pips) > int(self.too_high_margin):
-            logging.warning("Junk data for {}".format(epic_id))
+            logging.warning("Junk data for {}".format(market.epic))
             return TradeDirection.NONE, None, None
         return trade_direction, pip_limit, stop_pips
 
