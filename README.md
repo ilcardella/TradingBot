@@ -49,7 +49,7 @@ It is recommended to add this path to your ``PATH`` environment variable.
 
 The last step is to set file permissions for your user on the installed folders with the
 following command:
-```
+```shell
 sudo chown -R $USER: $HOME/.TradingBot
 ```
 
@@ -65,7 +65,7 @@ Login to your IG Dashboard
 - Insert these info in a file called `.credentials`
 
 This must be in json format
-```
+```json
 {
     "username": "username",
     "password": "password",
@@ -204,7 +204,7 @@ The only configuration required is to edit the crontab file adding the preferred
 crontab -e
 ```
 As an example this will start TradingBot at 8:00 in the morning and will stop it at 16:35 in the afternoon, every week day (Mon to Fri):
-```
+```shell
 00 08 * * 1-5 /opt/TradingBot/src/TradingBot.py
 35 16 * * 1-5 kill -9 $(ps | grep "/opt/TradingBot/src/TradingBot.py" | grep -v grep | awk '{ print $1 }')
 ```
