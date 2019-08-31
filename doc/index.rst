@@ -18,4 +18,6 @@ Explore the next sections for a detailed documentation of each module too.
    source/modules.rst
    source/changelog.rst
 
+.. _readme:
+
 .. mdinclude:: ../README.md

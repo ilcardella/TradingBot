@@ -19,22 +19,37 @@ starting point for this project. Thank you.
 
 # Dependencies
 
-- Python 3.4+
+- Python 3.5+
+- Pipenv
 
-View file `requirements.txt` for the full list of dependencies.
+View file `Pipfile` for the full list of required python packages.
 
 # Install
 
-TradingBot can be controlled by the `trading_bot_ctl` shell script which provides several commands to perform different actions.
-After cloning this repo, to install TradingBot simply run:
+First if you have not yet done so, install python 3.5+ and pipenv
 ```
-sudo ./trading_bot_ctl install
+sudo apt-get update && sudo apt-get install python3 python3-pip
+sudo -H pip3 install -U pipenv
 ```
 
-The required dependencies will be installed and all necessary files installed in ``/opt/TradingBot`` by default. It is recommended to add this path to your ``PATH`` environment variable.
-
-The last step is to set file permissions on the installed folders for your user with the following command:
+Clone this repo in your workspace and setup the python virtual environment
+by running the following commands in the repository root folder
 ```
+pipenv install --three
+```
+You can install development packages adding the flag `--dev`
+
+The following step is to install TradingBot:
+```
+sudo ./install.py
+```
+
+All necessary files are copied in ``/opt/TradingBot`` by default.
+It is recommended to add this path to your ``PATH`` environment variable.
+
+The last step is to set file permissions for your user on the installed folders with the
+following command:
+```shell
 sudo chown -R $USER: $HOME/.TradingBot
 ```
 
@@ -50,7 +65,7 @@ Login to your IG Dashboard
 - Insert these info in a file called `.credentials`
 
 This must be in json format
-```
+```json
 {
     "username": "username",
     "password": "password",
@@ -59,11 +74,11 @@ This must be in json format
     "av_api_key": "apiKey"
 }
 ```
-- Copy the `.credentials` file in the `data` folder
-- Revoke permissions to read the file if you are paranoid
+- Copy the `.credentials` file into the `$HOME/.TradingBot/data` folder
+- Revoke permissions to read the file
 ```
 cd data
-sudo chmod 600 .credentials
+sudo chmod 600 $HOME/.TradingBot/data/.credentials
 ```
 
 ### Market source
@@ -96,7 +111,7 @@ how TradingBot work. These are the description of each parameter:
 - **log_file**: Define the full file path for the log file to use, if enabled. {home} and {timestamp} placeholders are replaced with the user home directory and the timestamp when TradingBot started
 - **debug_log**: Enable the debug level in the logging
 - **credentials_filepath**: Filepath for the `.credentials` file
-- **market_source**: The source to use to fetch the market ids. Available values are explained in the `Setup` section below.
+- **market_source**: The source to use to fetch the market ids. Available values as explained above are: [`list`, `watchlist`, `api`]
 - **epic_ids_filepath**:  The full file path for the local file containing the list of epic ids
 - **watchlist_name**: The watchlist name to use as market source, if selected
 - **active_strategy**: The strategy name to use. Must match one of the names in the `Strategies` section below
@@ -132,34 +147,33 @@ Settings specific for each strategy
 
 # Start TradingBot
 
+You can start TradingBot in your current terminal
 ```
-./trading_bot_ctl start
+/opt/TradingBot/src/TradingBot.py
+```
+or you can start it in detached mode, letting it run in the background
+```
+nohup /opt/TradingBot/src/TradingBot.py >/dev/null 2>&1 &
 ```
 
 ### Close all the open positions
 
 ```
-./trading_bot_ctl close_positions
+/opt/TradingBot/src/TradingBot.py -c
 ```
 
 # Stop TradingBot
 
+To stop a TradingBot instance running in the background
 ```
-./trading_bot_ctl stop
+ps -ef | grep TradingBot | xargs kill -9
 ```
 
 # Test
 
-If you have setup a virtual environment you can run the test by running `pytest` from the project root folder.
-
-You can run the test from a clean environment with:
+You can run the test from the workspace with:
 ```
-./trading_bot_ctl test
-```
-
-You can run the test in Docker containers against different python versions:
-```
-./trading_bot_ctl test_docker
+pipenv run pytest
 ```
 
 # Documentation
@@ -175,7 +189,7 @@ https://tradingbot.readthedocs.io
 
 You can build it locally with:
 ```
-./trading_bot_ctl docs
+pipenv run sphinx-build -nWT -b html doc doc/_build/html
 ```
 
 The generated html files will be in `doc/_build/html`.
@@ -190,29 +204,33 @@ The only configuration required is to edit the crontab file adding the preferred
 crontab -e
 ```
 As an example this will start TradingBot at 8:00 in the morning and will stop it at 16:35 in the afternoon, every week day (Mon to Fri):
-```
-00 08 * * 1-5 /.../TradingBot/trading_bot_ctl start
-35 16 * * 1-5 /.../TradingBot/trading_bot_ctl stop
+```shell
+00 08 * * 1-5 /opt/TradingBot/src/TradingBot.py
+35 16 * * 1-5 kill -9 $(ps | grep "/opt/TradingBot/src/TradingBot.py" | grep -v grep | awk '{ print $1 }')
 ```
 NOTE: Remember to set the correct timezone in your machine!
 
 # Docker
-You can run TradingBot in a Docker container (https://docs.docker.com/):
+You can run TradingBot in a Docker container (https://docs.docker.com/).
+First you need to build the Docker image used by TradingBot:
 ```
-./trading_bot_ctl start_docker
+./docker_run.sh build
 ```
-The container will be called `dkr_trading_bot` and the logs will still be stored in the configured folder in the host machine. By default `~/.TradingBot/log`.
 
-To stop TradingBot:
+Once the image is built you can install TradingBot and then run it in a Docker container:
 ```
-./trading_bot_ctl stop_docker
+./docker_run.sh start
 ```
-or just kill the container:
+The container will be called `dkr_trading_bot` and the logs will still be stored in the configured folder in the host machine. By default `$HOME/.TradingBot/log`.
+
+Check the `Dockerfile` and the  `docker_run.sh` for more details
+
+To stop the TradingBot container:
 ```
 docker kill dkr_trading_bot
 ```
 
-If you need to start a bash shell into the container
+If you need to start a bash shell into a running container
 ```
 docker exec -it dkr_trading_bot bash
 ```
