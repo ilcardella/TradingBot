@@ -1,5 +1,5 @@
 System Overview
-===============
+###############
 
 TradingBot is a python program with the goal to automate the trading
 of stocks in the London Stock Exchange market.
@@ -13,7 +13,7 @@ The following sections give an overview of the main components that compose
 TradingBot.
 
 TradingBot
-""""""""""
+**********
 
 TradingBot is the main entiy used to initialised all the
 components that will be used during the main routine.
@@ -22,7 +22,7 @@ configured strategy instance, the broker interface and it handle the
 processing of the markets with the active strategy.
 
 Broker interface
-""""""""""""""""
+****************
 
 TradingBot requires an interface with an executive broker in order to open
 and close trades in the market.
@@ -35,20 +35,20 @@ TradingBot makes also use of other 3rd party services to fetch market data such
 as price snapshot or technical indicators.
 
 Strategy
-""""""""
+********
 
 The ``Strategy`` is the core of the TradingBot system.
 It is a generic template class that can be extended with custom functions to
 execute trades according to the personalised strategy.
 
 How to use your own strategy
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+============================
 
 Anyone can create a new strategy from scratch in a few simple steps.
 With your own strategy you can define your own set of rules
 to decide whether to buy, sell or hold a specific market.
 
-#. Setup your development environment (see README.md)
+#. Setup your development environment (see :ref:`readme`)
 
 #. Create a new python module inside the Strategy folder :
 
