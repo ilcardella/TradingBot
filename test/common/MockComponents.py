@@ -28,6 +28,14 @@ class MockIG:
             exit()
         return mock
 
+    def search_market(self, search):
+        try:
+            with open("test/test_data/mock_ig_market_search.json", "r") as file:
+                mock = json.load(file)
+        except IOError:
+            exit()
+        return mock['markets']
+
     def get_prices(self, epic_id, interval, data_range):
         # Read mock file
         try:
@@ -112,6 +120,9 @@ class MockBroker:
         data["high"] = info["snapshot"]["high"]
         data["low"] = info["snapshot"]["low"]
         return data
+
+    def search_market(self, search):
+        return self.ig.search_market(search)
 
     def get_prices(self, epic, market_id, interval, range):
         data = {"high": [], "low": [], "close": [], "volume": []}

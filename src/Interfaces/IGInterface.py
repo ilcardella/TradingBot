@@ -184,6 +184,18 @@ class IGInterface:
         market = self.http_get(url)
         return market
 
+    def search_market(self, search):
+        """
+        Returns a list of markets that matched the search string
+        """
+        url = "{}/{}?searchTerm={}".format(
+            self.apiBaseURL, IG_API_URL.MARKETS.value, search
+        )
+        markets = self.http_get(url)
+        if markets is not None and 'markets' in markets:
+            return markets['markets']
+        return markets
+
     def get_prices(self, epic_id, interval, data_range):
         """
         Returns past prices for the given epic

@@ -61,6 +61,35 @@ class MarketProvider:
         """
         return self._create_market(epic)
 
+    def search_market(self, search):
+        """
+        Tries to find the market which id matches the given search string.
+        If successful return the market snapshot.
+        Raise an exception when multiple markets match the search string
+        """
+        markets = self.broker.search_market(search)
+        if markets is None or len(markets) < 1:
+            raise RuntimeError(
+                "ERROR: Unable to find market matching: {}".format(seach)
+            )
+        else:
+            # Iterate through the list and use a set to verify that the results are all the same market
+            epic_set = set()
+            epic = ""
+            for m in markets:
+                # Epic are in format: KC.D.PRSMLN.DAILY.IP. Extract third element
+                market_id = m["epic"].split(".")[2]
+                epic_set.add(market_id)
+                # Store the DFB epic
+                if "DFB" in m["expiry"] and "DAILY" in m["epic"]:
+                    epic = m["epic"]
+            if not len(epic_set) == 1:
+                raise RuntimeError(
+                    "ERROR: Multiple markets match the search string: {}".format(search)
+                )
+            # Good, it means the result are all the same market
+            return self._create_market(epic)
+
     def _read_configuration(self, config):
         home = os.path.expanduser("~")
         self.epic_ids_filepath = config["general"]["epic_ids_filepath"].replace(

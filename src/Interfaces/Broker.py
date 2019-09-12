@@ -102,6 +102,7 @@ class Broker:
         Return the last available snapshot of the requested market as a dict:
         - data = {'market_id': <value>, 'bid': <value>,'offer': <value>, 'stop_distance_min': <value>}
         """
+        # TODO define an interface class for the data exchanged
         data = {
             "epic": None,
             "market_id": None,
@@ -133,6 +134,13 @@ class Broker:
         data["high"] = info["snapshot"]["high"]
         data["low"] = info["snapshot"]["low"]
         return data
+
+    def search_market(self, search):
+        """
+        **IG INDEX API ONLY**
+        Search for a market from a search string
+        """
+        return self.ig_index.search_market(search)
 
     def macd_dataframe(self, epic, market_id, interval):
         """
