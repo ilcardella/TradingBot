@@ -16,10 +16,11 @@
     "default": {
         "alpha-vantage": {
             "hashes": [
-                "sha256:f4d5d59f8d5aa29cfe74ed1526fd2393b871b3aad8442bdeb23e2be0747446de"
+                "sha256:78c9c23ce0c1b35d96882aefd90f4606e9072c8628cb883598312af437ffd277",
+                "sha256:88ed2eb30f0544859ed92c6eea78ad2f9f66abefb21f4fa36adc2802732dda61"
             ],
             "index": "pypi",
-            "version": "==2.1.0"
+            "version": "==2.1.1"
         },
         "certifi": {
             "hashes": [
