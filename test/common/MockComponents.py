@@ -3,6 +3,7 @@ import sys
 import inspect
 import json
 import pandas as pd
+from datetime import datetime as dt
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
@@ -72,6 +73,7 @@ class MockAV:
                 px = pd.DataFrame.from_dict(
                     mock["Technical Analysis: MACDEXT"], orient="index", dtype=float
                 )
+                px.index = pd.to_datetime(px.index)
         except IOError:
             exit()
         return px
