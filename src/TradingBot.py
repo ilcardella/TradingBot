@@ -1,13 +1,11 @@
 import logging
 import json
-from pathlib import Path
 import pytz
 import time
-import datetime as dt
+from datetime import datetime as dt
 import os
 import sys
 import inspect
-from random import shuffle
 import traceback
 import argparse
 import numpy
@@ -27,6 +25,7 @@ from Interfaces.AVInterface import AVInterface
 from Strategies.StrategyFactory import StrategyFactory
 from Interfaces.Broker import Broker
 from Interfaces.MarketProvider import MarketProvider, MarketSource
+from Components.Backtester import Backtester
 
 
 class TradingBot:
@@ -103,7 +102,7 @@ class TradingBot:
         # If enabled define log file filename with current timestamp
         if self.enable_log:
             log_filename = self.log_file
-            time_str = dt.datetime.now().isoformat()
+            time_str = dt.now().isoformat()
             time_suffix = time_str.replace(":", "_").replace(".", "_")
             log_filename = log_filename.replace("{timestamp}", time_suffix)
             os.makedirs(os.path.dirname(log_filename), exist_ok=True)
@@ -215,7 +214,7 @@ class TradingBot:
         Sleep until the next market opening. Takes into account weekends
         and bank holidays in UK
         """
-        seconds = Utils.get_seconds_to_market_opening(dt.datetime.now())
+        seconds = Utils.get_seconds_to_market_opening(dt.now())
         logging.info(
             "Market is closed! Wait for {0:.2f} hours...".format(seconds / 3600)
         )
@@ -234,7 +233,7 @@ class TradingBot:
         """
         Perform some safety checks before running the strategy against the next market
 
-        Return True if the trade can proceed, False otherwise
+        Raise exceptions if not safe to trade
         """
         percent_used = self.broker.get_account_used_perc()
         if percent_used is None:
@@ -279,20 +278,80 @@ class TradingBot:
             else:
                 logging.error("Unable to fetch open positions! Avoid trading this epic")
 
+    def backtest(self, market_id, start_date, end_date):
+        """
+        Backtest a market using the configured strategy
+        """
+        try:
+            start = dt.strptime(start_date, "%Y-%m-%d")
+            end = dt.strptime(end_date, "%Y-%m-%d")
+        except ValueError as e:
+            logging.error('Wrong date format! Must be YYYY-MM-DD')
+            logging.debug(e)
+            exit()
 
-def main():
-    # Argument management
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
+        bt = Backtester(self.broker, self.strategy)
+
+        try:
+            market = self.market_provider.search_market(market_id)
+        except RuntimeError as e:
+            logging.error(e)
+            exit()
+
+        bt.start(market, start, end)
+        bt.print_results()
+
+
+def get_menu_parser():
+    VERSION = "1.1.0"
+    parser = argparse.ArgumentParser(prog="TradingBot")
+    main_group = parser.add_mutually_exclusive_group()
+    main_group.add_argument(
+        "-v", "--version", action="version", version="%(prog)s {}".format(VERSION)
+    )
+    main_group.add_argument(
         "-c",
         "--close_positions",
         help="Close all the open positions",
         action="store_true",
     )
-    args = parser.parse_args()
+    backtest_group = parser.add_argument_group("Backtesting")
+    backtest_group.add_argument(
+        "--backtest",
+        help="Backtest the market related to the specified id",
+        nargs=1,
+        metavar="MARKET_ID",
+    )
+    backtest_group.add_argument(
+        "--epic",
+        help="IG epic of the market to backtest",
+        nargs=1,
+        metavar="EPIC_ID",
+    )
+    backtest_group.add_argument(
+        "--start",
+        help="Start date for the strategy backtest",
+        nargs=1,
+        metavar="YYYY-MM-DD",
+        required="--backtest" in sys.argv,
+    )
+    backtest_group.add_argument(
+        "--end",
+        help="End date for the strategy backtest",
+        nargs=1,
+        metavar="YYYY-MM-DD",
+        required="--backtest" in sys.argv,
+    )
+    return parser.parse_args()
 
+
+def main():
+    args = get_menu_parser()
     if args.close_positions:
         TradingBot().close_open_positions()
+    elif args.backtest and args.start and args.end:
+        # TODO read if --epic was defined
+        TradingBot().backtest(args.backtest[0], args.start[0], args.end[0])
     else:
         TradingBot().start()
 

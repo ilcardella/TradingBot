@@ -159,3 +159,30 @@ def test_market_provider_market_from_epic(config):
     market = mp.get_market_from_epic("MOCK")
     assert market is not None
     assert market.epic == "MOCK"
+
+
+def test_search_market(config):
+    """
+    Test the MarketProvider search_market() function
+    """
+    # Define configuration for this test
+    config["alpha_vantage"]["enable"] = True
+    config["general"]["market_source"]["value"] = "list"
+    config["general"]["epic_ids_filepath"] = "test/test_data/epics_list.txt"
+
+    # Mock services and other components
+    services = {
+        "ig_index": MockIG(
+            "test/test_data/mock_ig_market_info.json",
+            "test/test_data/mock_ig_historic_price.json",
+        ),
+        "alpha_vantage": MockAV("test/test_data/mock_macdext_buy.json"),
+    }
+    broker = MockBroker(config, services)
+
+    mp = MarketProvider(config, broker)
+
+    # The mock search data contains multiple markets
+    with pytest.raises(RuntimeError):
+        market = mp.search_market('mock')
+    # TODO test with single market mock data and verify no exception

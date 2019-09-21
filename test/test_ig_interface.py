@@ -198,6 +198,33 @@ def test_get_market_info_fail(ig, requests_mock):
     assert info is None
 
 
+def test_search_market(ig, requests_mock):
+    data = read_json("test/test_data/mock_ig_market_search.json")
+    requests_mock.get(
+        ig.apiBaseURL + "/markets?searchTerm=mock", status_code=200, json=data
+    )
+
+    markets = ig.search_market("mock")
+
+    assert markets is not None
+    assert len(markets) == 8
+    assert "epic" in markets[0]
+    assert "expiry" in markets[0]
+    assert "bid" in markets[0]
+    assert "offer" in markets[0]
+
+
+def test_search_market_fail(ig, requests_mock):
+    data = read_json("test/test_data/mock_ig_market_search.json")
+    requests_mock.get(
+        ig.apiBaseURL + "/markets?searchTerm=mock", status_code=401, json=data
+    )
+
+    markets = ig.search_market("mock")
+
+    assert markets is None
+
+
 def test_get_prices(ig, requests_mock):
     data = read_json("test/test_data/mock_ig_historic_price.json")
     requests_mock.get(

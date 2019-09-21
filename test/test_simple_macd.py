@@ -3,6 +3,7 @@ import sys
 import inspect
 import pytest
 import json
+from datetime import datetime as dt
 import pandas as pd
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
@@ -45,17 +46,18 @@ def strategy(config):
     broker = MockBroker(config, services)
     return SimpleMACD(config, broker)
 
+
 def create_mock_market(broker):
     data = broker.get_market_info("mock")
     market = Market()
-    market.epic = data['epic']
-    market.id = data['market_id']
-    market.name = data['name']
-    market.bid = data['bid']
-    market.offer = data['offer']
-    market.high = data['high']
-    market.low = data['low']
-    market.stop_distance_min = data['stop_distance_min']
+    market.epic = data["epic"]
+    market.id = data["market_id"]
+    market.name = data["name"]
+    market.bid = data["bid"]
+    market.offer = data["offer"]
+    market.high = data["high"]
+    market.low = data["low"]
+    market.stop_distance_min = data["stop_distance_min"]
     return market
 
 
@@ -69,13 +71,13 @@ def test_find_trade_signal_buy(config):
     }
     broker = MockBroker(config, services)
     strategy = SimpleMACD(config, broker)
-    prices = broker.get_prices("", "", "", "")
+    data = broker.macd_dataframe("", "", "")
 
     # Create a mock market data from the json file
     market = create_mock_market(broker)
 
     # Call function to test
-    tradeDir, limit, stop = strategy.find_trade_signal(market, prices)
+    tradeDir, limit, stop = strategy.find_trade_signal(market, data)
 
     assert tradeDir is not None
     assert limit is not None
@@ -94,12 +96,12 @@ def test_find_trade_signal_sell(config):
     }
     broker = MockBroker(config, services)
     strategy = SimpleMACD(config, broker)
-    prices = broker.get_prices("", "", "", "")
+    data = broker.macd_dataframe("", "", "")
 
     # Create a mock market data from the json file
     market = create_mock_market(broker)
 
-    tradeDir, limit, stop = strategy.find_trade_signal(market, prices)
+    tradeDir, limit, stop = strategy.find_trade_signal(market, data)
 
     assert tradeDir is not None
     assert limit is not None
@@ -118,12 +120,12 @@ def test_find_trade_signal_hold(config):
     }
     broker = MockBroker(config, services)
     strategy = SimpleMACD(config, broker)
-    prices = broker.get_prices("", "", "", "")
+    data = broker.macd_dataframe("", "", "")
 
     # Create a mock market data from the json file
     market = create_mock_market(broker)
 
-    tradeDir, limit, stop = strategy.find_trade_signal(market, prices)
+    tradeDir, limit, stop = strategy.find_trade_signal(market, data)
 
     assert tradeDir is not None
     assert limit is None
@@ -168,3 +170,31 @@ def test_get_trade_direction_from_signals(strategy):
 
     # BUY becasue the strategy fixture loads the buy test json
     assert tradeDir == TradeDirection.BUY
+
+
+def test_backtest(config):
+    services = {
+        "ig_index": MockIG(
+            "test/test_data/mock_ig_market_info.json",
+            "test/test_data/mock_ig_historic_price.json",
+        ),
+        "alpha_vantage": MockAV("test/test_data/mock_macdext_buy.json"),
+    }
+    broker = MockBroker(config, services)
+    strategy = SimpleMACD(config, broker)
+
+    # Create a mock market data from the json file
+    market = create_mock_market(broker)
+
+    result = strategy.backtest(
+        market,
+        dt.strptime("2018-01-01", "%Y-%m-%d"),
+        dt.strptime("2018-06-01", "%Y-%m-%d"),
+    )
+
+    assert 'balance' in result
+    assert result['balance'] is not None
+    assert result['balance'] == 997.9299999999998
+    assert 'trades' in result
+    assert len(result['trades']) == 8
+

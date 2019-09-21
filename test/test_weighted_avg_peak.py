@@ -54,6 +54,7 @@ def test_find_trade_signal(config):
     }
     broker = MockBroker(config, services)
     strategy = WeightedAvgPeak(config, broker)
+    broker.use_av_api = False
     prices = broker.get_prices("", "", "", "")
 
     market = create_mock_market(broker)

@@ -88,14 +88,15 @@ to decide whether to buy, sell or hold a specific market.
             # Initialise the strategy
             pass
 
-        def get_price_settings(self):
+        def fetch_datapoints(self, market):
             """
-            Returns the price settings required by the strategy
+            Fetch any required datapoints (historic prices, indicators, etc.).
+            The object returned by this function is passed to the 'find_trade_signal()'
+            function 'datapoints' argument
             """
             # As an example, this means the strategy needs 50 data point of
             # of past prices from the 1-hour chart of the market
-            # Return a list of tuple
-            return [(Interval.HOUR, 50)]
+            return self.broker.get_prices(market.epic, Interval.HOUR, 50)
 
         def find_trade_signal(self, market, prices):
             # Here is where you want to implement your own code!
@@ -115,7 +116,7 @@ to decide whether to buy, sell or hold a specific market.
 
    * *read_configuration*: ``config`` is the json object loaded from the ``config.json`` file
    * *initialise*: initialise the strategy or any internal members
-   * *get_price_settings*: define the required past price datapoints
+   * *fetch_datapoints*: fetch the required past price datapoints
    * *find_trade_signal*: it is the core of your custom strategy, here you can use the broker interface to decide if trade the given epic
    * *get_seconds_to_next_spin*: the *find_trade_signal* is called for every epic requested. After that TradingBot will wait for the amount of seconds defined in this function
 
