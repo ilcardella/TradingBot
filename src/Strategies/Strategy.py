@@ -35,25 +35,12 @@ class Strategy:
         """
         Run the strategy against the specified market
         """
-        settings = self.get_price_settings()
-        prices = []
-        for interval, time_range in settings:
-            data = self.broker.get_prices(market.epic, interval, time_range)
-            if data is None:
-                logging.error(
-                    "No historic data available for {} ({})".format(
-                        market.epic, market_id
-                    )
-                )
-                return TradeDirection.NONE, None, None
-            else:
-                prices.append(data)
-
-        if len(prices) < 1:
-            logging.error("No price settings defined for active strategy")
+        datapoints = self.fetch_datapoints(market)
+        logging.debug("Strategy datapoints: {}".format(datapoints))
+        if datapoints is None:
+            logging.debug('Unable to fetch market datapoints')
             return TradeDirection.NONE, None, None
-
-        return self.find_trade_signal(market, prices)
+        return self.find_trade_signal(market, datapoints)
 
     #############################################################
     # OVERRIDE THESE FUNCTIONS IN STRATEGY IMPLEMENTATION
@@ -71,11 +58,11 @@ class Strategy:
         """
         raise NotImplementedError("Not implemented: read_configuration")
 
-    def get_price_settings(self):
+    def fetch_datapoints(self, market):
         """
         Must override
         """
-        raise NotImplementedError("Not implemented: get_price_settings")
+        raise NotImplementedError("Not implemented: fetch_datapoints")
 
     def find_trade_signal(self, epic_id, prices):
         """
@@ -88,6 +75,12 @@ class Strategy:
         Must override
         """
         return self.spin_interval
+
+    def backtest(self, market, start_date, end_date):
+        """
+        Must override
+        """
+        return NotImplementedError("This strategy doe not support backtesting")
 
 
 ##############################################################

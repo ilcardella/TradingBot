@@ -20,6 +20,7 @@ class Backtester:
         logging.info("Backtester created")
         self.broker = broker
         self.strategy = strategy
+        self.result = None
 
     def start(self, market, start_dt, end_dt):
         """Backtest the given market within the specified range
@@ -29,15 +30,11 @@ class Backtester:
                 market.id, start_dt.date(), end_dt.date()
             )
         )
-        # TODO
-
-        # Iterate price data points
-        # Call strategy
-        # Store trade output
+        self.result = self.strategy.backtest(market, start_dt, end_dt)
 
     def print_results(self):
         """Print backtest result in log file
         """
-        logging.info('Backtest result:')
-        # TODO Print results
+        logging.info("Backtest result:")
+        logging.info(self.result)
 

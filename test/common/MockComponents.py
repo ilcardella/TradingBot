@@ -34,7 +34,7 @@ class MockIG:
                 mock = json.load(file)
         except IOError:
             exit()
-        return mock['markets']
+        return mock["markets"]
 
     def get_prices(self, epic_id, interval, data_range):
         # Read mock file
@@ -72,7 +72,6 @@ class MockAV:
                 px = pd.DataFrame.from_dict(
                     mock["Technical Analysis: MACDEXT"], orient="index", dtype=float
                 )
-                px.index = range(len(px))
         except IOError:
             exit()
         return px
@@ -88,6 +87,16 @@ class MockAV:
         except IOError:
             exit()
         return px
+
+    def get_prices(self, market_id, interval):
+        # Read mock file
+        try:
+            with open("test/test_data/mock_av_daily.json", "r") as file:
+                mock = json.load(file)
+                px = pd.DataFrame.from_dict(mock["Time Series (Daily)"], orient="index")
+                return px
+        except IOError:
+            exit()
 
 
 class MockBroker:
@@ -125,18 +134,21 @@ class MockBroker:
         return self.ig.search_market(search)
 
     def get_prices(self, epic, market_id, interval, range):
-        data = {"high": [], "low": [], "close": [], "volume": []}
-        prices = self.ig.get_prices(epic, interval, range)
-        for i in prices["prices"]:
-            if i["highPrice"]["bid"] is not None:
-                data["high"].append(i["highPrice"]["bid"])
-            if i["lowPrice"]["bid"] is not None:
-                data["low"].append(i["lowPrice"]["bid"])
-            if i["closePrice"]["bid"] is not None:
-                data["close"].append(i["closePrice"]["bid"])
-            if isinstance(i["lastTradedVolume"], int):
-                data["volume"].append(int(i["lastTradedVolume"]))
-        return data
+        if self.use_av_api:
+            return self.av.get_prices(market_id, interval)
+        else:
+            data = {"high": [], "low": [], "close": [], "volume": []}
+            prices = self.ig.get_prices(epic, interval, range)
+            for i in prices["prices"]:
+                if i["highPrice"]["bid"] is not None:
+                    data["high"].append(i["highPrice"]["bid"])
+                if i["lowPrice"]["bid"] is not None:
+                    data["low"].append(i["lowPrice"]["bid"])
+                if i["closePrice"]["bid"] is not None:
+                    data["close"].append(i["closePrice"]["bid"])
+                if isinstance(i["lastTradedVolume"], int):
+                    data["volume"].append(int(i["lastTradedVolume"]))
+            return data
 
     def macd_dataframe(self, epic, market_id, interval):
         if self.use_av_api:

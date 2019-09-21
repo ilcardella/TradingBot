@@ -47,13 +47,13 @@ class WeightedAvgPeak(Strategy):
         """
         pass
 
-    def get_price_settings(self):
+    def fetch_datapoints(self, market):
         """
-        Returns the SimpleMACD price settings
+        Fetch weekly prices of past 18 weeks
         """
-        return [(Interval.WEEK, 18)]
+        return self.broker.get_prices(market.epic, market.id, Interval.WEEK, 18)
 
-    def find_trade_signal(self, market, prices):
+    def find_trade_signal(self, market, datapoints):
         """
         TODO add description of strategy key points
         """
@@ -67,10 +67,10 @@ class WeightedAvgPeak(Strategy):
         # Compute mid price
         current_mid = Utils.midpoint(market.bid, market.offer)
 
-        high_prices = prices["high"]
-        low_prices = prices["low"]
-        close_prices = prices["close"]
-        ltv = prices["volume"]
+        high_prices = datapoints["high"]
+        low_prices = datapoints["low"]
+        close_prices = datapoints["close"]
+        ltv = datapoints["volume"]
 
         # Check dataset integrity
         array_len_check = []
@@ -79,7 +79,7 @@ class WeightedAvgPeak(Strategy):
         array_len_check.append(len(close_prices))
         array_len_check.append(len(ltv))
         if not all(x == array_len_check[0] for x in array_len_check):
-            logging.error("Historic prices dataset incomplete for {}".format(market.epic))
+            logging.error("Historic datapoints incomplete for {}".format(market.epic))
             return TradeDirection.NONE, None, None
 
         # compute weighted average and std deviation of prices using volume as weight
@@ -183,9 +183,7 @@ class WeightedAvgPeak(Strategy):
             )
         stop_pips = str(int(abs(float(market.bid) - (ce_stop))))
 
-        esma_new_margin_req = int(
-            Utils.percentage_of(self.ESMA_new_margin, market.bid)
-        )
+        esma_new_margin_req = int(Utils.percentage_of(self.ESMA_new_margin, market.bid))
 
         if int(esma_new_margin_req) > int(stop_pips):
             stop_pips = int(esma_new_margin_req)
