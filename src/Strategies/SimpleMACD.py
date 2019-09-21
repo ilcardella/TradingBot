@@ -134,7 +134,7 @@ class SimpleMACD(Strategy):
         # the intermediate data and recording its output
         datapoint_used = 26
         while len(data) > datapoint_used:
-            current_data = data.tail(datapoint_used)
+            current_data = data.tail(datapoint_used).copy()
             datapoint_used += 1
             # Get trade date
             trade_dt = current_data.index.values[0].astype("M8[ms]").astype("O")
