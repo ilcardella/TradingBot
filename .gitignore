@@ -109,3 +109,5 @@ markets_db/
 .pytest_cache
 _build
 _builds
+
+Pipfile.lock
