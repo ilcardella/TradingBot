@@ -127,6 +127,7 @@ class SimpleMACD(Strategy):
         trades = []
         # - Get price data for market
         prices = self.broker.get_prices(market.epic, market.id, Interval.DAY, None)
+        print(prices)
         # - Get macd data from broker forcing use of alpha_vantage
         data = self.fetch_datapoints(market)
         # - Simulate time passing by starting with N rows (from the bottom)

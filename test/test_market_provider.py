@@ -9,7 +9,16 @@ parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, "{}/src".format(parentdir))
 
 from Interfaces.MarketProvider import MarketProvider
-from common.MockComponents import MockBroker, MockIG, MockAV
+from Interfaces.Broker import Broker
+from Interfaces.IGInterface import IGInterface
+from Interfaces.AVInterface import AVInterface
+from common.MockRequests import (
+    ig_request_login,
+    ig_request_set_account,
+    ig_request_market_info,
+    ig_request_search_market,
+    ig_request_watchlist,
+)
 
 
 @pytest.fixture
@@ -26,47 +35,81 @@ def config():
     return config
 
 
-def test_market_provider_epics_list(config):
+@pytest.fixture
+def credentials():
     """
-    Test the MarketProvider configured to fetch markets from an epics list
+    Returns a dict with credentials parameters
     """
+    return {
+        "username": "user",
+        "password": "pwd",
+        "api_key": "12345",
+        "account_id": "12345",
+        "av_api_key": "12345",
+    }
+
+
+@pytest.fixture
+def requests(requests_mock):
+    ig_request_login(requests_mock)
+    ig_request_set_account(requests_mock)
+    ig_request_market_info(requests_mock)
+    ig_request_search_market(requests_mock)
+    ig_request_watchlist(requests_mock, data="mock_watchlist_list.json")
+    ig_request_watchlist(requests_mock, args="12345678", data="mock_watchlist.json")
+
+
+@pytest.fixture
+def make_broker(requests, config, credentials):
     # Define configuration for this test
-    config["alpha_vantage"]["enable"] = True
-    config["general"]["market_source"]["value"] = "list"
-    config["general"]["epic_ids_filepath"] = "test/test_data/epics_list.txt"
+    # config["alpha_vantage"]["enable"] = True
 
     # Mock services and other components
     services = {
-        "ig_index": MockIG(
-            "test/test_data/mock_ig_market_info.json",
-            "test/test_data/mock_ig_historic_price.json",
-        ),
-        "alpha_vantage": MockAV("test/test_data/mock_macdext_buy.json"),
+        "ig_index": IGInterface(config, credentials),
+        "alpha_vantage": AVInterface(credentials["av_api_key"], config),
     }
-    broker = MockBroker(config, services)
+    broker = Broker(config, services)
+    return broker
 
-    # Create class to test
-    mp = MarketProvider(config, broker)
 
-    # Request all markets and verify the MarketProvider return the correct ones
+def test_market_provider_epics_list(config, make_broker):
+    """
+    Test the MarketProvider configured to fetch markets from an epics list
+    """
+    # Configure TradingBot to use an epic list
+    config["general"]["market_source"]["value"] = "list"
+    config["general"]["epic_ids_filepath"] = "test/test_data/epics_list.txt"
+
+    # load test data for market info response, so it can be used to mock the info
+    # for each epic in the epic_list
+    mock_info = None
+    try:
+        with open("test/test_data/ig/mock_market_info.json", "r") as file:
+            mock_info = json.load(file)
+    except IOError:
+        exit()
+
+    # Create the class to test
+    mp = MarketProvider(config, make_broker)
+
     # Run the test several times resetting the market provider
     for _ in range(4):
+        # Read the test epic list and create a local list of the expected epics
         expected_list = []
         with open("test/test_data/epics_list.txt", "r") as epics_list:
             for cnt, line in enumerate(epics_list):
-                expected_list += [line.rstrip()]
+                epic = line.rstrip()
+                expected_list += [epic]
 
-        n = mp.next().epic
-        assert n in expected_list
-        expected_list.remove(n)
+        # Keep caling the test function building a list of returned epics
+        actual_list = []
         try:
-            while n:
-                n = mp.next().epic
-                assert n in expected_list
-                expected_list.remove(n)
+            while True:
+                actual_list.append(mp.next().epic)
         except StopIteration:
             # Verify we read all epics in the list
-            assert len(expected_list) == 0
+            assert len(expected_list) == len(actual_list)
             # Verify reading the next raise another exception
             with pytest.raises(StopIteration) as e:
                 mp.next()
@@ -76,113 +119,71 @@ def test_market_provider_epics_list(config):
         assert False
 
 
-def test_market_provider_watchlist(config):
+def test_market_provider_watchlist(config, make_broker):
     """
     Test the MarketProvider configured to fetch markets from an IG watchlist
     """
     # Define configuration for this test
-    config["alpha_vantage"]["enable"] = True
     config["general"]["market_source"]["value"] = "watchlist"
-    config["general"]["watchlist_name"] = "mock"
-
-    # Mock services and other components
-    services = {
-        "ig_index": MockIG(
-            "test/test_data/mock_ig_market_info.json",
-            "test/test_data/mock_ig_historic_price.json",
-        ),
-        "alpha_vantage": MockAV("test/test_data/mock_macdext_buy.json"),
-    }
-    broker = MockBroker(config, services)
+    # Watchlist name depending on test data json
+    config["general"]["watchlist_name"] = "My Watchlist"
 
     # Create class to test
-    mp = MarketProvider(config, broker)
+    mp = MarketProvider(config, make_broker)
 
-    # The MockBroker is configured to return a mock watchlist
+    # The test data for market_info return always the same epic id, but the test
+    # data for the watchlist contains 3 markets
     # Run the test several times resetting the market provider
     for _ in range(4):
-        assert mp.next().epic == "EPIC1"
-        assert mp.next().epic == "EPIC2"
-        assert mp.next().epic == "EPIC3"
-        assert mp.next().epic == "EPIC4"
+        assert mp.next().epic == "KA.D.GSK.DAILY.IP"
+        assert mp.next().epic == "KA.D.GSK.DAILY.IP"
+        assert mp.next().epic == "KA.D.GSK.DAILY.IP"
 
         with pytest.raises(StopIteration) as e:
             mp.next()
         mp.reset()
 
 
-def test_market_provider_api(config):
+def test_market_provider_api(config, make_broker):
     """
     Test the MarketProvider configured to fetch markets from IG nodes
     """
     # Define configuration for this test
-    config["alpha_vantage"]["enable"] = True
     config["general"]["market_source"]["value"] = "api"
-
-    # Mock services and other components
-    services = {
-        "ig_index": MockIG(
-            "test/test_data/mock_ig_market_info.json",
-            "test/test_data/mock_ig_historic_price.json",
-        ),
-        "alpha_vantage": MockAV("test/test_data/mock_macdext_buy.json"),
-    }
-    broker = MockBroker(config, services)
 
     # TODO
     # Create class to test
-    #mp = MarketProvider(config, broker)
+    # mp = MarketProvider(config, make_broker)
     assert True
 
 
-def test_market_provider_market_from_epic(config):
+def test_market_provider_market_from_epic(config, make_broker):
     """
     Test the MarketProvider get_market_from_epic() function
     """
     # Define configuration for this test
-    config["alpha_vantage"]["enable"] = True
     config["general"]["market_source"]["value"] = "list"
     config["general"]["epic_ids_filepath"] = "test/test_data/epics_list.txt"
 
-    # Mock services and other components
-    services = {
-        "ig_index": MockIG(
-            "test/test_data/mock_ig_market_info.json",
-            "test/test_data/mock_ig_historic_price.json",
-        ),
-        "alpha_vantage": MockAV("test/test_data/mock_macdext_buy.json"),
-    }
-    broker = MockBroker(config, services)
-
     # Create class to test
-    mp = MarketProvider(config, broker)
-    market = mp.get_market_from_epic("MOCK")
+    mp = MarketProvider(config, make_broker)
+    market = mp.get_market_from_epic("mock")
     assert market is not None
-    assert market.epic == "MOCK"
+    assert market.epic == "KA.D.GSK.DAILY.IP"
 
 
-def test_search_market(config):
+def test_search_market(config, make_broker, requests_mock):
     """
     Test the MarketProvider search_market() function
     """
     # Define configuration for this test
-    config["alpha_vantage"]["enable"] = True
     config["general"]["market_source"]["value"] = "list"
     config["general"]["epic_ids_filepath"] = "test/test_data/epics_list.txt"
 
-    # Mock services and other components
-    services = {
-        "ig_index": MockIG(
-            "test/test_data/mock_ig_market_info.json",
-            "test/test_data/mock_ig_historic_price.json",
-        ),
-        "alpha_vantage": MockAV("test/test_data/mock_macdext_buy.json"),
-    }
-    broker = MockBroker(config, services)
-
-    mp = MarketProvider(config, broker)
+    mp = MarketProvider(config, make_broker)
 
     # The mock search data contains multiple markets
+    ig_request_search_market(requests_mock, data="mock_error.json")
     with pytest.raises(RuntimeError):
-        market = mp.search_market('mock')
+        market = mp.search_market("mock")
     # TODO test with single market mock data and verify no exception

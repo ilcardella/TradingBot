@@ -54,12 +54,12 @@ class Broker:
         """
         return self.ig_index.get_open_positions()
 
-    def get_market_from_watchlist(self, watchlist_name):
+    def get_markets_from_watchlist(self, watchlist_name):
         """
         **IG INDEX API ONLY**
         Return a name list of the markets in the required watchlist
         """
-        return self.ig_index.get_market_from_watchlist(watchlist_name)
+        return self.ig_index.get_markets_from_watchlist(watchlist_name)
 
     def navigate_market_node(self, node_id):
         """

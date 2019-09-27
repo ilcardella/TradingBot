@@ -1,0 +1,39 @@
+{
+    "watchlists": [
+        {
+            "id": "12345678",
+            "name": "My Watchlist",
+            "editable": true,
+            "deleteable": false,
+            "defaultSystemWatchlist": false
+        },
+        {
+            "id": "Popular Markets",
+            "name": "Popular Markets",
+            "editable": false,
+            "deleteable": false,
+            "defaultSystemWatchlist": true
+        },
+        {
+            "id": "Major Indices",
+            "name": "Major Indices",
+            "editable": false,
+            "deleteable": false,
+            "defaultSystemWatchlist": false
+        },
+        {
+            "id": "6817448",
+            "name": "Major FX",
+            "editable": false,
+            "deleteable": false,
+            "defaultSystemWatchlist": false
+        },
+        {
+            "id": "Major Commodities",
+            "name": "Major Commodities",
+            "editable": false,
+            "deleteable": false,
+            "defaultSystemWatchlist": false
+        }
+    ]
+}
