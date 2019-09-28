@@ -4,7 +4,6 @@ import inspect
 import sys
 from collections import deque
 from enum import Enum
-from random import shuffle
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
@@ -70,7 +69,7 @@ class MarketProvider:
         markets = self.broker.search_market(search)
         if markets is None or len(markets) < 1:
             raise RuntimeError(
-                "ERROR: Unable to find market matching: {}".format(seach)
+                "ERROR: Unable to find market matching: {}".format(search)
             )
         else:
             # Iterate through the list and use a set to verify that the results are all the same market
@@ -136,7 +135,6 @@ class MarketProvider:
             logging.error("{} does not exist!".format(filepath))
         if len(epic_ids) < 1:
             logging.error("Epic list is empty!")
-        shuffle(epic_ids)
         return epic_ids
 
     def _next_from_list(self):
@@ -147,7 +145,7 @@ class MarketProvider:
             raise StopIteration
 
     def _load_epic_ids_from_watchlist(self, watchlist_name):
-        markets = self.broker.get_market_from_watchlist(self.watchlist_name)
+        markets = self.broker.get_markets_from_watchlist(self.watchlist_name)
         if markets is None:
             message = "Watchlist {} not found!".format(watchlist_name)
             logging.error(message)
