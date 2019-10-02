@@ -9,7 +9,7 @@ currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfram
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir)
 
-from Interfaces.Broker import Interval
+from Components.Broker import Interval
 from .Strategy import Strategy
 from Utility.Utils import Utils, TradeDirection
 

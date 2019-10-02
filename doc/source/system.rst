@@ -71,7 +71,7 @@ to decide whether to buy, sell or hold a specific market.
     parentdir = os.path.dirname(currentdir)
     sys.path.insert(0,parentdir)
 
-    from Interfaces.Broker import Interval
+    from Components.Broker import Interval
     from .Strategy import Strategy
     from Utility.Utils import Utils, TradeDirection
     # Import any other required module

@@ -8,7 +8,7 @@ currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfram
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, "{}/src".format(parentdir))
 
-from Interfaces.IGInterface import IGInterface
+from Components.IGInterface import IGInterface
 from common.MockRequests import (
     ig_request_login,
     ig_request_set_account,
