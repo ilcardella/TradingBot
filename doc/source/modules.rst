@@ -16,11 +16,11 @@ TradingBot
 .. autoclass:: TradingBot
     :members:
 
-Interfaces
+Components
 **********
 
-The ``Interfaces`` module contains all those interfaces with external
-services used by TradingBot.
+The ``Components`` module contains the components that provides services
+used by TradingBot.
 The ``Broker`` class is the wrapper of all the trading services and provides
 the main interface for the ``strategies`` to access market data and perform
 trades.
@@ -28,15 +28,21 @@ trades.
 IGInterface
 ===========
 
-.. automodule:: Interfaces.IGInterface
+.. automodule:: Components.IGInterface
 
 .. autoclass:: IGInterface
+    :members:
+
+Enums
+-----
+
+.. autoclass:: IG_API_URL
     :members:
 
 AVInterface
 ===========
 
-.. automodule:: Interfaces.AVInterface
+.. automodule:: Components.AVInterface
 
 .. autoclass:: AVInterface
     :members:
@@ -50,7 +56,7 @@ Enums
 Broker
 ======
 
-.. automodule:: Interfaces.Broker
+.. automodule:: Components.Broker
 
 .. autoclass:: Broker
     :members:
@@ -61,18 +67,10 @@ Enums
 .. autoclass:: Interval
     :members:
 
-Market
-======
-
-.. automodule:: Interfaces.Market
-
-.. autoclass:: Market
-    :members:
-
 MarketProvider
 ==============
 
-.. automodule:: Interfaces.MarketProvider
+.. automodule:: Components.MarketProvider
 
 .. autoclass:: MarketProvider
     :members:
@@ -81,6 +79,22 @@ Enums
 -----
 
 .. autoclass:: MarketSource
+    :members:
+
+Interfaces
+**********
+
+The ``Interfaces`` module contains all the interfaces used to exchange
+information between different TradingBot components.
+The purpose of this module is have clear internal API and avoid integration
+errors.
+
+Market
+======
+
+.. automodule:: Interfaces.Market
+
+.. autoclass:: Market
     :members:
 
 Strategies

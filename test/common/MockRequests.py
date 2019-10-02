@@ -10,7 +10,7 @@ currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfram
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, "{}/src".format(parentdir))
 
-from Interfaces.IGInterface import IG_API_URL
+from Components.IGInterface import IG_API_URL
 
 # Set global variables used in fixtures
 TEST_DATA_IG = "test/test_data/ig"

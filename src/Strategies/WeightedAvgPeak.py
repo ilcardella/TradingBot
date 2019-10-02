@@ -13,7 +13,7 @@ sys.path.insert(0, parentdir)
 
 from .Strategy import Strategy
 from Utility.Utils import Utils, TradeDirection
-from Interfaces.Broker import Interval
+from Components.Broker import Interval
 
 
 class WeightedAvgPeak(Strategy):

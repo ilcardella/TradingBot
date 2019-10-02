@@ -20,11 +20,11 @@ from Utility.Utils import (
     NotSafeToTradeException,
     MarketClosedException,
 )
-from Interfaces.IGInterface import IGInterface
-from Interfaces.AVInterface import AVInterface
+from Components.IGInterface import IGInterface
+from Components.AVInterface import AVInterface
 from Strategies.StrategyFactory import StrategyFactory
-from Interfaces.Broker import Broker
-from Interfaces.MarketProvider import MarketProvider, MarketSource
+from Components.Broker import Broker
+from Components.MarketProvider import MarketProvider, MarketSource
 from Components.Backtester import Backtester
 
 
