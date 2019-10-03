@@ -35,15 +35,16 @@ class TradingBot:
     broker interface, the strategy or the epic_ids list
     """
 
-    def __init__(self, time_provider=None):
+    def __init__(self, time_provider=None, config_filepath=None):
         # Time manager
         self.time_provider = time_provider if time_provider else TimeProvider()
         # Set timezone
         set(pytz.all_timezones_set)
 
         # Load configuration
-        home_path = os.path.expanduser("~")
-        config_filepath = "{}/.TradingBot/config/config.json".format(home_path)
+        if config_filepath is None:
+            home_path = os.path.expanduser("~")
+            config_filepath = "{}/.TradingBot/config/config.json".format(home_path)
         config = self.load_json_file(config_filepath)
         self.read_configuration(config)
 
