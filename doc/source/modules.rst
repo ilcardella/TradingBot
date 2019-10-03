@@ -81,6 +81,20 @@ Enums
 .. autoclass:: MarketSource
     :members:
 
+TimeProvider
+==============
+
+.. automodule:: Components.TimeProvider
+
+.. autoclass:: TimeProvider
+    :members:
+
+Enums
+-----
+
+.. autoclass:: TimeAmount
+    :members:
+
 Interfaces
 **********
 
