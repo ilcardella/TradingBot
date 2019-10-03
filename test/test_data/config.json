@@ -1,0 +1,50 @@
+{
+    "general": {
+        "max_account_usable": 50,
+        "time_zone": "Europe/London",
+        "enable_log": true,
+        "log_file": "test/test_data/trading_bot_{timestamp}.log",
+        "debug_log": false,
+        "credentials_filepath": "test/test_data/credentials.json",
+        "market_source": {
+            "value": "list",
+            "options": [
+                "list",
+                "api",
+                "watchlist"
+            ]
+        },
+        "epic_ids_filepath": "test/test_data/epic_list.txt",
+        "watchlist_name": "trading_bot",
+        "active_strategy": "weighted_avg_peak",
+        "spin_interval": 3600
+    },
+    "ig_interface": {
+        "order_type": "MARKET",
+        "order_size": 1,
+        "order_expiry": "DFB",
+        "order_currency": "GBP",
+        "order_force_open": true,
+        "use_g_stop": false,
+        "use_demo_account": true,
+        "controlled_risk": false,
+        "paper_trading": false
+    },
+    "alpha_vantage": {
+        "enable": true,
+        "api_timeout": 12
+    },
+    "strategies": {
+        "simple_macd": {
+            "max_spread_perc": 5,
+            "limit_perc": 10,
+            "stop_perc": 5
+        },
+        "weighted_avg_peak": {
+            "max_spread": 3,
+            "limit_perc": 10,
+            "stop_perc": 5
+        }
+    }
+
+}
