@@ -115,6 +115,7 @@ how TradingBot work. These are the description of each parameter:
 - **epic_ids_filepath**:  The full file path for the local file containing the list of epic ids
 - **watchlist_name**: The watchlist name to use as market source, if selected
 - **active_strategy**: The strategy name to use. Must match one of the names in the `Strategies` section below
+- **spin_interval**: The amount of seconds that TradinBot waits for after it ends processing the markets, before starting over.
 
 #### IG Interface
 
@@ -139,7 +140,6 @@ Settings specific for each strategy
 
 #### SimpleMACD
 
-- **spin_interval**: Override the `Strategies` value
 - **max_spread_perc**: Spread percentage to filter markets with high spread
 - **limit_perc**: Limit percentage to take profit for each trade
 - **stop_perc**: Stop percentage to stop any loss

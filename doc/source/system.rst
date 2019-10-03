@@ -106,19 +106,12 @@ to decide whether to buy, sell or hold a specific market.
             # As an examle:
             return TradeDirection.BUY, 90, 150
 
-        def get_seconds_to_next_spin(self):
-            # Return the amount of seconds between each spin of the strategy
-            # Each spin analyses all the markets in a list/watchlist
-            # Some strategies might require to run once a day, while other might
-            # need to run continuosly, here you can make your decision
-
 #. Add the implementation for these functions:
 
    * *read_configuration*: ``config`` is the json object loaded from the ``config.json`` file
    * *initialise*: initialise the strategy or any internal members
    * *fetch_datapoints*: fetch the required past price datapoints
    * *find_trade_signal*: it is the core of your custom strategy, here you can use the broker interface to decide if trade the given epic
-   * *get_seconds_to_next_spin*: the *find_trade_signal* is called for every epic requested. After that TradingBot will wait for the amount of seconds defined in this function
 
 #. ``Strategy`` parent class provides a ``Broker`` type internal member that
    can be accessed with ``self.broker``. This member is the TradingBot broker
