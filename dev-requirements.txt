@@ -24,7 +24,7 @@ pytz==2019.2
 requests-mock==1.7.0
 requests==2.22.0
 six==1.12.0
-snowballstemmer==1.9.1
+snowballstemmer==2.0.0
 sphinx-rtd-theme==0.4.3
 sphinx==2.2.0
 sphinxcontrib-applehelp==1.0.1
