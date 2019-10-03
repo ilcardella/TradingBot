@@ -29,7 +29,6 @@ class WeightedAvgPeak(Strategy):
         """
         Read the json configuration
         """
-        self.spin_interval = config["strategies"]["weighted_avg_peak"]["spin_interval"]
         self.max_spread = config["strategies"]["weighted_avg_peak"]["max_spread"]
         self.limit_p = config["strategies"]["weighted_avg_peak"]["limit_perc"]
         self.stop_p = config["strategies"]["weighted_avg_peak"]["stop_perc"]
@@ -353,9 +352,3 @@ class WeightedAvgPeak(Strategy):
             return float(Price) - float(ATR) * int(self.ce_multiplier)
         elif TRADE_DIR is TradeDirection.SELL:
             return float(Price) + float(ATR) * int(self.ce_multiplier)
-
-    def get_seconds_to_next_spin(self):
-        # Return the amount of seconds between each spin of the strategy
-        # Each spin analyse all the markets in the list/watchlist
-        return 3600 * 2  # every 2 hours
-

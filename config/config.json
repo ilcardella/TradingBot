@@ -16,7 +16,8 @@
         },
         "epic_ids_filepath": "{home}/.TradingBot/data/epic_ids.txt",
         "watchlist_name": "trading_bot",
-        "active_strategy": "weighted_avg_peak"
+        "active_strategy": "weighted_avg_peak",
+        "spin_interval": 3600
     },
     "ig_interface": {
         "order_type": "MARKET",
@@ -35,13 +36,11 @@
     },
     "strategies": {
         "simple_macd": {
-            "spin_interval": -1,
             "max_spread_perc": 5,
             "limit_perc": 10,
             "stop_perc": 5
         },
         "weighted_avg_peak": {
-            "spin_interval": -1,
             "max_spread": 3,
             "limit_perc": 10,
             "stop_perc": 5

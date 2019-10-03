@@ -18,8 +18,6 @@ class Strategy:
     def __init__(self, config, broker):
         self.positions = None
         self.broker = broker
-        # This can be overwritten in children class
-        self.spin_interval = 3600
         # Read configuration of derived Strategy
         self.read_configuration(config)
         # Initialise derived Strategy
@@ -69,12 +67,6 @@ class Strategy:
         Must override
         """
         raise NotImplementedError("Not implemented: find_trade_signal")
-
-    def get_seconds_to_next_spin(self):
-        """
-        Must override
-        """
-        return self.spin_interval
 
     def backtest(self, market, start_date, end_date):
         """

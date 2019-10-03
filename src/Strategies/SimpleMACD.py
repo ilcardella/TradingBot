@@ -30,7 +30,6 @@ class SimpleMACD(Strategy):
         """
         Read the json configuration
         """
-        self.spin_interval = config["strategies"]["simple_macd"]["spin_interval"]
         self.max_spread_perc = config["strategies"]["simple_macd"]["max_spread_perc"]
         self.limit_p = config["strategies"]["simple_macd"]["limit_perc"]
         self.stop_p = config["strategies"]["simple_macd"]["stop_perc"]
@@ -96,13 +95,6 @@ class SimpleMACD(Strategy):
             limit = current_bid - Utils.percentage_of(limit_perc, current_bid)
             stop = current_offer + Utils.percentage_of(stop_perc, current_offer)
         return limit, stop
-
-    def get_seconds_to_next_spin(self):
-        """
-        Calculate the amount of seconds to wait for between each strategy spin
-        """
-        # Run this strategy at market opening
-        return Utils.get_seconds_to_market_opening(dt.now())
 
     def generate_signals_from_dataframe(self, dataframe):
         dataframe.loc[:, "positions"] = 0
