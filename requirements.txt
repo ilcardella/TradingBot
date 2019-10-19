@@ -4,7 +4,7 @@ certifi==2019.9.11
 chardet==3.0.4
 govuk-bank-holidays==0.5
 idna==2.8
-numpy==1.17.2
+numpy==1.17.3
 panda==0.3.1
 pandas==0.25.1
 python-dateutil==2.8.0
