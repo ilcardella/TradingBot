@@ -154,7 +154,7 @@ class TradingBot:
                 self.time_provider.wait_for(TimeAmount.SECONDS, self.spin_interval)
             except MarketClosedException:
                 logging.warning("Market is closed: stop processing")
-                self.time_provider.wait_for(TimeAmout.NEXT_MARKET_OPENING)
+                self.time_provider.wait_for(TimeAmount.NEXT_MARKET_OPENING)
             except NotSafeToTradeException:
                 self.time_provider.wait_for(TimeAmount.SECONDS, self.spin_interval)
             except StopIteration:
