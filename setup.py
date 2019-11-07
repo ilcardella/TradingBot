@@ -24,7 +24,7 @@ setup(
         'numpy==1.17.3',
         'panda==0.3.1',
         'pandas==0.25.2',
-        'python-dateutil==2.8.0',
+        'python-dateutil==2.8.1',
         'pytz==2019.3',
         'requests==2.22.0',
         'scipy==1.3.1',
