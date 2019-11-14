@@ -20,3 +20,6 @@ pytz = "*"
 requests = "*"
 scipy = "*"
 alpha_vantage = "*"
+
+[requires]
+python_version = "3"
