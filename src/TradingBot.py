@@ -232,7 +232,7 @@ class TradingBot:
                 "Stop trading because {}% of account is used".format(str(percent_used))
             )
             raise NotSafeToTradeException()
-        if not Utils.is_market_open(self.time_zone):
+        if not self.time_provider.is_market_open(self.time_zone):
             raise MarketClosedException()
 
     def process_trade(self, market, direction, limit, stop, open_positions):
