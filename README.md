@@ -212,6 +212,7 @@ As an example this will start TradingBot at 8:00 in the morning and will stop it
 NOTE: Remember to set the correct timezone in your machine!
 
 # Docker
+
 You can run TradingBot in a Docker container (https://docs.docker.com/).
 
 First you need to install `TradingBot` as explained above.
