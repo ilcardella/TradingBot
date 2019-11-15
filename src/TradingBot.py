@@ -102,6 +102,10 @@ class TradingBot:
         """
         Setup the global logging settings
         """
+        # Clean logging handlers
+        for handler in logging.root.handlers[:]:
+            logging.root.removeHandler(handler)
+
         # Define the global logging settings
         debugLevel = logging.DEBUG if self.debug_log else logging.INFO
         # If enabled define log file filename with current timestamp
