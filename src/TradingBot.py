@@ -77,7 +77,7 @@ class TradingBot:
                 return json.load(file)
         except IOError:
             logging.error("File not found ({})".format(filepath))
-            exit()
+            exit(2)
 
     def read_configuration(self, config):
         """

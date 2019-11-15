@@ -8,6 +8,7 @@ start()
 {
     docker run \
         -d \
+        --rm \
         -v ${HOME}/.TradingBot:/.TradingBot \
         -u $(id -u):$(id -g) \
         --name ${DOCKER_CONTAINER} \
