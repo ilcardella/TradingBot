@@ -4,12 +4,7 @@ FROM python:3.7-slim-buster
 COPY . /workspace
 WORKDIR /workspace
 
-# Prepare environment
-#RUN pip install pipenv
-#    && pipenv lock -r > requirements.txt
-#    && pip install -r requirements.txt
-#    && rm requirements.txt
-
+RUN pip install pipenv
 # Install TradingBot
 RUN python setup.py install
 

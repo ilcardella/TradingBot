@@ -18,3 +18,4 @@ script:
   - pipenv run sphinx-build -nWT -b dummy doc doc/_build/html
   - python setup.py install
   - ./docker_ctl build
+  - docker run --rm -it trading_bot bash -c "pipenv install --dev && pipenv run pytest"
