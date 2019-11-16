@@ -5,5 +5,8 @@
   "baseBranches": ["develop"],
   "pipenv": {
     "enabled": true
+  },
+  "setup.py": {
+      "enabled": true
   }
 }

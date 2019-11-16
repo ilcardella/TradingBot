@@ -21,7 +21,7 @@ IG_BASE_URI = IG_API_URL.BASE_URI.value.replace("@", IG_API_URL.DEMO_PREFIX.valu
 class AV_API_URL(Enum):
     """AlphaVantage API URLs"""
 
-    BASE_URI = "http://www.alphavantage.co/query?"
+    BASE_URI = "https://www.alphavantage.co/query?"
     MACD_EXT = "MACDEXT"
     TS_DAILY = "TIME_SERIES_DAILY"
 

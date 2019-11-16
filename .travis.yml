@@ -8,8 +8,9 @@ python:
 
 install:
   - export PIPENV_IGNORE_VIRTUALENVS=1
-  - pipenv install --three --dev
+  - pipenv install --dev
 
 script:
   - pipenv run pytest
   - pipenv run sphinx-build -nWT -b dummy doc doc/_build/html
+  - python setup.py install

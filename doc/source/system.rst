@@ -48,7 +48,7 @@ Anyone can create a new strategy from scratch in a few simple steps.
 With your own strategy you can define your own set of rules
 to decide whether to buy, sell or hold a specific market.
 
-#. Setup your development environment (see :ref:`readme`)
+#. Setup your development environment (see ``README.md``)
 
 #. Create a new python module inside the Strategy folder :
 

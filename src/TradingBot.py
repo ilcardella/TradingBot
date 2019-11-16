@@ -77,7 +77,7 @@ class TradingBot:
                 return json.load(file)
         except IOError:
             logging.error("File not found ({})".format(filepath))
-            exit()
+            exit(2)
 
     def read_configuration(self, config):
         """
@@ -102,6 +102,10 @@ class TradingBot:
         """
         Setup the global logging settings
         """
+        # Clean logging handlers
+        for handler in logging.root.handlers[:]:
+            logging.root.removeHandler(handler)
+
         # Define the global logging settings
         debugLevel = logging.DEBUG if self.debug_log else logging.INFO
         # If enabled define log file filename with current timestamp
@@ -232,7 +236,7 @@ class TradingBot:
                 "Stop trading because {}% of account is used".format(str(percent_used))
             )
             raise NotSafeToTradeException()
-        if not Utils.is_market_open(self.time_zone):
+        if not self.time_provider.is_market_open(self.time_zone):
             raise MarketClosedException()
 
     def process_trade(self, market, direction, limit, stop, open_positions):
