@@ -296,7 +296,7 @@ class TradingBot:
 
 
 def get_menu_parser():
-    VERSION = "1.1.0"
+    VERSION = "1.2.0"
     parser = argparse.ArgumentParser(prog="TradingBot")
     main_group = parser.add_mutually_exclusive_group()
     main_group.add_argument(
