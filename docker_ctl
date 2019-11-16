@@ -4,37 +4,46 @@ THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 DOCKER_IMAGE=trading_bot
 DOCKER_CONTAINER=trading_bot
 
-start()
-{
+function start {
+    # Remove "start" from the arguments
+    for arg do
+      shift
+      [ "$arg" = "start" ] && continue
+      set -- "$@" "$arg"
+    done
+
+    # Use detached mode only if there are no arguments
+    MODE="-d"
+    if [[ $# -gt 0 ]]; then
+      MODE="-it"
+    fi
+
     docker run \
-        -d \
+        ${MODE} \
         --rm \
         -v ${HOME}/.TradingBot:/.TradingBot \
         -u $(id -u):$(id -g) \
         --name ${DOCKER_CONTAINER} \
-        ${DOCKER_IMAGE}
+        ${DOCKER_IMAGE} trading_bot "$@"
 }
 
-build()
-{
+function build {
     docker build \
         --rm \
-        --no-cache \
         -f ${THIS_DIR}/Dockerfile \
         -t ${DOCKER_IMAGE} \
         ${THIS_DIR}
 }
 
-help()
-{
+function help {
   echo "Try with:"
-  echo "  help - Show this help message"
-  echo "  start - Start TradingBot in a Docker container"
+  echo "  help - Show this help message and exit"
+  echo "  start - Start TradingBot in a Docker container (accept optional arguments)"
   echo "  build - Build the Docker image"
 }
 
 case $1 in
-  start) start;;
+  start) start "$@";;
   build) build;;
   *) help;;
 esac

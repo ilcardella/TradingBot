@@ -312,7 +312,10 @@ def get_menu_parser():
         metavar="MARKET_ID",
     )
     backtest_group.add_argument(
-        "--epic", help="IG epic of the market to backtest", nargs=1, metavar="EPIC_ID"
+        "--epic",
+        help="IG epic of the market to backtest. MARKET_ID will be ignored",
+        nargs=1,
+        metavar="EPIC_ID",
     )
     backtest_group.add_argument(
         "--start",
