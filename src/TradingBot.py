@@ -77,7 +77,7 @@ class TradingBot:
                 return json.load(file)
         except IOError:
             logging.error("File not found ({})".format(filepath))
-            exit(2)
+            exit(1)
 
     def read_configuration(self, config):
         """
@@ -267,7 +267,7 @@ class TradingBot:
             else:
                 logging.error("Unable to fetch open positions! Avoid trading this epic")
 
-    def backtest(self, market_id, start_date, end_date):
+    def backtest(self, market_id, start_date, end_date, epic_id=None):
         """
         Backtest a market using the configured strategy
         """
@@ -277,15 +277,19 @@ class TradingBot:
         except ValueError as e:
             logging.error("Wrong date format! Must be YYYY-MM-DD")
             logging.debug(e)
-            exit()
+            exit(1)
 
         bt = Backtester(self.broker, self.strategy)
 
         try:
-            market = self.market_provider.search_market(market_id)
-        except RuntimeError as e:
+            market = (
+                self.market_provider.search_market(market_id)
+                if epic_id is None or epic_id is ""
+                else self.market_provider.get_market_from_epic(epic_id)
+            )
+        except Exception as e:
             logging.error(e)
-            exit()
+            exit(1)
 
         bt.start(market, start, end)
         bt.print_results()
@@ -316,6 +320,7 @@ def get_menu_parser():
         help="IG epic of the market to backtest. MARKET_ID will be ignored",
         nargs=1,
         metavar="EPIC_ID",
+        default=None,
     )
     backtest_group.add_argument(
         "--start",
@@ -340,11 +345,10 @@ def main():
     if args.close_positions:
         TradingBot(tp).close_open_positions()
     elif args.backtest and args.start and args.end:
-        # TODO read if --epic was defined
-        TradingBot(tp).backtest(args.backtest[0], args.start[0], args.end[0])
+        epic = args.epic[0] if args.epic else None
+        TradingBot(tp).backtest(args.backtest[0], args.start[0], args.end[0], epic)
     else:
         TradingBot(tp).start()
-
 
 if __name__ == "__main__":
     main()

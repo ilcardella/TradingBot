@@ -1,11 +1,13 @@
-FROM python:3.8-slim-buster
+FROM python:3.7-slim-buster
+
+RUN pip install pipenv
 
 # Copy workspace
 COPY . /workspace
 WORKDIR /workspace
 
-RUN pip install pipenv
 # Install TradingBot
 RUN python setup.py install
+
 # Default command
 CMD ["trading_bot"]
