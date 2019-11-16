@@ -4,13 +4,12 @@ import inspect
 import sys
 from collections import deque
 from enum import Enum
-from random import shuffle
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir)
 
-from .Market import Market
+from Interfaces.Market import Market
 
 
 class MarketSource(Enum):
@@ -61,6 +60,35 @@ class MarketProvider:
         """
         return self._create_market(epic)
 
+    def search_market(self, search):
+        """
+        Tries to find the market which id matches the given search string.
+        If successful return the market snapshot.
+        Raise an exception when multiple markets match the search string
+        """
+        markets = self.broker.search_market(search)
+        if markets is None or len(markets) < 1:
+            raise RuntimeError(
+                "ERROR: Unable to find market matching: {}".format(search)
+            )
+        else:
+            # Iterate through the list and use a set to verify that the results are all the same market
+            epic_set = set()
+            epic = ""
+            for m in markets:
+                # Epic are in format: KC.D.PRSMLN.DAILY.IP. Extract third element
+                market_id = m["epic"].split(".")[2]
+                epic_set.add(market_id)
+                # Store the DFB epic
+                if "DFB" in m["expiry"] and "DAILY" in m["epic"]:
+                    epic = m["epic"]
+            if not len(epic_set) == 1:
+                raise RuntimeError(
+                    "ERROR: Multiple markets match the search string: {}".format(search)
+                )
+            # Good, it means the result are all the same market
+            return self._create_market(epic)
+
     def _read_configuration(self, config):
         home = os.path.expanduser("~")
         self.epic_ids_filepath = config["general"]["epic_ids_filepath"].replace(
@@ -107,7 +135,6 @@ class MarketProvider:
             logging.error("{} does not exist!".format(filepath))
         if len(epic_ids) < 1:
             logging.error("Epic list is empty!")
-        shuffle(epic_ids)
         return epic_ids
 
     def _next_from_list(self):
@@ -118,7 +145,7 @@ class MarketProvider:
             raise StopIteration
 
     def _load_epic_ids_from_watchlist(self, watchlist_name):
-        markets = self.broker.get_market_from_watchlist(self.watchlist_name)
+        markets = self.broker.get_markets_from_watchlist(self.watchlist_name)
         if markets is None:
             message = "Watchlist {} not found!".format(watchlist_name)
             logging.error(message)
@@ -158,7 +185,7 @@ class MarketProvider:
     def _create_market(self, epic_id):
         info = self.broker.get_market_info(epic_id)
         if info is None:
-            raise Exception("Unable to fetch data for {}".format(epic_id))
+            raise RuntimeError("Unable to fetch data for {}".format(epic_id))
         market = Market()
         market.epic = info["epic"]
         market.id = info["market_id"]

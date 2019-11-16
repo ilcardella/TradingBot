@@ -1,11 +1,6 @@
-# Utility functions are stored in this class and accessed as static members
-
 import logging
 import json
-import pytz
 from enum import Enum
-from datetime import datetime
-from govuk_bank_holidays.bank_holidays import BankHolidays
 
 
 class TradeDirection(Enum):
@@ -21,10 +16,13 @@ class TradeDirection(Enum):
 
 class MarketClosedException(Exception):
     """Error to notify that the market is currently closed"""
+
     pass
+
 
 class NotSafeToTradeException(Exception):
     """Error to notify that it is not safe to trade"""
+
     pass
 
 
@@ -65,47 +63,3 @@ class Utils:
         mins, secs = divmod(secs, 60)
         hours, mins = divmod(mins, 60)
         return "%02d:%02d:%02d" % (hours, mins, secs)
-
-    @staticmethod
-    def get_seconds_to_market_opening(from_time):
-        """Return the amount of seconds from now to the next market opening,
-        taking into account UK bank holidays and weekends"""
-        today_opening = datetime(
-            year=from_time.year,
-            month=from_time.month,
-            day=from_time.day,
-            hour=8,
-            minute=0,
-            second=0,
-            microsecond=0,
-        )
-
-        if from_time < today_opening and BankHolidays().is_work_day(from_time.date()):
-            nextMarketOpening = today_opening
-        else:
-            # Get next working day
-            nextWorkDate = BankHolidays().get_next_work_day(date=from_time.date())
-            nextMarketOpening = datetime(
-                year=nextWorkDate.year,
-                month=nextWorkDate.month,
-                day=nextWorkDate.day,
-                hour=8,
-                minute=0,
-                second=0,
-                microsecond=0,
-            )
-        # Calculate the delta from from_time to the next market opening
-        return (nextMarketOpening - from_time).total_seconds()
-
-    @staticmethod
-    def is_market_open(timezone):
-        """
-        Return True if the market is open, false otherwise
-
-            - **timezone**: string representing the timezone
-        """
-        tz = pytz.timezone(timezone)
-        now_time = datetime.now(tz=tz).strftime("%H:%M")
-        return BankHolidays().is_work_day(datetime.now(tz=tz)) and Utils.is_between(
-            str(now_time), ("07:55", "16:35")
-        )

@@ -13,44 +13,30 @@ The main goal of this project is to provide the capability to
 write a custom trading strategy with the minimum effort.
 TradingBot handle all the boring stuff.
 
-All the credits for the FAIG_iqr strategy goes to GitHub user @tg12
+All the credits for the `WeightedAvgPeak` strategy goes to GitHub user @tg12
 who is the creator of the first script version and gave me a good
 starting point for this project. Thank you.
 
 # Dependencies
 
 - Python 3.5+
-- Pipenv
+- Pipenv (optional)
+- Docker (optional)
 
-View file `Pipfile` for the full list of required python packages.
+View file `Pipfile` or `setup.py` for the full list of required python packages.
 
 # Install
 
 First if you have not yet done so, install python 3.5+ and pipenv
 ```
-sudo apt-get update && sudo apt-get install python3 python3-pip
-sudo -H pip3 install -U pipenv
+sudo apt-get update
+sudo apt-get install python3 python3-pip
 ```
 
-Clone this repo in your workspace and setup the python virtual environment
-by running the following commands in the repository root folder
+Clone this repo in your workspace and install `TradingBot` by running the following
+command in the repository root folder
 ```
-pipenv install --three
-```
-You can install development packages adding the flag `--dev`
-
-The following step is to install TradingBot:
-```
-sudo ./install.py
-```
-
-All necessary files are copied in ``/opt/TradingBot`` by default.
-It is recommended to add this path to your ``PATH`` environment variable.
-
-The last step is to set file permissions for your user on the installed folders with the
-following command:
-```shell
-sudo chown -R $USER: $HOME/.TradingBot
+python setup.py install
 ```
 
 # Setup
@@ -115,6 +101,7 @@ how TradingBot work. These are the description of each parameter:
 - **epic_ids_filepath**:  The full file path for the local file containing the list of epic ids
 - **watchlist_name**: The watchlist name to use as market source, if selected
 - **active_strategy**: The strategy name to use. Must match one of the names in the `Strategies` section below
+- **spin_interval**: The amount of seconds that TradinBot waits for after it ends processing the markets, before starting over.
 
 #### IG Interface
 
@@ -139,7 +126,6 @@ Settings specific for each strategy
 
 #### SimpleMACD
 
-- **spin_interval**: Override the `Strategies` value
 - **max_spread_perc**: Spread percentage to filter markets with high spread
 - **limit_perc**: Limit percentage to take profit for each trade
 - **stop_perc**: Stop percentage to stop any loss
@@ -149,34 +135,49 @@ Settings specific for each strategy
 
 You can start TradingBot in your current terminal
 ```
-/opt/TradingBot/src/TradingBot.py
+trading_bot
 ```
 or you can start it in detached mode, letting it run in the background
 ```
-nohup /opt/TradingBot/src/TradingBot.py >/dev/null 2>&1 &
+nohup trading_bot >/dev/null 2>&1 &
 ```
 
 ### Close all the open positions
 
 ```
-/opt/TradingBot/src/TradingBot.py -c
+trading_bot -c
 ```
 
 # Stop TradingBot
 
 To stop a TradingBot instance running in the background
 ```
-ps -ef | grep TradingBot | xargs kill -9
+ps -ef | grep trading_bot | xargs kill -9
 ```
 
-# Test
+# Development
+
+To ease dependency management there is `Pipfile` which helps installing the required
+python packages in a isolated virtual environment.
+
+Install `pipenv`:
+```
+sudo -H pip3 install -U pipenv
+```
+
+Create the virtual environment:
+```
+pipenv install --dev
+```
+
+## Test
 
 You can run the test from the workspace with:
 ```
 pipenv run pytest
 ```
 
-# Documentation
+## Documentation
 
 The Sphinx documentation contains further details about each TradingBot module
 with source code documentation of each class member.
@@ -205,34 +206,39 @@ crontab -e
 ```
 As an example this will start TradingBot at 8:00 in the morning and will stop it at 16:35 in the afternoon, every week day (Mon to Fri):
 ```shell
-00 08 * * 1-5 /opt/TradingBot/src/TradingBot.py
-35 16 * * 1-5 kill -9 $(ps | grep "/opt/TradingBot/src/TradingBot.py" | grep -v grep | awk '{ print $1 }')
+00 08 * * 1-5 trading_bot
+35 16 * * 1-5 kill -9 $(ps | grep trading_bot | grep -v grep | awk '{ print $1 }')
 ```
 NOTE: Remember to set the correct timezone in your machine!
 
 # Docker
+
 You can run TradingBot in a Docker container (https://docs.docker.com/).
-First you need to build the Docker image used by TradingBot:
+
+First you need to install `TradingBot` as explained above.
+
+Then you can build the Docker image used by `TradingBot`:
 ```
-./docker_run.sh build
+./docker_ctl build
 ```
 
-Once the image is built you can install TradingBot and then run it in a Docker container:
+Once the image is built you can run `TradingBot` in a Docker container:
 ```
-./docker_run.sh start
+./docker_ctl start
 ```
-The container will be called `dkr_trading_bot` and the logs will still be stored in the configured folder in the host machine. By default `$HOME/.TradingBot/log`.
 
-Check the `Dockerfile` and the  `docker_run.sh` for more details
+The container will be called `trading_bot` and the logs will still be stored in the configured folder in the host machine. By default `$HOME/.TradingBot/log`.
+
+Check the `Dockerfile` and the  `docker_ctl` script for more details
 
 To stop the TradingBot container:
 ```
-docker kill dkr_trading_bot
+docker kill trading_bot
 ```
 
 If you need to start a bash shell into a running container
 ```
-docker exec -it dkr_trading_bot bash
+docker exec -it trading_bot bash
 ```
 
 # Contributing

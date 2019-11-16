@@ -54,12 +54,12 @@ class Broker:
         """
         return self.ig_index.get_open_positions()
 
-    def get_market_from_watchlist(self, watchlist_name):
+    def get_markets_from_watchlist(self, watchlist_name):
         """
         **IG INDEX API ONLY**
         Return a name list of the markets in the required watchlist
         """
-        return self.ig_index.get_market_from_watchlist(watchlist_name)
+        return self.ig_index.get_markets_from_watchlist(watchlist_name)
 
     def navigate_market_node(self, node_id):
         """
@@ -102,6 +102,7 @@ class Broker:
         Return the last available snapshot of the requested market as a dict:
         - data = {'market_id': <value>, 'bid': <value>,'offer': <value>, 'stop_distance_min': <value>}
         """
+        # TODO define an interface class for the data exchanged
         data = {
             "epic": None,
             "market_id": None,
@@ -112,11 +113,10 @@ class Broker:
             "stop_distance_min": None,
         }
         info = self.ig_index.get_market_info(epic)
+        logging.debug(info)
         if (
             info is None
             or "markets" in info
-            or info["snapshot"]["bid"] is None  # means that epic_id is wrong
-            or info["snapshot"]["offer"] is None
         ):
             return None
         data["market_id"] = info["instrument"]["marketId"]
@@ -134,6 +134,13 @@ class Broker:
         data["low"] = info["snapshot"]["low"]
         return data
 
+    def search_market(self, search):
+        """
+        **IG INDEX API ONLY**
+        Search for a market from a search string
+        """
+        return self.ig_index.search_market(search)
+
     def macd_dataframe(self, epic, market_id, interval):
         """
         Return a pandas dataframe containing MACD technical indicator
@@ -143,7 +150,7 @@ class Broker:
             av_interval = self.to_av_interval(interval)
             if av_interval is None:
                 return None
-            return self.alpha_vantage.macdext(market_id, interval)
+            return self.alpha_vantage.macdext(market_id, av_interval)
         else:
             return self.ig_index.macd_dataframe(epic, None)
         return None
@@ -153,6 +160,7 @@ class Broker:
         Return historic price of the requested market as a dictionary:
             - data = {'high': [], 'low': [], 'close': [], 'volume': []}
         """
+        # TODO this function must return a pandas dataframe indexed by date
         data = {"high": [], "low": [], "close": [], "volume": []}
         if self.use_av_api:
             av_interval = self.to_av_interval(interval)
@@ -170,12 +178,12 @@ class Broker:
                     )
                 )
                 return None
-
             # dataframe.index = range(len(dataframe)
-            data["high"] = dataframe["2. high"].values
-            data["low"] = dataframe["3. low"].values
-            data["close"] = dataframe["4. close"].values
-            data["volume"] = dataframe["5. volume"].values
+            # data["high"] = dataframe["2. high"].values
+            # data["low"] = dataframe["3. low"].values
+            # data["close"] = dataframe["4. close"].values
+            # data["volume"] = dataframe["5. volume"].values
+            return dataframe
         else:
             prices = self.ig_index.get_prices(epic, interval.value, data_range)
             if prices is None:

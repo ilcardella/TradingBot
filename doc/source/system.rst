@@ -48,7 +48,7 @@ Anyone can create a new strategy from scratch in a few simple steps.
 With your own strategy you can define your own set of rules
 to decide whether to buy, sell or hold a specific market.
 
-#. Setup your development environment (see :ref:`readme`)
+#. Setup your development environment (see ``README.md``)
 
 #. Create a new python module inside the Strategy folder :
 
@@ -71,7 +71,7 @@ to decide whether to buy, sell or hold a specific market.
     parentdir = os.path.dirname(currentdir)
     sys.path.insert(0,parentdir)
 
-    from Interfaces.Broker import Interval
+    from Components.Broker import Interval
     from .Strategy import Strategy
     from Utility.Utils import Utils, TradeDirection
     # Import any other required module
@@ -88,14 +88,15 @@ to decide whether to buy, sell or hold a specific market.
             # Initialise the strategy
             pass
 
-        def get_price_settings(self):
+        def fetch_datapoints(self, market):
             """
-            Returns the price settings required by the strategy
+            Fetch any required datapoints (historic prices, indicators, etc.).
+            The object returned by this function is passed to the 'find_trade_signal()'
+            function 'datapoints' argument
             """
             # As an example, this means the strategy needs 50 data point of
             # of past prices from the 1-hour chart of the market
-            # Return a list of tuple
-            return [(Interval.HOUR, 50)]
+            return self.broker.get_prices(market.epic, Interval.HOUR, 50)
 
         def find_trade_signal(self, market, prices):
             # Here is where you want to implement your own code!
@@ -105,19 +106,12 @@ to decide whether to buy, sell or hold a specific market.
             # As an examle:
             return TradeDirection.BUY, 90, 150
 
-        def get_seconds_to_next_spin(self):
-            # Return the amount of seconds between each spin of the strategy
-            # Each spin analyses all the markets in a list/watchlist
-            # Some strategies might require to run once a day, while other might
-            # need to run continuosly, here you can make your decision
-
 #. Add the implementation for these functions:
 
    * *read_configuration*: ``config`` is the json object loaded from the ``config.json`` file
    * *initialise*: initialise the strategy or any internal members
-   * *get_price_settings*: define the required past price datapoints
+   * *fetch_datapoints*: fetch the required past price datapoints
    * *find_trade_signal*: it is the core of your custom strategy, here you can use the broker interface to decide if trade the given epic
-   * *get_seconds_to_next_spin*: the *find_trade_signal* is called for every epic requested. After that TradingBot will wait for the amount of seconds defined in this function
 
 #. ``Strategy`` parent class provides a ``Broker`` type internal member that
    can be accessed with ``self.broker``. This member is the TradingBot broker

@@ -9,17 +9,18 @@ parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, "{}/src".format(parentdir))
 
 from TradingBot import TradingBot
+from Components.TimeProvider import TimeProvider
+from common.MockRequests import ig_request_login, ig_request_set_account
 
 
-def test_trading_bot_001():
+def test_trading_bot_init(requests_mock):
     """
-    TODO Define configuration of this test (list, watchlist, buy, sell,etc.)
+    Test init
     """
-    # TODO
-    # Create MockIGInterface
-    # Create MockAlphaVantageInterface
-    # Setup mock IG ifc to return data as per test case configuration
-    # Create TradingBot()
-    # Call start()
-    # Assert from the mock ig interface the trades where as expected
-    assert True
+    ig_request_login(requests_mock)
+    ig_request_set_account(requests_mock)
+    config = "test/test_data/config.json"
+    tb = TradingBot(TimeProvider(), config_filepath=config)
+    tb2 = TradingBot(config_filepath=config)
+    assert tb
+    assert tb2

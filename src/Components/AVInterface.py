@@ -42,13 +42,11 @@ class AVInterface:
         self.read_configuration(config)
         self._last_call_ts = dt.datetime.now()
         self.TS = TimeSeries(
-            key=apiKey,
-            output_format="pandas",
-            indexing_type="integer",
-            treat_info_as_error=True,
-            retries=0,
+            key=apiKey, output_format="pandas", treat_info_as_error=True
         )
-        self.TI = TechIndicators(key=apiKey, output_format="pandas", retries=0)
+        self.TI = TechIndicators(
+            key=apiKey, output_format="pandas", treat_info_as_error=True
+        )
         logging.info("AlphaVantage initialised.")
 
     def read_configuration(self, config):
@@ -181,9 +179,9 @@ class AVInterface:
                 slowmatype=1,
                 signalmatype=0,
             )
-            if data is None:
-                return None
-            data.index = range(len(data))
+            # if data is None:
+            #     return None
+            # data.index = range(len(data))
             return data
         except Exception as e:
             logging.error("AlphaVantage wrong api call for {}".format(market))

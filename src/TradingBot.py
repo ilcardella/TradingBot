@@ -1,13 +1,11 @@
 import logging
 import json
-from pathlib import Path
 import pytz
 import time
-import datetime as dt
+from datetime import datetime as dt
 import os
 import sys
 import inspect
-from random import shuffle
 import traceback
 import argparse
 import numpy
@@ -22,11 +20,13 @@ from Utility.Utils import (
     NotSafeToTradeException,
     MarketClosedException,
 )
-from Interfaces.IGInterface import IGInterface
-from Interfaces.AVInterface import AVInterface
+from Components.IGInterface import IGInterface
+from Components.AVInterface import AVInterface
 from Strategies.StrategyFactory import StrategyFactory
-from Interfaces.Broker import Broker
-from Interfaces.MarketProvider import MarketProvider, MarketSource
+from Components.Broker import Broker
+from Components.MarketProvider import MarketProvider, MarketSource
+from Components.Backtester import Backtester
+from Components.TimeProvider import TimeProvider, TimeAmount
 
 
 class TradingBot:
@@ -35,13 +35,16 @@ class TradingBot:
     broker interface, the strategy or the epic_ids list
     """
 
-    def __init__(self):
+    def __init__(self, time_provider=None, config_filepath=None):
+        # Time manager
+        self.time_provider = time_provider if time_provider else TimeProvider()
         # Set timezone
         set(pytz.all_timezones_set)
 
         # Load configuration
-        home_path = os.path.expanduser("~")
-        config_filepath = "{}/.TradingBot/config/config.json".format(home_path)
+        if config_filepath is None:
+            home_path = os.path.expanduser("~")
+            config_filepath = "{}/.TradingBot/config/config.json".format(home_path)
         config = self.load_json_file(config_filepath)
         self.read_configuration(config)
 
@@ -74,7 +77,7 @@ class TradingBot:
                 return json.load(file)
         except IOError:
             logging.error("File not found ({})".format(filepath))
-            exit()
+            exit(1)
 
     def read_configuration(self, config):
         """
@@ -93,17 +96,22 @@ class TradingBot:
         self.time_zone = config["general"]["time_zone"]
         self.max_account_usable = config["general"]["max_account_usable"]
         self.active_strategy = config["general"]["active_strategy"]
+        self.spin_interval = config["general"]["spin_interval"]
 
     def setup_logging(self):
         """
         Setup the global logging settings
         """
+        # Clean logging handlers
+        for handler in logging.root.handlers[:]:
+            logging.root.removeHandler(handler)
+
         # Define the global logging settings
         debugLevel = logging.DEBUG if self.debug_log else logging.INFO
         # If enabled define log file filename with current timestamp
         if self.enable_log:
             log_filename = self.log_file
-            time_str = dt.datetime.now().isoformat()
+            time_str = dt.now().isoformat()
             time_suffix = time_str.replace(":", "_").replace(".", "_")
             log_filename = log_filename.replace("{timestamp}", time_suffix)
             os.makedirs(os.path.dirname(log_filename), exist_ok=True)
@@ -147,13 +155,14 @@ class TradingBot:
                 # Now process markets from the configured market source
                 self.process_market_source()
                 # Wait for the next spin before starting over
-                self.wait_for_strategy_spin_period()
+                self.time_provider.wait_for(TimeAmount.SECONDS, self.spin_interval)
             except MarketClosedException:
-                self.wait_for_next_market_opening()
+                logging.warning("Market is closed: stop processing")
+                self.time_provider.wait_for(TimeAmount.NEXT_MARKET_OPENING)
             except NotSafeToTradeException:
-                self.wait_for_strategy_spin_period()
+                self.time_provider.wait_for(TimeAmount.SECONDS, self.spin_interval)
             except StopIteration:
-                self.wait_for_strategy_spin_period()
+                self.time_provider.wait_for(TimeAmount.SECONDS, self.spin_interval)
             except Exception as e:
                 logging.error("Generic exception caught: {}".format(e))
                 logging.debug(traceback.format_exc())
@@ -210,31 +219,11 @@ class TradingBot:
         else:
             logging.error("Impossible to close all open positions, retry.")
 
-    def wait_for_next_market_opening(self):
-        """
-        Sleep until the next market opening. Takes into account weekends
-        and bank holidays in UK
-        """
-        seconds = Utils.get_seconds_to_market_opening(dt.datetime.now())
-        logging.info(
-            "Market is closed! Wait for {0:.2f} hours...".format(seconds / 3600)
-        )
-        time.sleep(seconds)
-
-    def wait_for_strategy_spin_period(self):
-        """
-        Sleep for the amount of time configured in the active strategy between each spin
-        """
-        # Wait for next spin loop as configured in the strategy
-        seconds = self.strategy.get_seconds_to_next_spin()
-        logging.info("Wait for {0:.2f} seconds before next spin".format(seconds))
-        time.sleep(seconds)
-
     def safety_checks(self):
         """
         Perform some safety checks before running the strategy against the next market
 
-        Return True if the trade can proceed, False otherwise
+        Raise exceptions if not safe to trade
         """
         percent_used = self.broker.get_account_used_perc()
         if percent_used is None:
@@ -247,8 +236,7 @@ class TradingBot:
                 "Stop trading because {}% of account is used".format(str(percent_used))
             )
             raise NotSafeToTradeException()
-        if not Utils.is_market_open(self.time_zone):
-            logging.warning("Market is closed: stop processing")
+        if not self.time_provider.is_market_open(self.time_zone):
             raise MarketClosedException()
 
     def process_trade(self, market, direction, limit, stop, open_positions):
@@ -279,23 +267,88 @@ class TradingBot:
             else:
                 logging.error("Unable to fetch open positions! Avoid trading this epic")
 
+    def backtest(self, market_id, start_date, end_date, epic_id=None):
+        """
+        Backtest a market using the configured strategy
+        """
+        try:
+            start = dt.strptime(start_date, "%Y-%m-%d")
+            end = dt.strptime(end_date, "%Y-%m-%d")
+        except ValueError as e:
+            logging.error("Wrong date format! Must be YYYY-MM-DD")
+            logging.debug(e)
+            exit(1)
 
-def main():
-    # Argument management
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
+        bt = Backtester(self.broker, self.strategy)
+
+        try:
+            market = (
+                self.market_provider.search_market(market_id)
+                if epic_id is None or epic_id is ""
+                else self.market_provider.get_market_from_epic(epic_id)
+            )
+        except Exception as e:
+            logging.error(e)
+            exit(1)
+
+        bt.start(market, start, end)
+        bt.print_results()
+
+
+def get_menu_parser():
+    VERSION = "1.2.0"
+    parser = argparse.ArgumentParser(prog="TradingBot")
+    main_group = parser.add_mutually_exclusive_group()
+    main_group.add_argument(
+        "-v", "--version", action="version", version="%(prog)s {}".format(VERSION)
+    )
+    main_group.add_argument(
         "-c",
         "--close_positions",
         help="Close all the open positions",
         action="store_true",
     )
-    args = parser.parse_args()
+    backtest_group = parser.add_argument_group("Backtesting")
+    backtest_group.add_argument(
+        "--backtest",
+        help="Backtest the market related to the specified id",
+        nargs=1,
+        metavar="MARKET_ID",
+    )
+    backtest_group.add_argument(
+        "--epic",
+        help="IG epic of the market to backtest. MARKET_ID will be ignored",
+        nargs=1,
+        metavar="EPIC_ID",
+        default=None,
+    )
+    backtest_group.add_argument(
+        "--start",
+        help="Start date for the strategy backtest",
+        nargs=1,
+        metavar="YYYY-MM-DD",
+        required="--backtest" in sys.argv,
+    )
+    backtest_group.add_argument(
+        "--end",
+        help="End date for the strategy backtest",
+        nargs=1,
+        metavar="YYYY-MM-DD",
+        required="--backtest" in sys.argv,
+    )
+    return parser.parse_args()
 
+
+def main():
+    tp = TimeProvider()
+    args = get_menu_parser()
     if args.close_positions:
-        TradingBot().close_open_positions()
+        TradingBot(tp).close_open_positions()
+    elif args.backtest and args.start and args.end:
+        epic = args.epic[0] if args.epic else None
+        TradingBot(tp).backtest(args.backtest[0], args.start[0], args.end[0], epic)
     else:
-        TradingBot().start()
-
+        TradingBot(tp).start()
 
 if __name__ == "__main__":
     main()

@@ -1,15 +1,13 @@
-ARG BASELINE
-FROM ${BASELINE}
+FROM python:3.7-slim-buster
+
+RUN pip install pipenv
 
 # Copy workspace
 COPY . /workspace
 WORKDIR /workspace
 
-# Prepare environment
-RUN pip install pipenv
-RUN pipenv install
-
 # Install TradingBot
-RUN ./install.py
+RUN python setup.py install
 
-CMD ["/bin/bash"]
+# Default command
+CMD ["trading_bot"]
