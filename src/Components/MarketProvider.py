@@ -185,7 +185,7 @@ class MarketProvider:
     def _create_market(self, epic_id):
         info = self.broker.get_market_info(epic_id)
         if info is None:
-            raise Exception("Unable to fetch data for {}".format(epic_id))
+            raise RuntimeError("Unable to fetch data for {}".format(epic_id))
         market = Market()
         market.epic = info["epic"]
         market.id = info["market_id"]
