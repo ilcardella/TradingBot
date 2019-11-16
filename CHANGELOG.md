@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Added backtesting feature
 - Created Components module
+- Added TimeProvider module
+- Added setup.py to handle installation
+
+### Changed
+- Updated CI configuration to test the Docker image
+- Updated the Docker image with TradingBot already installed
 
 ## [1.1.0] - 2019-09-01
 ### Changed
