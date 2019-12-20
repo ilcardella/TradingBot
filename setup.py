@@ -27,7 +27,7 @@ setup(
         'python-dateutil==2.8.1',
         'pytz==2019.3',
         'requests==2.22.0',
-        'scipy==1.3.2',
+        'scipy==1.4.1',
         'six==1.13.0',
         'urllib3==1.25.7',
     ],
