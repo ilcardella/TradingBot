@@ -248,10 +248,10 @@ Any contribution or suggestion is welcome, please follow the suggested workflow.
 ### Pull Requests
 
 To add a new feature or to resolve a bug, create a feature branch from the
-`develop` branch.
+`master` branch.
 
 Commit your changes and if possible add unit/integration test cases.
-Eventually push your branch and create a Pull Request against `develop`.
+Eventually push your branch and create a Pull Request against `master`.
 
 If you instead find problems or you have ideas and suggestions for future
 improvements, please open an Issue. Thanks for the support!

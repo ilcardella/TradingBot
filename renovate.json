@@ -2,11 +2,11 @@
   "extends": [
     "config:base"
   ],
-  "baseBranches": ["develop"],
+  "baseBranches": ["master"],
   "pipenv": {
     "enabled": true
   },
-  "setup.py": {
+  "pip_setup": {
       "enabled": true
   }
 }
