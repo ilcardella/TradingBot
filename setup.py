@@ -16,7 +16,7 @@ setup(
     },
 
     install_requires=[
-        'alpha-vantage==2.1.2',
+        'alpha-vantage==2.1.3',
         'certifi==2019.11.28',
         'chardet==3.0.4',
         'govuk-bank-holidays==0.5',
