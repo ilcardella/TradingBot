@@ -6,7 +6,6 @@ verify_ssl = true
 [packages]
 govuk-bank-holidays = "*"
 numpy = "*"
-panda = "*"
 pandas = "*"
 pytz = "*"
 requests = "*"

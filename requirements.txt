@@ -17,7 +17,6 @@ mistune
 more-itertools
 numpy
 packaging
-panda
 pandas
 pluggy
 py
