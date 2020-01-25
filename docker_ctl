@@ -21,7 +21,7 @@ function start {
     docker run \
         ${MODE} \
         --rm \
-        -v ${HOME}/.TradingBot:/.TradingBot \
+        -v /opt/TradingBot:/opt/TradingBot \
         -u $(id -u):$(id -g) \
         --name ${DOCKER_CONTAINER} \
         ${DOCKER_IMAGE} trading_bot "$@"

@@ -17,29 +17,29 @@ All the credits for the `WeightedAvgPeak` strategy goes to GitHub user @tg12
 who is the creator of the first script version and gave me a good
 starting point for this project. Thank you.
 
-# Dependencies
+## Dependencies
 
 - Python 3.5+
-- Pipenv (optional)
+- Pipenv (only for development)
 - Docker (optional)
 
 View file `Pipfile` or `setup.py` for the full list of required python packages.
 
-# Install
+## Install
 
-First if you have not yet done so, install python 3.5+ and pipenv
+First if you have not done yet, install python:
 ```
 sudo apt-get update
-sudo apt-get install python3 python3-pip
+sudo apt-get install python3
 ```
 
 Clone this repo in your workspace and install `TradingBot` by running the following
 command in the repository root folder
 ```
-python setup.py install
+sudo python3 setup.py install
 ```
 
-# Setup
+## Setup
 
 Login to your IG Dashboard
 
@@ -60,11 +60,11 @@ This must be in json format
     "av_api_key": "apiKey"
 }
 ```
-- Copy the `.credentials` file into the `$HOME/.TradingBot/data` folder
+- Copy the `.credentials` file into the `/opt/TradingBot/data` folder
 - Revoke permissions to read the file
 ```
 cd data
-sudo chmod 600 $HOME/.TradingBot/data/.credentials
+sudo chmod 600 /opt/TradingBot/data/.credentials
 ```
 
 ### Market source
@@ -131,13 +131,23 @@ Settings specific for each strategy
 - **stop_perc**: Stop percentage to stop any loss
 
 
-# Start TradingBot
+## Start TradingBot
 
-You can start TradingBot in your current terminal
+You can start TradingBot with
+```
+sudo trading_bot
+```
+
+Otherwise you can change ownership of the `/opt/TradingBot` folder:
+```
+sudo chown -R $USER: /opt/TradingBot
+```
+and then run `TradingBot` without sudo
 ```
 trading_bot
 ```
-or you can start it in detached mode, letting it run in the background
+
+You can start it in detached mode letting it run in the background with
 ```
 nohup trading_bot >/dev/null 2>&1 &
 ```
@@ -145,36 +155,45 @@ nohup trading_bot >/dev/null 2>&1 &
 ### Close all the open positions
 
 ```
-trading_bot -c
+trading_bot --close-positions [-c]
 ```
 
-# Stop TradingBot
+## Stop TradingBot
 
 To stop a TradingBot instance running in the background
 ```
 ps -ef | grep trading_bot | xargs kill -9
 ```
 
-# Development
+## Uninstall
+You can use `pip` to uninstall `TradingBot`:
+```
+sudo pip3 uninstall TradingBot
+```
+
+## Development
 
 To ease dependency management there is `Pipfile` which helps installing the required
 python packages in a isolated virtual environment.
 
-Install `pipenv`:
+Install `pip` and `pipenv`
 ```
+sudo apt-get update
+sudo apt-get install python3-pip
 sudo -H pip3 install -U pipenv
 ```
 
 Create the virtual environment:
 ```
-pipenv install --dev
+cd /path/to/repository
+pipenv install
 ```
 
 ## Test
 
 You can run the test from the workspace with:
 ```
-pipenv run pytest
+pipenv run test
 ```
 
 ## Documentation
@@ -190,12 +209,12 @@ https://tradingbot.readthedocs.io
 
 You can build it locally with:
 ```
-pipenv run sphinx-build -nWT -b html doc doc/_build/html
+pipenv run docs
 ```
 
 The generated html files will be in `doc/_build/html`.
 
-# Automate
+## Automate
 
 **NOTE**: TradingBot monitors the market opening hours and suspend the trading when the market is closed. Generally you should NOT need a cron job!
 
@@ -211,7 +230,7 @@ As an example this will start TradingBot at 8:00 in the morning and will stop it
 ```
 NOTE: Remember to set the correct timezone in your machine!
 
-# Docker
+## Docker
 
 You can run TradingBot in a Docker container (https://docs.docker.com/).
 
@@ -227,7 +246,7 @@ Once the image is built you can run `TradingBot` in a Docker container:
 ./docker_ctl start
 ```
 
-The container will be called `trading_bot` and the logs will still be stored in the configured folder in the host machine. By default `$HOME/.TradingBot/log`.
+The container will be called `trading_bot` and the logs will still be stored in the configured folder in the host machine. By default `/opt/TradingBot/log`.
 
 Check the `Dockerfile` and the  `docker_ctl` script for more details
 
@@ -241,7 +260,7 @@ If you need to start a bash shell into a running container
 docker exec -it trading_bot bash
 ```
 
-# Contributing
+## Contributing
 
 Any contribution or suggestion is welcome, please follow the suggested workflow.
 

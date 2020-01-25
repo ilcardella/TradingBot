@@ -3,7 +3,14 @@ name = "pypi"
 url = "https://pypi.org/simple"
 verify_ssl = true
 
-[dev-packages]
+[packages]
+govuk-bank-holidays = "*"
+numpy = "*"
+pandas = "*"
+pytz = "*"
+requests = "*"
+scipy = "*"
+alpha_vantage = "*"
 docutils = "*"
 pytest = "*"
 requests-mock = "*"
@@ -11,15 +18,9 @@ sphinx-rtd-theme = "*"
 m2r = "*"
 sphinx = "*"
 
-[packages]
-govuk-bank-holidays = "*"
-numpy = "*"
-panda = "*"
-pandas = "*"
-pytz = "*"
-requests = "*"
-scipy = "*"
-alpha_vantage = "*"
-
 [requires]
 python_version = "3"
+
+[scripts]
+test = "pytest"
+docs = "sphinx-build -b html doc doc/_build/html"

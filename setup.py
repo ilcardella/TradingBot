@@ -3,42 +3,25 @@ import os
 
 setup(
     name="TradingBot",
-    version="1.1.0",
-    python_requires='>=3',
-
-    package_dir={'': 'src'},
-    packages=find_namespace_packages(where='src'),
-    scripts=['src/TradingBot.py'],
-    entry_points={
-        'console_scripts': [
-            'trading_bot = TradingBot:main'
-        ],
-    },
-
+    version="1.2.0",
+    python_requires=">=3",
+    package_dir={"": "src"},
+    packages=find_namespace_packages(where="src"),
+    scripts=["src/TradingBot.py"],
+    entry_points={"console_scripts": ["trading_bot = TradingBot:main"]},
     install_requires=[
-        'alpha-vantage==2.1.3',
-        'certifi==2019.11.28',
-        'chardet==3.0.4',
-        'govuk-bank-holidays==0.5',
-        'idna==2.8',
-        'numpy==1.18.1',
-        'panda==0.3.1',
-        'pandas==0.25.2',
-        'python-dateutil==2.8.1',
-        'pytz==2019.3',
-        'requests==2.22.0',
-        'scipy==1.4.1',
-        'six==1.14.0',
-        'urllib3==1.25.7',
+        "alpha-vantage==2.1.3",
+        "govuk-bank-holidays==0.5",
+        "numpy==1.18.1",
+        "pandas==0.25.2",
+        "pytz==2019.3",
+        "requests==2.22.0",
+        "scipy==1.4.1",
     ],
-
-    package_data={
-        'config': ['*.json']
-    },
+    package_data={"config": ["*.json"]},
     data_files=[
-        (os.path.join(os.path.expanduser('~'), '.TradingBot', 'config'), ['config/config.json'])
+        (os.path.join(os.sep, "opt", "TradingBot", "config"), ["config/config.json"])
     ],
-
     # metadata to display on PyPI
     author="Alberto Cardellini",
     author_email="",
@@ -50,7 +33,5 @@ setup(
         "Documentation": "https://tradingbot.readthedocs.io",
         "Source Code": "https://github.com/ilcardella/TradingBot",
     },
-    classifiers=[
-        'License :: OSI Approved :: MIT License'
-    ]
+    classifiers=["License :: OSI Approved :: MIT License"],
 )
