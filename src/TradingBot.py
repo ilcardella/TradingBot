@@ -303,7 +303,7 @@ def get_menu_parser():
     )
     main_group.add_argument(
         "-c",
-        "--close_positions",
+        "--close-positions",
         help="Close all the open positions",
         action="store_true",
     )
