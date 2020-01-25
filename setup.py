@@ -29,7 +29,7 @@ setup(
         'requests==2.22.0',
         'scipy==1.4.1',
         'six==1.14.0',
-        'urllib3==1.25.7',
+        'urllib3==1.25.8',
     ],
 
     package_data={
