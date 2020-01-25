@@ -16,19 +16,19 @@ setup(
     },
 
     install_requires=[
-        'alpha-vantage==2.1.2',
+        'alpha-vantage==2.1.3',
         'certifi==2019.11.28',
         'chardet==3.0.4',
         'govuk-bank-holidays==0.5',
         'idna==2.8',
-        'numpy==1.17.4',
+        'numpy==1.18.1',
         'panda==0.3.1',
         'pandas==0.25.2',
         'python-dateutil==2.8.1',
         'pytz==2019.3',
         'requests==2.22.0',
         'scipy==1.4.1',
-        'six==1.13.0',
+        'six==1.14.0',
         'urllib3==1.25.7',
     ],
 
