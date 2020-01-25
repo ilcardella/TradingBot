@@ -11,11 +11,11 @@ services:
 
 install:
   - export PIPENV_IGNORE_VIRTUALENVS=1
-  - pipenv install --dev
+  - pipenv install
 
 script:
-  - pipenv run pytest
-  - pipenv run sphinx-build -nWT -b dummy doc doc/_build/html
+  - pipenv run test
+  - pipenv run docs
   - python setup.py install
   - ./docker_ctl build
-  - docker run --rm -it trading_bot bash -c "pipenv install --dev && pipenv run pytest"
+  - docker run --rm -it trading_bot bash -c "pipenv install && pipenv run test"
