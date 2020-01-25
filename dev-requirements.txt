@@ -5,7 +5,7 @@ attrs==19.3.0
 babel==2.8.0
 certifi==2019.11.28
 chardet==3.0.4
-docutils==0.15.2
+docutils==0.16
 idna==2.8
 imagesize==1.2.0
 importlib-metadata==0.19 ; python_version < '3.8'
