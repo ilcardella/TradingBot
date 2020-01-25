@@ -21,7 +21,7 @@ setup(
         'chardet==3.0.4',
         'govuk-bank-holidays==0.5',
         'idna==2.8',
-        'numpy==1.17.4',
+        'numpy==1.18.1',
         'panda==0.3.1',
         'pandas==0.25.2',
         'python-dateutil==2.8.1',
