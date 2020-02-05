@@ -19,7 +19,7 @@ starting point for this project. Thank you.
 
 ## Dependencies
 
-- Python 3.5+
+- Python 3.6+
 - Pipenv (only for development)
 - Docker (optional)
 
