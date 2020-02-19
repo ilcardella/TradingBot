@@ -15,7 +15,7 @@ setup(
         "numpy==1.18.1",
         "pandas==1.0.1",
         "pytz==2019.3",
-        "requests==2.22.0",
+        "requests==2.23.0",
         "scipy==1.4.1",
     ],
     package_data={"config": ["*.json"]},
