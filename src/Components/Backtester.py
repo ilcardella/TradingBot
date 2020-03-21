@@ -2,9 +2,6 @@ import logging
 import os
 import inspect
 import sys
-from collections import deque
-from enum import Enum
-from random import shuffle
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
@@ -37,4 +34,3 @@ class Backtester:
         """
         logging.info("Backtest result:")
         logging.info(self.result)
-

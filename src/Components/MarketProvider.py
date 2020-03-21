@@ -30,19 +30,19 @@ class MarketProvider:
     """
 
     def __init__(self, config, broker):
+        self.config = config
         self.broker = broker
-        self._read_configuration(config)
         self._initialise()
 
     def next(self):
         """
         Return the next market from the configured source
         """
-        if self.market_source == MarketSource.LIST:
+        if self.config.get_active_market_source() == MarketSource.LIST.value:
             return self._next_from_list()
-        elif self.market_source == MarketSource.WATCHLIST:
+        elif self.config.get_active_market_source() == MarketSource.WATCHLIST.value:
             return self._next_from_list()
-        elif self.market_source == MarketSource.API:
+        elif self.config.get_active_market_source() == MarketSource.API.value:
             return self._next_from_api()
         else:
             raise RuntimeError("ERROR: invalid market_source configuration")
@@ -74,28 +74,18 @@ class MarketProvider:
         else:
             # Iterate through the list and use a set to verify that the results are all the same market
             epic_set = set()
-            epic = ""
             for m in markets:
                 # Epic are in format: KC.D.PRSMLN.DAILY.IP. Extract third element
-                market_id = m["epic"].split(".")[2]
-                epic_set.add(market_id)
+                market_id = m.epic.split(".")[2]
                 # Store the DFB epic
-                if "DFB" in m["expiry"] and "DAILY" in m["epic"]:
-                    epic = m["epic"]
+                if "DFB" in m.expiry and "DAILY" in m.epic:
+                    epic_set.add(market_id)
             if not len(epic_set) == 1:
                 raise RuntimeError(
                     "ERROR: Multiple markets match the search string: {}".format(search)
                 )
             # Good, it means the result are all the same market
-            return self._create_market(epic)
-
-    def _read_configuration(self, config):
-        home = os.path.expanduser("~")
-        self.epic_ids_filepath = config["general"]["epic_ids_filepath"].replace(
-            "{home}", home
-        )
-        self.market_source = MarketSource(config["general"]["market_source"]["value"])
-        self.watchlist_name = config["general"]["watchlist_name"]
+            return markets[0]
 
     def _initialise(self):
         # Initialise epic list
@@ -104,11 +94,15 @@ class MarketProvider:
         # Initialise API members
         self.node_stack = deque()
 
-        if self.market_source == MarketSource.LIST:
-            self.epic_list = self._load_epic_ids_from_local_file(self.epic_ids_filepath)
-        elif self.market_source == MarketSource.WATCHLIST:
-            self.epic_list = self._load_epic_ids_from_watchlist(self.watchlist_name)
-        elif self.market_source == MarketSource.API:
+        if self.config.get_active_market_source() == MarketSource.LIST.value:
+            self.epic_list = self._load_epic_ids_from_local_file(
+                self.config.get_epic_ids_filepath()
+            )
+        elif self.config.get_active_market_source() == MarketSource.WATCHLIST.value:
+            self.epic_list = self._load_epic_ids_from_watchlist(
+                self.config.get_watchlist_name()
+            )
+        elif self.config.get_active_market_source() == MarketSource.API.value:
             self.epic_list = self._load_epic_ids_from_api_node("180500")
         else:
             raise RuntimeError("ERROR: invalid market_source configuration")
@@ -145,12 +139,14 @@ class MarketProvider:
             raise StopIteration
 
     def _load_epic_ids_from_watchlist(self, watchlist_name):
-        markets = self.broker.get_markets_from_watchlist(self.watchlist_name)
+        markets = self.broker.get_markets_from_watchlist(
+            self.config.get_watchlist_name()
+        )
         if markets is None:
             message = "Watchlist {} not found!".format(watchlist_name)
             logging.error(message)
             raise RuntimeError(message)
-        return [m["epic"] for m in markets]
+        return [m.epic for m in markets]
 
     def _load_epic_ids_from_api_node(self, node_id):
         node = self.broker.navigate_market_node(node_id)
@@ -183,16 +179,7 @@ class MarketProvider:
             return self._next_from_list()
 
     def _create_market(self, epic_id):
-        info = self.broker.get_market_info(epic_id)
-        if info is None:
+        market = self.broker.get_market_info(epic_id)
+        if market is None:
             raise RuntimeError("Unable to fetch data for {}".format(epic_id))
-        market = Market()
-        market.epic = info["epic"]
-        market.id = info["market_id"]
-        market.name = info["name"]
-        market.bid = info["bid"]
-        market.offer = info["offer"]
-        market.high = info["high"]
-        market.low = info["low"]
-        market.stop_distance_min = info["stop_distance_min"]
         return market

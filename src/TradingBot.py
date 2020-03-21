@@ -1,5 +1,4 @@
 import logging
-import json
 import pytz
 import time
 from datetime import datetime as dt
@@ -8,23 +7,21 @@ import sys
 import inspect
 import traceback
 import argparse
-import numpy
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir)
 
-from Utility.Utils import (
-    Utils,
+from Components.Utils import (
     TradeDirection,
     NotSafeToTradeException,
     MarketClosedException,
 )
-from Components.IGInterface import IGInterface
-from Components.AVInterface import AVInterface
+from Components.Configuration import Configuration
 from Strategies.StrategyFactory import StrategyFactory
-from Components.Broker import Broker
-from Components.MarketProvider import MarketProvider, MarketSource
+from Components.Broker.Broker import Broker
+from Components.Broker.BrokerFactory import BrokerFactory
+from Components.MarketProvider import MarketProvider
 from Components.Backtester import Backtester
 from Components.TimeProvider import TimeProvider, TimeAmount
 
@@ -42,60 +39,22 @@ class TradingBot:
         set(pytz.all_timezones_set)
 
         # Load configuration
-        if config_filepath is None:
-            config_filepath = "/opt/TradingBot/config/config.json"
-        config = self.load_json_file(config_filepath)
-        self.read_configuration(config)
-
-        # Read credentials file
-        credentials = self.load_json_file(self.credentials_filepath)
+        self.config = Configuration.from_filepath(config_filepath)
 
         # Setup the global logger
         self.setup_logging()
 
         # Init trade services and create the broker interface
-        self.broker = self.init_trading_services(config, credentials)
+        # The Factory is used to create the services from the configuration file
+        self.broker = Broker(BrokerFactory(self.config))
 
         # Create strategy from the factory class
-        self.strategy = StrategyFactory(config, self.broker).make_strategy(
-            self.active_strategy
-        )
+        self.strategy = StrategyFactory(
+            self.config, self.broker
+        ).make_from_configuration()
 
         # Create the market provider
-        self.market_provider = MarketProvider(config, self.broker)
-
-    def load_json_file(self, filepath):
-        """
-        Load a JSON formatted file from the given filepath
-
-            - **filepath** The filepath including filename and extension
-            - Return a dictionary of the loaded json
-        """
-        try:
-            with open(filepath, "r") as file:
-                return json.load(file)
-        except IOError:
-            logging.error("File not found ({})".format(filepath))
-            exit(1)
-
-    def read_configuration(self, config):
-        """
-        Read the configuration from the config json
-        """
-        home = os.path.expanduser("~")
-        self.epic_ids_filepath = config["general"]["epic_ids_filepath"].replace(
-            "{home}", home
-        )
-        self.credentials_filepath = config["general"]["credentials_filepath"].replace(
-            "{home}", home
-        )
-        self.debug_log = config["general"]["debug_log"]
-        self.enable_log = config["general"]["enable_log"]
-        self.log_file = config["general"]["log_file"].replace("{home}", home)
-        self.time_zone = config["general"]["time_zone"]
-        self.max_account_usable = config["general"]["max_account_usable"]
-        self.active_strategy = config["general"]["active_strategy"]
-        self.spin_interval = config["general"]["spin_interval"]
+        self.market_provider = MarketProvider(self.config, self.broker)
 
     def setup_logging(self):
         """
@@ -106,10 +65,12 @@ class TradingBot:
             logging.root.removeHandler(handler)
 
         # Define the global logging settings
-        debugLevel = logging.DEBUG if self.debug_log else logging.INFO
+        debugLevel = (
+            logging.DEBUG if self.config.is_logging_debug_enabled() else logging.INFO
+        )
         # If enabled define log file filename with current timestamp
-        if self.enable_log:
-            log_filename = self.log_file
+        if self.config.is_logging_enabled():
+            log_filename = self.config.get_log_filepath()
             time_str = dt.now().isoformat()
             time_suffix = time_str.replace(":", "_").replace(".", "_")
             log_filename = log_filename.replace("{timestamp}", time_suffix)
@@ -123,21 +84,6 @@ class TradingBot:
             logging.basicConfig(
                 level=debugLevel, format="[%(asctime)s] %(levelname)s: %(message)s"
             )
-
-    def init_trading_services(self, config, credentials):
-        """
-        Create instances of the trading services required, such as web interface
-        for trading and fetch market data.
-
-            - **config** The configuration json
-            - **credentials** The credentials json
-            - return: An instance of Broker class initialised
-        """
-        services = {
-            "ig_index": IGInterface(config, credentials),
-            "alpha_vantage": AVInterface(credentials["av_api_key"], config),
-        }
-        return Broker(config, services)
 
     def start(self):
         """
@@ -154,14 +100,20 @@ class TradingBot:
                 # Now process markets from the configured market source
                 self.process_market_source()
                 # Wait for the next spin before starting over
-                self.time_provider.wait_for(TimeAmount.SECONDS, self.spin_interval)
+                self.time_provider.wait_for(
+                    TimeAmount.SECONDS, self.config.get_spin_interval()
+                )
             except MarketClosedException:
                 logging.warning("Market is closed: stop processing")
                 self.time_provider.wait_for(TimeAmount.NEXT_MARKET_OPENING)
             except NotSafeToTradeException:
-                self.time_provider.wait_for(TimeAmount.SECONDS, self.spin_interval)
+                self.time_provider.wait_for(
+                    TimeAmount.SECONDS, self.config.get_spin_interval()
+                )
             except StopIteration:
-                self.time_provider.wait_for(TimeAmount.SECONDS, self.spin_interval)
+                self.time_provider.wait_for(
+                    TimeAmount.SECONDS, self.config.get_spin_interval()
+                )
             except Exception as e:
                 logging.error("Generic exception caught: {}".format(e))
                 logging.debug(traceback.format_exc())
@@ -230,12 +182,12 @@ class TradingBot:
                 "Stop trading because can't fetch percentage of account used"
             )
             raise NotSafeToTradeException()
-        if percent_used >= self.max_account_usable:
+        if percent_used >= self.config.get_max_account_usable():
             logging.warning(
                 "Stop trading because {}% of account is used".format(str(percent_used))
             )
             raise NotSafeToTradeException()
-        if not self.time_provider.is_market_open(self.time_zone):
+        if not self.time_provider.is_market_open(self.config.get_time_zone()):
             raise MarketClosedException()
 
     def process_trade(self, market, direction, limit, stop, open_positions):
@@ -262,7 +214,7 @@ class TradingBot:
                     ):
                         self.broker.close_position(item)
                         return
-                self.broker.trade(market.epic, direction.name, limit, stop)
+                self.broker.trade(market.epic, direction, limit, stop)
             else:
                 logging.error("Unable to fetch open positions! Avoid trading this epic")
 
@@ -295,6 +247,7 @@ class TradingBot:
 
 
 def get_menu_parser():
+    # TODO use pip for version
     VERSION = "1.2.0"
     parser = argparse.ArgumentParser(prog="TradingBot")
     main_group = parser.add_mutually_exclusive_group()
@@ -348,6 +301,7 @@ def main():
         TradingBot(tp).backtest(args.backtest[0], args.start[0], args.end[0], epic)
     else:
         TradingBot(tp).start()
+
 
 if __name__ == "__main__":
     main()

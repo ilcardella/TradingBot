@@ -17,6 +17,7 @@ setup(
         "pytz==2019.3",
         "requests==2.23.0",
         "scipy==1.4.1",
+        "yfinance==0.1.54",
     ],
     package_data={"config": ["*.json"]},
     data_files=[

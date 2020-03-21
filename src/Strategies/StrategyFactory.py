@@ -32,12 +32,8 @@ class StrategyFactory:
               Strategies
             - Return the instance of the StrategyFactory
         """
-        self.read_configuration(config)
         self.config = config
         self.broker = broker
-
-    def read_configuration(self, config):
-        pass
 
     def make_strategy(self, strategy_name):
         """
@@ -55,3 +51,10 @@ class StrategyFactory:
             return WeightedAvgPeak(self.config, self.broker)
         else:
             logging.error("Strategy {} does not exist".format(strategy_name))
+
+    def make_from_configuration(self):
+        """
+        Create and return an instance of the Strategy class as configured in the
+        configuration file
+        """
+        return self.make_strategy(self.config.get_active_strategy())

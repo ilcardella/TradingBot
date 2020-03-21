@@ -1,40 +1,60 @@
 {
-    "general": {
-        "max_account_usable": 50,
-        "time_zone": "Europe/London",
-        "enable_log": true,
-        "log_file": "/opt/TradingBot/log/trading_bot_{timestamp}.log",
-        "debug_log": false,
-        "credentials_filepath": "/opt/TradingBot/data/.credentials",
-        "market_source": {
-            "value": "api",
-            "options": [
-                "list",
-                "api",
-                "watchlist"
-            ]
-        },
-        "epic_ids_filepath": "/opt/TradingBot/data/epic_ids.txt",
-        "watchlist_name": "trading_bot",
-        "active_strategy": "weighted_avg_peak",
-        "spin_interval": 3600
-    },
-    "ig_interface": {
-        "order_type": "MARKET",
-        "order_size": 1,
-        "order_expiry": "DFB",
-        "order_currency": "GBP",
-        "order_force_open": true,
-        "use_g_stop": false,
-        "use_demo_account": true,
-        "controlled_risk": false,
-        "paper_trading": false
-    },
-    "alpha_vantage": {
+    "max_account_usable": 50,
+    "time_zone": "Europe/London",
+    "credentials_filepath": "/opt/TradingBot/data/.credentials",
+    "spin_interval": 3600,
+    "logging": {
         "enable": true,
-        "api_timeout": 12
+        "log_filepath": "/opt/TradingBot/log/trading_bot_{timestamp}.log",
+        "debug": false
+    },
+    "market_source": {
+        "active": "api",
+        "values": [
+            "list",
+            "api",
+            "watchlist"
+        ],
+        "epic_ids_filepath": "/opt/TradingBot/data/epic_ids.txt",
+        "watchlist_name": "trading_bot"
+    },
+    "stocks_interface": {
+        "active": "yfinance",
+        "values": [
+            "yfinance",
+            "alpha_vantage",
+            "ig_interface"
+        ],
+        "ig_interface": {
+            "order_type": "MARKET",
+            "order_size": 1,
+            "order_expiry": "DFB",
+            "order_currency": "GBP",
+            "order_force_open": true,
+            "use_g_stop": false,
+            "use_demo_account": true,
+            "controlled_risk": false,
+            "paper_trading": false
+        },
+        "alpha_vantage": {
+            "api_timeout": 12
+        },
+        "yfinance": {
+            "api_timeout": 0.5
+        }
+    },
+    "account_interface": {
+        "active": "ig_interface",
+        "values": [
+            "ig_interface"
+        ]
     },
     "strategies": {
+        "active": "weighted_avg_peak",
+        "values": [
+            "simple_macd",
+            "weighted_avg_peak"
+        ],
         "simple_macd": {
             "max_spread_perc": 5,
             "limit_perc": 10,
@@ -46,5 +66,4 @@
             "stop_perc": 5
         }
     }
-
 }

@@ -10,11 +10,12 @@ currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfram
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, "{}/src".format(parentdir))
 
-from Components.IGInterface import IG_API_URL
+from Components.Broker.IGInterface import IG_API_URL
 
 # Set global variables used in fixtures
 TEST_DATA_IG = "test/test_data/ig"
 TEST_DATA_AV = "test/test_data/alpha_vantage"
+TEST_DATA_YF = "test/test_data/yfinance"
 IG_BASE_URI = IG_API_URL.BASE_URI.value.replace("@", IG_API_URL.DEMO_PREFIX.value)
 
 
@@ -24,6 +25,12 @@ class AV_API_URL(Enum):
     BASE_URI = "https://www.alphavantage.co/query?"
     MACD_EXT = "MACDEXT"
     TS_DAILY = "TIME_SERIES_DAILY"
+
+
+class YF_API_URL(Enum):
+    """YFinance API URLs"""
+
+    BASE_URI = "https://query1.finance.yahoo.com/v8/finance/chart"
 
 
 def read_json(filepath):
@@ -184,5 +191,21 @@ def av_request_prices(mock, args="", data="mock_av_daily.json", fail=False):
         json=data
         if isinstance(data, dict)
         else read_json("{}/{}".format(TEST_DATA_AV, data)),
+        status_code=401 if fail else 200,
+    )
+
+
+###################################################################
+# Yahoo Finance mock requests
+###################################################################
+
+
+def yf_request_prices(mock, args="", data="mock_history_day_max.json", fail=False):
+    """Mock YF prices"""
+    mock.get(
+        re.compile(re.escape("{}/{}".format(YF_API_URL.BASE_URI.value, args))),
+        json=data
+        if isinstance(data, dict)
+        else read_json("{}/{}".format(TEST_DATA_YF, data)),
         status_code=401 if fail else 200,
     )

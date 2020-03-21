@@ -12,8 +12,8 @@ parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir)
 
 from .Strategy import Strategy
-from Utility.Utils import Utils, TradeDirection
-from Components.Broker import Interval
+from Components.Utils import Utils, TradeDirection, Interval
+from Interfaces.MarketHistory import MarketHistory
 
 
 class WeightedAvgPeak(Strategy):
@@ -29,9 +29,10 @@ class WeightedAvgPeak(Strategy):
         """
         Read the json configuration
         """
-        self.max_spread = config["strategies"]["weighted_avg_peak"]["max_spread"]
-        self.limit_p = config["strategies"]["weighted_avg_peak"]["limit_perc"]
-        self.stop_p = config["strategies"]["weighted_avg_peak"]["stop_perc"]
+        raw = config.get_raw_config()
+        self.max_spread = raw["strategies"]["weighted_avg_peak"]["max_spread"]
+        self.limit_p = raw["strategies"]["weighted_avg_peak"]["limit_perc"]
+        self.stop_p = raw["strategies"]["weighted_avg_peak"]["stop_perc"]
         # TODO add these to the config file
         self.profit_indicator_multiplier = 0.3
         self.ESMA_new_margin = 21  # (20% for stocks)
@@ -50,7 +51,7 @@ class WeightedAvgPeak(Strategy):
         """
         Fetch weekly prices of past 18 weeks
         """
-        return self.broker.get_prices(market.epic, market.id, Interval.WEEK, 18)
+        return self.broker.get_prices(market, Interval.WEEK, 18)
 
     def find_trade_signal(self, market, datapoints):
         """
@@ -66,10 +67,10 @@ class WeightedAvgPeak(Strategy):
         # Compute mid price
         current_mid = Utils.midpoint(market.bid, market.offer)
 
-        high_prices = datapoints["high"]
-        low_prices = datapoints["low"]
-        close_prices = datapoints["close"]
-        ltv = datapoints["volume"]
+        high_prices = datapoints.dataframe[MarketHistory.HIGH_COLUMN].values
+        low_prices = datapoints.dataframe[MarketHistory.LOW_COLUMN].values
+        close_prices = datapoints.dataframe[MarketHistory.CLOSE_COLUMN].values
+        ltv = datapoints.dataframe[MarketHistory.VOLUME_COLUMN].values
 
         # Check dataset integrity
         array_len_check = []
@@ -352,3 +353,9 @@ class WeightedAvgPeak(Strategy):
             return float(Price) - float(ATR) * int(self.ce_multiplier)
         elif TRADE_DIR is TradeDirection.SELL:
             return float(Price) + float(ATR) * int(self.ce_multiplier)
+
+    def backtest(self, market, start_date, end_date):
+        """Backtest the strategy
+            """
+        # TODO
+        raise NotImplementedError("Work in progress")

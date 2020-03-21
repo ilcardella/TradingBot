@@ -8,6 +8,7 @@ currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfram
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, "{}/src".format(parentdir))
 
+from Components.Configuration import Configuration
 from Strategies.StrategyFactory import StrategyFactory
 from Strategies.SimpleMACD import SimpleMACD
 from Strategies.WeightedAvgPeak import WeightedAvgPeak
@@ -15,16 +16,7 @@ from Strategies.WeightedAvgPeak import WeightedAvgPeak
 
 @pytest.fixture
 def config():
-    """
-    Returns a dict with config parameter for strategy and simpleMACD
-    """
-    # Read configuration file
-    try:
-        with open("config/config.json", "r") as file:
-            config = json.load(file)
-    except IOError:
-        exit()
-    return config
+    return Configuration.from_filepath("test/test_data/config.json")
 
 
 @pytest.fixture

@@ -3,15 +3,13 @@ import numpy as np
 import os
 import inspect
 import sys
-from datetime import datetime as dt
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir)
 
-from Components.Broker import Interval
 from .Strategy import Strategy
-from Utility.Utils import Utils, TradeDirection
+from Components.Utils import Utils, TradeDirection, Interval
 
 
 class SimpleMACD(Strategy):
@@ -30,9 +28,10 @@ class SimpleMACD(Strategy):
         """
         Read the json configuration
         """
-        self.max_spread_perc = config["strategies"]["simple_macd"]["max_spread_perc"]
-        self.limit_p = config["strategies"]["simple_macd"]["limit_perc"]
-        self.stop_p = config["strategies"]["simple_macd"]["stop_perc"]
+        raw = config.get_raw_config()
+        self.max_spread_perc = raw["strategies"]["simple_macd"]["max_spread_perc"]
+        self.limit_p = raw["strategies"]["simple_macd"]["limit_perc"]
+        self.stop_p = raw["strategies"]["simple_macd"]["stop_perc"]
 
     def initialise(self):
         """
@@ -44,7 +43,7 @@ class SimpleMACD(Strategy):
         """
         Fetch historic MACD data
         """
-        return self.broker.macd_dataframe(market.epic, market.id, Interval.DAY)
+        return self.broker.get_macd(market, Interval.DAY, None)
 
     def find_trade_signal(self, market, datapoints):
         """
@@ -114,19 +113,20 @@ class SimpleMACD(Strategy):
     def backtest(self, market, start_date, end_date):
         """Backtest the strategy
         """
+        # TODO
+        raise NotImplementedError("Work in progress")
         # Generic initialisations
-        self.broker.use_av_api = True
         trades = []
         # - Get price data for market
-        prices = self.broker.get_prices(market.epic, market.id, Interval.DAY, None)
-        # - Get macd data from broker forcing use of alpha_vantage
+        prices = self.broker.get_prices(market, Interval.DAY, None)
+        # - Get macd data from broker
         data = self.fetch_datapoints(market)
         # - Simulate time passing by starting with N rows (from the bottom)
         # and adding the next row (on the top) one by one, calling the strategy with
         # the intermediate data and recording its output
         datapoint_used = 26
-        while len(data) > datapoint_used:
-            current_data = data.tail(datapoint_used).copy()
+        while len(data.dataframe) > datapoint_used:
+            current_data = data.dataframe.tail(datapoint_used).copy()
             datapoint_used += 1
             # Get trade date
             trade_dt = current_data.index.values[0].astype("M8[ms]").astype("O")

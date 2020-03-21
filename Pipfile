@@ -17,6 +17,7 @@ requests-mock = "*"
 sphinx-rtd-theme = "*"
 m2r = "*"
 sphinx = "*"
+yfinance = "*"
 
 [requires]
 python_version = "3"

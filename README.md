@@ -11,11 +11,9 @@ software, I guess I will see how it goes :)
 
 The main goal of this project is to provide the capability to
 write a custom trading strategy with the minimum effort.
-TradingBot handle all the boring stuff.
+TradingBot handles all the boring stuff.
 
-All the credits for the `WeightedAvgPeak` strategy goes to GitHub user @tg12
-who is the creator of the first script version and gave me a good
-starting point for this project. Thank you.
+All the credits for the `WeightedAvgPeak` strategy goes to GitHub user @tg12.
 
 ## Dependencies
 
@@ -87,49 +85,7 @@ TradingBot navigates the IG markets dynamically using the available API call to 
 ### Configuration file
 
 The `config.json` file is in the `config` folder and it contains several configurable parameter to personalise
-how TradingBot work. These are the description of each parameter:
-
-#### General
-
-- **max_account_usable**: The maximum percentage of account funds to use (A safe value is around 50%)
-- **time_zone**: The timezone to use (i.e. 'Europe/London)
-- **enable_log**: Enable the log in a file rather than on stdout
-- **log_file**: Define the full file path for the log file to use, if enabled. {home} and {timestamp} placeholders are replaced with the user home directory and the timestamp when TradingBot started
-- **debug_log**: Enable the debug level in the logging
-- **credentials_filepath**: Filepath for the `.credentials` file
-- **market_source**: The source to use to fetch the market ids. Available values as explained above are: [`list`, `watchlist`, `api`]
-- **epic_ids_filepath**:  The full file path for the local file containing the list of epic ids
-- **watchlist_name**: The watchlist name to use as market source, if selected
-- **active_strategy**: The strategy name to use. Must match one of the names in the `Strategies` section below
-- **spin_interval**: The amount of seconds that TradinBot waits for after it ends processing the markets, before starting over.
-
-#### IG Interface
-
-- **order_type**: The IG order type (MARKET, LIMIT, etc.). Do NOT change it
-- **order_size**: The size of the spread bets
-- **order_expiry**: The order expiry (DFB). Do NOT change it
-- **order_currency**: The currency of the order (For UK shares leave it as GBP)
-- **order_force_open**: Force to open the orders
-- **use_g_stop**: Use guaranteed stops. Read IG terms for more info about them.
-- **use_demo_account**: Trade on the DEMO IG account. If enabled remember to setup the demo account credentials too
-- **controlled_risk**: Enable the controlled risk stop loss calculation. Enable only if you have a controlled risk account.
-- **paper_trading**: Enable the `paper trading`. No real trades will be done on the IG account.
-
-#### Alpha Vantage
-
-- **enable**: Enable the use of AlphaVantage API
-- **api_timeout**: Timeout in seconds between each API call
-
-#### Strategies
-
-Settings specific for each strategy
-
-#### SimpleMACD
-
-- **max_spread_perc**: Spread percentage to filter markets with high spread
-- **limit_perc**: Limit percentage to take profit for each trade
-- **stop_perc**: Stop percentage to stop any loss
-
+how TradingBot work. It is important to setup this file appropriately in order to avoid unexpected behaviours.
 
 ## Start TradingBot
 

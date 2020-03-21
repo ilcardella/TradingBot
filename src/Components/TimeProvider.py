@@ -12,7 +12,7 @@ currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfram
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir)
 
-from Utility.Utils import Utils
+from .Utils import Utils
 
 
 class TimeAmount(Enum):
@@ -84,4 +84,3 @@ class TimeProvider:
                 raise ValueError("Invalid amount of time to wait for")
         logging.info("Wait for {0:.2f} hours...".format(amount / 3600))
         time.sleep(amount)
-
