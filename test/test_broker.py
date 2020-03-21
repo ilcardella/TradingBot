@@ -30,6 +30,7 @@ from common.MockRequests import (
     ig_request_watchlist,
     av_request_prices,
     av_request_macd_ext,
+    yf_request_prices,
 )
 
 # Parametrize this fixture to run all the dependant test cases for each
@@ -38,7 +39,7 @@ from common.MockRequests import (
     params=[
         InterfaceNames.IG_INDEX.value,
         InterfaceNames.ALPHA_VANTAGE.value,
-        # InterfaceNames.YAHOO_FINANCE.value, TODO
+        InterfaceNames.YAHOO_FINANCE.value,
     ]
 )
 def config(request):
@@ -81,6 +82,7 @@ def mock_http_calls(requests_mock):
     ig_request_watchlist(requests_mock, args="12345678", data="mock_watchlist.json")
     av_request_prices(requests_mock)
     av_request_macd_ext(requests_mock)
+    yf_request_prices(requests_mock)
 
 
 @pytest.fixture

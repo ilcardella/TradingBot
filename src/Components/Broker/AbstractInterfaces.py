@@ -1,9 +1,23 @@
+import os
+import sys
+import inspect
 from abc import ABC, abstractmethod
+import datetime as dt
+
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+sys.path.insert(0, parentdir)
 
 
 class AccountInterface(ABC):
-    @abstractmethod
+    # This MUST not be overwritten. Use the "initialise()" to init a children interface
     def __init__(self, config):
+        self._config = config
+        self._last_call_ts = dt.datetime.now()
+        self.initialise()
+
+    @abstractmethod
+    def initialise(self):
         pass
 
     @abstractmethod
@@ -54,16 +68,40 @@ class AccountInterface(ABC):
     def get_markets_from_watchlist(self, watchlist_id):
         pass
 
+    # No need to override this
+    def _wait_before_call(self, timeout: float):
+        """
+        Wait between API calls to not overload the server
+        """
+        while (dt.datetime.now() - self._last_call_ts) <= dt.timedelta(seconds=timeout):
+            time.sleep(0.5)
+        self._last_call_ts = dt.datetime.now()
+
 
 class StocksInterface(ABC):
+    # This MUST not be overwritten. Use the "initialise()" to init a children interface
+    def __init__(self, config):
+        self._config = config
+        self._last_call_ts = dt.datetime.now()
+        self.initialise()
+
     @abstractmethod
-    def __init__(self):
+    def initialise(self):
         pass
 
     @abstractmethod
-    def get_prices(self, market_ticker, interval, data_range):
+    def get_prices(self, market, interval, data_range):
         pass
 
     @abstractmethod
-    def get_macd(self, market_ticker, interval, data_range):
+    def get_macd(self, market, interval, data_range):
         pass
+
+    # No need to override this
+    def _wait_before_call(self, timeout: float):
+        """
+        Wait between API calls to not overload the server
+        """
+        while (dt.datetime.now() - self._last_call_ts) <= dt.timedelta(seconds=timeout):
+            time.sleep(0.5)
+        self._last_call_ts = dt.datetime.now()

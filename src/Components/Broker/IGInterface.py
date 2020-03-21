@@ -42,16 +42,15 @@ class IGInterface(AccountInterface, StocksInterface):
     IG broker interface class, provides functions to use the IG REST API
     """
 
-    def __init__(self, config):
-        self.config = config
+    def initialise(self):
         demoPrefix = (
             IG_API_URL.DEMO_PREFIX.value
-            if self.config.get_ig_use_demo_account()
+            if self._config.get_ig_use_demo_account()
             else ""
         )
         self.api_base_url = IG_API_URL.BASE_URI.value.replace("@", demoPrefix)
         self.authenticated_headers = {}
-        if self.config.get_ig_paper_trading():
+        if self._config.get_ig_paper_trading():
             logging.info("Paper trading is active")
         if not self.authenticate():
             logging.error("Authentication failed")
@@ -63,13 +62,13 @@ class IGInterface(AccountInterface, StocksInterface):
         Authenticate the IGInterface instance with the configured credentials
         """
         data = {
-            "identifier": self.config.get_credentials()["username"],
-            "password": self.config.get_credentials()["password"],
+            "identifier": self._config.get_credentials()["username"],
+            "password": self._config.get_credentials()["password"],
         }
         headers = {
             "Content-Type": "application/json; charset=utf-8",
             "Accept": "application/json; charset=utf-8",
-            "X-IG-API-KEY": self.config.get_credentials()["api_key"],
+            "X-IG-API-KEY": self._config.get_credentials()["api_key"],
             "Version": "2",
         }
         url = "{}/{}".format(self.api_base_url, IG_API_URL.SESSION.value)
@@ -88,12 +87,12 @@ class IGInterface(AccountInterface, StocksInterface):
         self.authenticated_headers = {
             "Content-Type": "application/json; charset=utf-8",
             "Accept": "application/json; charset=utf-8",
-            "X-IG-API-KEY": self.config.get_credentials()["api_key"],
+            "X-IG-API-KEY": self._config.get_credentials()["api_key"],
             "CST": CST_token,
             "X-SECURITY-TOKEN": x_sec_token,
         }
 
-        self.set_default_account(self.config.get_credentials()["account_id"])
+        self.set_default_account(self._config.get_credentials()["account_id"])
         return True
 
     def set_default_account(self, accountId):
@@ -195,7 +194,7 @@ class IGInterface(AccountInterface, StocksInterface):
         if info is None or "markets" in info:
             # TODO raise exception
             return None
-        if self.config.get_ig_controlled_risk():
+        if self._config.get_ig_controlled_risk():
             info["minNormalStopOrLimitDistance"] = info["minControlledRiskStopDistance"]
         market = Market()
         market.epic = info["instrument"]["epic"]
@@ -264,7 +263,7 @@ class IGInterface(AccountInterface, StocksInterface):
             - **stop**: stop level
             - Returns **False** if an error occurs otherwise True
         """
-        if self.config.get_ig_paper_trading():
+        if self._config.get_ig_paper_trading():
             logging.info(
                 "Paper trade: {} {} with limit={} and stop={}".format(
                     trade_direction.value, epic_id, limit, stop
@@ -277,12 +276,12 @@ class IGInterface(AccountInterface, StocksInterface):
             "direction": trade_direction.value,
             "epic": epic_id,
             "limitLevel": limit,
-            "orderType": self.config.get_ig_order_type(),
-            "size": self.config.get_ig_order_size(),
-            "expiry": self.config.get_ig_order_expiry(),
-            "guaranteedStop": self.config.get_ig_use_g_stop(),
-            "currencyCode": self.config.get_ig_order_currency(),
-            "forceOpen": self.config.get_ig_order_force_open(),
+            "orderType": self._config.get_ig_order_type(),
+            "size": self._config.get_ig_order_size(),
+            "expiry": self._config.get_ig_order_expiry(),
+            "guaranteedStop": self._config.get_ig_use_g_stop(),
+            "currencyCode": self._config.get_ig_order_currency(),
+            "forceOpen": self._config.get_ig_order_force_open(),
             "stopLevel": stop,
         }
 
@@ -332,7 +331,7 @@ class IGInterface(AccountInterface, StocksInterface):
             - **position**: position json object obtained from IG API
             - Returns **False** if an error occurs otherwise True
         """
-        if self.config.get_ig_paper_trading():
+        if self._config.get_ig_paper_trading():
             logging.info("Paper trade: close {} position".format(position.epic))
             return True
         # To close we need the opposite direction

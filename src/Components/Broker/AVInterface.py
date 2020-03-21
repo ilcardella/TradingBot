@@ -41,10 +41,8 @@ class AVInterface(StocksInterface):
     and return the result in useful format handling possible errors.
     """
 
-    def __init__(self, config):
-        self.config = config
-        self._last_call_ts = dt.datetime.now()
-        api_key = self.config.get_credentials()["av_api_key"]
+    def initialise(self):
+        api_key = self._config.get_credentials()["av_api_key"]
         self.TS = TimeSeries(
             key=api_key, output_format="pandas", treat_info_as_error=True
         )
@@ -117,7 +115,7 @@ class AVInterface(StocksInterface):
             - **marketId**: string representing an AlphaVantage compatible market id
             - Returns **None** if an error occurs otherwise the pandas dataframe
         """
-        self._wait_before_call()
+        self._wait_before_call(self._config.get_alphavantage_api_timeout())
         market = self._format_market_id(marketId)
         try:
             data, meta_data = self.TS.get_daily(symbol=market, outputsize="full")
@@ -138,7 +136,7 @@ class AVInterface(StocksInterface):
             - **interval**: string representing an AlphaVantage interval type
             - Returns **None** if an error occurs otherwise the pandas dataframe
         """
-        self._wait_before_call()
+        self._wait_before_call(self._config.get_alphavantage_api_timeout())
         market = self._format_market_id(marketId)
         try:
             data, meta_data = self.TS.get_intraday(
@@ -159,7 +157,7 @@ class AVInterface(StocksInterface):
             - **marketId**: string representing an AlphaVantage compatible market id
             - Returns **None** if an error occurs otherwise the pandas dataframe
         """
-        self._wait_before_call()
+        self._wait_before_call(self._config.get_alphavantage_api_timeout())
         market = self._format_market_id(marketId)
         try:
             data, meta_data = self.TS.get_weekly(symbol=market)
@@ -178,7 +176,7 @@ class AVInterface(StocksInterface):
             - **market_id**: string representing the market id to fetch data of
             - Returns **None** if an error occurs otherwise the pandas dataframe
         """
-        self._wait_before_call()
+        self._wait_before_call(self._config.get_alphavantage_api_timeout())
         market = self._format_market_id(market_id)
         try:
             data, meta_data = self.TS.get_quote_endpoint(
@@ -212,7 +210,7 @@ class AVInterface(StocksInterface):
             - **interval**: string representing an AlphaVantage interval type
             - Returns **None** if an error occurs otherwise the pandas dataframe
         """
-        self._wait_before_call()
+        self._wait_before_call(self._config.get_alphavantage_api_timeout())
         market = self._format_market_id(marketId)
         try:
             data, meta_data = self.TI.get_macdext(
@@ -242,7 +240,7 @@ class AVInterface(StocksInterface):
             - **interval**: string representing an AlphaVantage interval type
             - Returns **None** if an error occurs otherwise the pandas dataframe
         """
-        self._wait_before_call()
+        self._wait_before_call(self._config.get_alphavantage_api_timeout())
         market = self._format_market_id(marketId)
         try:
             data, meta_data = self.TI.get_macd(
@@ -268,14 +266,5 @@ class AVInterface(StocksInterface):
         Convert a standard market id to be compatible with AlphaVantage API.
         Adds the market exchange prefix (i.e. London is LON:)
         """
+        # TODO MarketProvider/IGInterface should return marketId without "-UK"
         return "{}:{}".format("LON", marketId.split("-")[0])
-
-    def _wait_before_call(self):
-        """
-        Wait between API calls to not overload the server
-        """
-        while (dt.datetime.now() - self._last_call_ts) <= dt.timedelta(
-            seconds=self.config.get_alphavantage_api_timeout()
-        ):
-            time.sleep(0.5)
-        self._last_call_ts = dt.datetime.now()
