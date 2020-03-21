@@ -11,7 +11,7 @@ parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, "{}/src".format(parentdir))
 
 from Components.TimeProvider import TimeProvider, TimeAmount
-from Utility.Utils import Utils
+from Components.Utils import Utils
 
 def test_get_seconds_to_market_opening():
     tp = TimeProvider()

@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Support of Python 3.5
 
+### Added
+- Common interfaces to unify stocks and account interfaces
+- Support for YFinance
+
 ## [1.2.0] - 2019-11-16
 ### Added
 - Added backtesting feature

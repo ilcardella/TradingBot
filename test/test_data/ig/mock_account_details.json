@@ -24,9 +24,9 @@
         "preferred": true,
         "balance": {
             "balance": 16093.12,
-            "deposit": 0.0,
+            "deposit": 10000.0,
             "profitLoss": 0.0,
-            "available": 16093.12
+            "available": 6093.12
         },
         "currency": "GBP",
         "canTransferFrom": true,

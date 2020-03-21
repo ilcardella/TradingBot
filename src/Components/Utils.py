@@ -1,5 +1,5 @@
-import logging
-import json
+import threading
+import functools
 from enum import Enum
 
 
@@ -14,6 +14,27 @@ class TradeDirection(Enum):
     SELL = "SELL"
 
 
+class Interval(Enum):
+    """
+    Time intervals for price and technical indicators requests
+    """
+
+    MINUTE_1 = "MINUTE_1"
+    MINUTE_2 = "MINUTE_2"
+    MINUTE_3 = "MINUTE_3"
+    MINUTE_5 = "MINUTE_5"
+    MINUTE_10 = "MINUTE_10"
+    MINUTE_15 = "MINUTE_15"
+    MINUTE_30 = "MINUTE_30"
+    HOUR = "HOUR"
+    HOUR_2 = "HOUR_2"
+    HOUR_3 = "HOUR_3"
+    HOUR_4 = "HOUR_4"
+    DAY = "DAY"
+    WEEK = "WEEK"
+    MONTH = "MONTH"
+
+
 class MarketClosedException(Exception):
     """Error to notify that the market is currently closed"""
 
@@ -24,6 +45,47 @@ class NotSafeToTradeException(Exception):
     """Error to notify that it is not safe to trade"""
 
     pass
+
+
+class Singleton(type):
+    """Metaclass to implement the Singleton desing pattern"""
+
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+
+# Mutex used for thread synchronisation
+lock = threading.Lock()
+
+
+def synchronised(lock):
+    """ Thread synchronization decorator """
+
+    def wrapper(f):
+        @functools.wraps(f)
+        def inner_wrapper(*args, **kw):
+            with lock:
+                return f(*args, **kw)
+
+        return inner_wrapper
+
+    return wrapper
+
+
+class SynchSingleton(type):
+    """Metaclass to implement the Singleton desing pattern"""
+
+    _instances = {}
+
+    @synchronised(lock)
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
 
 
 class Utils:

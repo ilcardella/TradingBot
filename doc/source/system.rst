@@ -71,9 +71,8 @@ to decide whether to buy, sell or hold a specific market.
     parentdir = os.path.dirname(currentdir)
     sys.path.insert(0,parentdir)
 
-    from Components.Broker import Interval
+    from Components.Utils import Utils, Interval, TradeDirection
     from .Strategy import Strategy
-    from Utility.Utils import Utils, TradeDirection
     # Import any other required module
 
     class my_strategy(Strategy): # Extends Strategy module
@@ -106,12 +105,18 @@ to decide whether to buy, sell or hold a specific market.
             # As an examle:
             return TradeDirection.BUY, 90, 150
 
+        def backtest(self, market, start_date, end_date):
+            # This is still a work in progress
+            # The idea here is to perform a backtest of the strategy for the given market
+            return {"balance": balance, "trades": trades}
+
 #. Add the implementation for these functions:
 
    * *read_configuration*: ``config`` is the json object loaded from the ``config.json`` file
    * *initialise*: initialise the strategy or any internal members
    * *fetch_datapoints*: fetch the required past price datapoints
    * *find_trade_signal*: it is the core of your custom strategy, here you can use the broker interface to decide if trade the given epic
+   * *backtest*: backtest the strategy for a market within the date range
 
 #. ``Strategy`` parent class provides a ``Broker`` type internal member that
    can be accessed with ``self.broker``. This member is the TradingBot broker
@@ -124,19 +129,6 @@ to decide whether to buy, sell or hold a specific market.
 
 #. Edit the ``StrategyFactory`` module inporting the new strategy and adding
    its name to the ``StrategyNames`` enum. Then add it to the *make* function
-
-   .. code-block:: python
-      :lineno-start: 28
-
-        def make_strategy(self, strategy_name):
-            if strategy_name == StrategyNames.SIMPLE_MACD.value:
-                return SimpleMACD(self.config, self.broker)
-            elif strategy_name == StrategyNames.FAIG.value:
-                return FAIG_iqr(self.config, self.broker)
-            elif strategy.name == StrateyNames.MY_STRATEGY.value:
-                return MY_STRATEGY(self.config, self.broker)
-            else:
-                logging.error('Impossible to create strategy {}. It does not exist'.format(strategy_name))
 
 #. Edit the ``config.json`` adding a new section for your strategy parameters
 

@@ -21,50 +21,72 @@ Components
 
 The ``Components`` module contains the components that provides services
 used by TradingBot.
+
+Broker
+======
+
 The ``Broker`` class is the wrapper of all the trading services and provides
 the main interface for the ``strategies`` to access market data and perform
 trades.
 
-IGInterface
-===========
+AbstracInterface
+----------------
 
-.. automodule:: Components.IGInterface
+.. automodule:: Components.Broker.AbstracInterface
+
+.. autoclass:: AbstracInterface
+    :members:
+
+IGInterface
+-----------
+
+.. automodule:: Components.Broker.IGInterface
 
 .. autoclass:: IGInterface
     :members:
 
 Enums
------
+^^^^^
 
 .. autoclass:: IG_API_URL
     :members:
 
 AVInterface
-===========
+-----------
 
-.. automodule:: Components.AVInterface
+.. automodule:: Components.Broker.AVInterface
 
 .. autoclass:: AVInterface
     :members:
 
 Enums
------
+^^^^^
 
 .. autoclass:: AVInterval
     :members:
 
-Broker
-======
+YFinanceInterface
+-----------------
 
-.. automodule:: Components.Broker
+.. automodule:: Components.Broker.AVInterface
+
+.. autoclass:: AVInterface
+    :members:
+
+Broker
+------
+
+.. automodule:: Components.Broker.Broker
 
 .. autoclass:: Broker
     :members:
 
-Enums
------
+BrokerFactory
+-------------
 
-.. autoclass:: Interval
+.. automodule:: Components.Broker.BrokerFactory
+
+.. autoclass:: BrokerFactory
     :members:
 
 MarketProvider
@@ -82,7 +104,7 @@ Enums
     :members:
 
 TimeProvider
-==============
+============
 
 .. automodule:: Components.TimeProvider
 
@@ -93,6 +115,48 @@ Enums
 -----
 
 .. autoclass:: TimeAmount
+    :members:
+
+BackTester
+==========
+
+.. automodule:: Components.BackTester
+
+.. autoclass:: BackTester
+    :members:
+
+Configuration
+=============
+
+.. automodule:: Components.Configuration
+
+.. autoclass:: Configuration
+    :members:
+
+Utils
+=====
+
+.. automodule:: Components.Utils
+
+.. autoclass:: Utils
+    :members:
+
+Enums
+-----
+
+.. autoclass:: TradeDirection
+    :members:
+
+.. autoclass:: Interval
+    :members:
+
+Exceptions
+----------
+
+.. autoclass:: MarketClosedException
+    :members:
+
+.. autoclass:: NotSafeToTradeException
     :members:
 
 Interfaces
@@ -109,6 +173,30 @@ Market
 .. automodule:: Interfaces.Market
 
 .. autoclass:: Market
+    :members:
+
+MarketHistory
+=============
+
+.. automodule:: Interfaces.MarketHistory
+
+.. autoclass:: MarketHistory
+    :members:
+
+MarketMACD
+==========
+
+.. automodule:: Interfaces.MarketMACD
+
+.. autoclass:: MarketMACD
+    :members:
+
+Position
+========
+
+.. automodule:: Interfaces.Position
+
+.. autoclass:: Position
     :members:
 
 Strategies
@@ -149,32 +237,4 @@ Weighted Average Peak Detection
 .. automodule:: Strategies.WeightedAvgPeak
 
 .. autoclass:: WeightedAvgPeak
-    :members:
-
-Utils
-*****
-
-Common utility classes and methods
-
-Utils
-=====
-
-.. automodule:: Utility.Utils
-
-.. autoclass:: Utils
-    :members:
-
-Enums
-=====
-
-.. autoclass:: TradeDirection
-    :members:
-
-Exceptions
-==========
-
-.. autoclass:: MarketClosedException
-    :members:
-
-.. autoclass:: NotSafeToTradeException
     :members:

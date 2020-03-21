@@ -2,15 +2,16 @@ import logging
 import os
 import inspect
 import sys
+from abc import ABC, abstractmethod
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir)
 
-from Utility.Utils import TradeDirection
+from Components.Utils import TradeDirection
 
 
-class Strategy:
+class Strategy(ABC):
     """
     Generic strategy template to use as a parent class for custom strategies.
     """
@@ -36,7 +37,7 @@ class Strategy:
         datapoints = self.fetch_datapoints(market)
         logging.debug("Strategy datapoints: {}".format(datapoints))
         if datapoints is None:
-            logging.debug('Unable to fetch market datapoints')
+            logging.debug("Unable to fetch market datapoints")
             return TradeDirection.NONE, None, None
         return self.find_trade_signal(market, datapoints)
 
@@ -44,36 +45,22 @@ class Strategy:
     # OVERRIDE THESE FUNCTIONS IN STRATEGY IMPLEMENTATION
     #############################################################
 
+    @abstractmethod
     def initialise(self):
-        """
-        Must override
-        """
-        raise NotImplementedError("Not implemented: initialise")
+        pass
 
+    @abstractmethod
     def read_configuration(self, config):
-        """
-        Must override
-        """
-        raise NotImplementedError("Not implemented: read_configuration")
+        pass
 
+    @abstractmethod
     def fetch_datapoints(self, market):
-        """
-        Must override
-        """
-        raise NotImplementedError("Not implemented: fetch_datapoints")
+        pass
 
+    @abstractmethod
     def find_trade_signal(self, epic_id, prices):
-        """
-        Must override
-        """
-        raise NotImplementedError("Not implemented: find_trade_signal")
+        pass
 
+    @abstractmethod
     def backtest(self, market, start_date, end_date):
-        """
-        Must override
-        """
-        return NotImplementedError("This strategy doe not support backtesting")
-
-
-##############################################################
-##############################################################
+        pass
