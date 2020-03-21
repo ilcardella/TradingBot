@@ -468,25 +468,19 @@ class IGInterface(AccountInterface, StocksInterface):
 
     def get_macd(self, market, interval, data_range):
         data = self._macd_dataframe(market, interval)
+        # TODO Put date instead of index numbers
         return MarketMACD(
             market,
             range(len(data)),
             data["MACD"].values,
-            data["MACD_Signal"].values,
-            data["MACD_Hist"].values,
+            data["Signal"].values,
+            data["Hist"].values,
         )
 
     def _macd_dataframe(self, market, interval):
         prices = self.get_prices(market, "DAY", 26)
         if prices is None:
             return None
-        # Calculate the MACD indicator
-        px = pd.DataFrame(
-            {"close": prices.dataframe[MarketHistory.CLOSE_COLUMN].values}
+        return Utils.macd_df_from_list(
+            prices.dataframe[MarketHistory.CLOSE_COLUMN].values
         )
-        px["26_ema"] = pd.DataFrame.ewm(px["close"], span=26).mean()
-        px["12_ema"] = pd.DataFrame.ewm(px["close"], span=12).mean()
-        px["MACD"] = px["12_ema"] - px["26_ema"]
-        px["MACD_Signal"] = px["MACD"].rolling(9).mean()
-        px["MACD_Hist"] = px["MACD"] - px["MACD_Signal"]
-        return px

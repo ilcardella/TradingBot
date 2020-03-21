@@ -9,7 +9,7 @@ currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentfram
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir)
 
-from Components.Utils import Interval
+from Components.Utils import Interval, Utils
 from Interfaces.MarketHistory import MarketHistory
 from Interfaces.MarketMACD import MarketMACD
 from .AbstractInterfaces import StocksInterface
@@ -39,10 +39,12 @@ class YFinanceInterface(StocksInterface):
         self._wait_before_call(self._config.get_yfinance_api_timeout())
 
         ticker = yf.Ticker(self._format_market_id(market.id))
+        # TODO check data_range and fetch only necessary data
         data = ticker.history(
             period="max", interval=self._to_yf_interval(interval).value
         )
-
+        # Reverse dataframe to have most recent data at the top
+        data = data.iloc[::-1]
         history = MarketHistory(
             market,
             data.index,
@@ -55,8 +57,19 @@ class YFinanceInterface(StocksInterface):
 
     def get_macd(self, market, interval, data_range):
         self._wait_before_call(self._config.get_yfinance_api_timeout())
-        # TODO
-        raise NotImplementedError()
+        # Fetch prices with at least 26 data points
+        prices = self.get_prices(market, interval, 30)
+        data = Utils.macd_df_from_list(
+            prices.dataframe[MarketHistory.CLOSE_COLUMN].values
+        )
+        # TODO use dates instead of index
+        return MarketMACD(
+            market,
+            range(len(data)),
+            data["MACD"].values,
+            data["Signal"].values,
+            data["Hist"].values,
+        )
 
     def _format_market_id(self, market_id) -> str:
         market_id = market_id.replace("-UK", "")

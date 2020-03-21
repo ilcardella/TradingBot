@@ -1,6 +1,7 @@
 import threading
 import functools
 from enum import Enum
+import pandas as pd
 
 
 class TradeDirection(Enum):
@@ -125,3 +126,14 @@ class Utils:
         mins, secs = divmod(secs, 60)
         hours, mins = divmod(mins, 60)
         return "%02d:%02d:%02d" % (hours, mins, secs)
+
+    @staticmethod
+    def macd_df_from_list(price_list):
+        """Return a MACD pandas dataframe with columns "MACD", "Signal" and "Hist"""
+        px = pd.DataFrame({"close": price_list})
+        px["26_ema"] = pd.DataFrame.ewm(px["close"], span=26).mean()
+        px["12_ema"] = pd.DataFrame.ewm(px["close"], span=12).mean()
+        px["MACD"] = px["12_ema"] - px["26_ema"]
+        px["Signal"] = px["MACD"].rolling(9).mean()
+        px["Hist"] = px["MACD"] - px["Signal"]
+        return px
