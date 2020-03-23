@@ -11,7 +11,7 @@ setup(
     entry_points={"console_scripts": ["trading_bot = TradingBot:main"]},
     install_requires=[
         "alpha-vantage==2.1.3",
-        "govuk-bank-holidays==0.5",
+        "govuk-bank-holidays==0.6",
         "numpy==1.18.2",
         "pandas==1.0.3",
         "pytz==2019.3",
