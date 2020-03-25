@@ -42,6 +42,7 @@ class AVInterface(StocksInterface):
     """
 
     def initialise(self):
+        logging.info("Initialising AVInterface...")
         api_key = self._config.get_credentials()["av_api_key"]
         self.TS = TimeSeries(
             key=api_key, output_format="pandas", treat_info_as_error=True
@@ -49,7 +50,6 @@ class AVInterface(StocksInterface):
         self.TI = TechIndicators(
             key=api_key, output_format="pandas", treat_info_as_error=True
         )
-        logging.info("AlphaVantage initialised.")
 
     def _to_av_interval(self, interval):
         """

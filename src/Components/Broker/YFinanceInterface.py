@@ -33,7 +33,7 @@ class YFInterval(Enum):
 
 class YFinanceInterface(StocksInterface):
     def initialise(self):
-        logging.info("YFinanceInterface initialised.")
+        logging.info("Initialising YFinanceInterface...")
 
     def get_prices(self, market, interval, data_range):
         self._wait_before_call(self._config.get_yfinance_api_timeout())

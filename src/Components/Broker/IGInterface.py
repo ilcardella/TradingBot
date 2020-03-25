@@ -43,6 +43,7 @@ class IGInterface(AccountInterface, StocksInterface):
     """
 
     def initialise(self):
+        logging.info("initialising IGInterface...")
         demoPrefix = (
             IG_API_URL.DEMO_PREFIX.value
             if self._config.get_ig_use_demo_account()
@@ -55,7 +56,6 @@ class IGInterface(AccountInterface, StocksInterface):
         if not self.authenticate():
             logging.error("Authentication failed")
             raise RuntimeError("Unable to authenticate to IG Index. Check credentials")
-        logging.info("IG initialised.")
 
     def authenticate(self):
         """
