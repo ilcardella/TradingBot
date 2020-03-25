@@ -116,8 +116,7 @@ class TradingBot:
                 )
             except Exception as e:
                 logging.error("Generic exception caught: {}".format(e))
-                logging.debug(traceback.format_exc())
-                logging.debug(sys.exc_info()[0])
+                logging.error(traceback.format_exc())
                 continue
 
     def process_open_positions(self):
@@ -130,7 +129,7 @@ class TradingBot:
         if positions is None:
             logging.warning("Unable to fetch open positions! Will try again...")
             raise RuntimeError("Unable to fetch open positions")
-        for epic in [item["market"]["epic"] for item in positions["positions"]]:
+        for epic in [item.epic for item in positions]:
             market = self.market_provider.get_market_from_epic(epic)
             self.process_market(market, positions)
 
@@ -156,8 +155,7 @@ class TradingBot:
             self.process_trade(market, trade, limit, stop, open_positions)
         except Exception as e:
             logging.error("Strategy exception caught: {}".format(e))
-            logging.debug(traceback.format_exc())
-            logging.debug(sys.exc_info()[0])
+            logging.error(traceback.format_exc())
             return
 
     def close_open_positions(self):

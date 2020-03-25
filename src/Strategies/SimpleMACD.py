@@ -10,6 +10,7 @@ sys.path.insert(0, parentdir)
 
 from .Strategy import Strategy
 from Components.Utils import Utils, TradeDirection, Interval
+from Interfaces.MarketMACD import MarketMACD
 
 
 class SimpleMACD(Strategy):
@@ -62,8 +63,8 @@ class SimpleMACD(Strategy):
             return TradeDirection.NONE, None, None
 
         # Find where macd and signal cross each other
-        px = datapoints
-        px = self.generate_signals_from_dataframe(px)
+        macd = datapoints
+        px = self.generate_signals_from_dataframe(macd.dataframe)
 
         # Identify the trade direction looking at the last signal
         tradeDirection = self.get_trade_direction_from_signals(px)
@@ -97,7 +98,9 @@ class SimpleMACD(Strategy):
 
     def generate_signals_from_dataframe(self, dataframe):
         dataframe.loc[:, "positions"] = 0
-        dataframe.loc[:, "positions"] = np.where(dataframe["MACD_Hist"] >= 0, 1, 0)
+        dataframe.loc[:, "positions"] = np.where(
+            dataframe[MarketMACD.HIST_COLUMN] >= 0, 1, 0
+        )
         dataframe.loc[:, "signals"] = dataframe["positions"].diff()
         return dataframe
 
