@@ -190,31 +190,41 @@ NOTE: Remember to set the correct timezone in your machine!
 
 You can run TradingBot in a Docker container (https://docs.docker.com/).
 
-First you need to install `TradingBot` as explained above.
+The Docker image is configured with a default TradingBot configuration and it
+does not have any `.credentials` files.
+**You must mount these files when running the Docker container**
 
-Then you can build the Docker image used by `TradingBot`:
-```
-./docker_ctl build
-```
+### Pull
 
-Once the image is built you can run `TradingBot` in a Docker container:
+You can pull the Docker image directly from the Docker Hub.
+Latest version:
 ```
-./docker_ctl start
+docker pull ilcardella/tradingbot:latest
 ```
-
-The container will be called `trading_bot` and the logs will still be stored in the configured folder in the host machine. By default `/opt/TradingBot/log`.
-
-Check the `Dockerfile` and the  `docker_ctl` script for more details
-
-To stop the TradingBot container:
+Tagged version:
 ```
-docker kill trading_bot
+docker pull ilcardella/tradingbot:v1.2.0
 ```
 
-If you need to start a bash shell into a running container
+### Build
+You can build the Docker image yourself using the `Dockerfile` in the `docker` folder:
 ```
-docker exec -it trading_bot bash
+cd /path/to/repo
+docker build -t tradingbot -f docker/Dockerfile .
 ```
+
+### Run
+As mentioned above, it's important that you configure TradingBot before starting it.
+Once the image is available you can run `TradingBot` in a Docker container mounting the configuration files:
+```
+docker run -d \
+    -v /path/to/config.json:/opt/TradingBot/config/config.json \
+    -v /path/to/.credentials:/opt/TradingBot/data/.credentials \
+    tradingbot:latest
+```
+
+You can also mount the log folder to store the logs on the host adding `-v /host/folder:/opt/TradingBot/log`
+
 
 ## Contributing
 
