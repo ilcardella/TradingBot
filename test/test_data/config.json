@@ -1,5 +1,5 @@
 {
-    "max_account_usable": 50,
+    "max_account_usable": 90,
     "time_zone": "Europe/London",
     "credentials_filepath": "test/test_data/credentials.json",
     "spin_interval": 3600,
@@ -9,7 +9,7 @@
         "debug": false
     },
     "market_source": {
-        "active": "list",
+        "active": "watchlist",
         "values": [
             "list",
             "api",
@@ -50,7 +50,7 @@
         ]
     },
     "strategies": {
-        "active": "weighted_avg_peak",
+        "active": "simple_macd",
         "values": [
             "simple_macd",
             "weighted_avg_peak"

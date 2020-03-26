@@ -3,18 +3,64 @@ import sys
 import inspect
 from abc import ABC, abstractmethod
 import datetime as dt
+import time
+import functools
+import threading
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir)
 
+# Mutex used for thread synchronisation
+lock = threading.Lock()
 
-class AccountInterface(ABC):
-    # This MUST not be overwritten. Use the "initialise()" to init a children interface
+
+def synchronised(lock):
+    """ Thread synchronization decorator """
+
+    def wrapper(f):
+        @functools.wraps(f)
+        def inner_wrapper(*args, **kw):
+            with lock:
+                return f(*args, **kw)
+
+        return inner_wrapper
+
+    return wrapper
+
+
+class Singleton(type):
+    """Metaclass to implement the Singleton desing pattern"""
+
+    _instances = {}
+
+    @synchronised(lock)
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+
+# TODO ABC can't be used anymore as base class if we define the metaclass
+class AbstractInterface(metaclass=Singleton):
     def __init__(self, config):
         self._config = config
         self._last_call_ts = dt.datetime.now()
         self.initialise()
+
+    def _wait_before_call(self, timeout: float):
+        """
+        Wait between API calls to not overload the server
+        """
+        while (dt.datetime.now() - self._last_call_ts) <= dt.timedelta(seconds=timeout):
+            time.sleep(0.5)
+        self._last_call_ts = dt.datetime.now()
+
+
+class AccountInterface(AbstractInterface):
+    # This MUST not be overwritten. Use the "initialise()" to init a children interface
+    def __init__(self, config):
+        super().__init__(config)
 
     @abstractmethod
     def initialise(self):
@@ -70,20 +116,13 @@ class AccountInterface(ABC):
 
     # No need to override this
     def _wait_before_call(self, timeout: float):
-        """
-        Wait between API calls to not overload the server
-        """
-        while (dt.datetime.now() - self._last_call_ts) <= dt.timedelta(seconds=timeout):
-            time.sleep(0.5)
-        self._last_call_ts = dt.datetime.now()
+        super()._wait_before_call(timeout)
 
 
-class StocksInterface(ABC):
+class StocksInterface(AbstractInterface):
     # This MUST not be overwritten. Use the "initialise()" to init a children interface
     def __init__(self, config):
-        self._config = config
-        self._last_call_ts = dt.datetime.now()
-        self.initialise()
+        super().__init__(config)
 
     @abstractmethod
     def initialise(self):
@@ -99,9 +138,4 @@ class StocksInterface(ABC):
 
     # No need to override this
     def _wait_before_call(self, timeout: float):
-        """
-        Wait between API calls to not overload the server
-        """
-        while (dt.datetime.now() - self._last_call_ts) <= dt.timedelta(seconds=timeout):
-            time.sleep(0.5)
-        self._last_call_ts = dt.datetime.now()
+        super()._wait_before_call(timeout)
