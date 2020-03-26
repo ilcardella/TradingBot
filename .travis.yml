@@ -16,5 +16,4 @@ script:
   - pipenv run test
   - pipenv run docs
   - python setup.py install
-  - ./docker_ctl build
-  - docker run --rm -it trading_bot bash -c "pipenv install && pipenv run test"
+  - docker build -t tradingbot -f docker/Dockerfile .
