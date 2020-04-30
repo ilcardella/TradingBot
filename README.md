@@ -5,7 +5,7 @@ This is an attempt to create an autonomous market trading script using the IG
 REST API and any other available data source for market prices.
 
 TradingBot is meant to be a "forever running" process that keeps
-analysing the markets and taking actions whether the conditions are met.
+analysing the markets taking actions whether some conditions are met.
 It is halfway from an academic project and a real useful piece of
 software, I guess I will see how it goes :)
 
