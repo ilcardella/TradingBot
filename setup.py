@@ -10,7 +10,7 @@ setup(
     scripts=["src/TradingBot.py"],
     entry_points={"console_scripts": ["trading_bot = TradingBot:main"]},
     install_requires=[
-        "alpha-vantage==2.1.3",
+        "alpha-vantage==2.2.0",
         "govuk-bank-holidays==0.6",
         "numpy==1.18.2",
         "pandas==1.0.3",
