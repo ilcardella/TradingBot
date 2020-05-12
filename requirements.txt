@@ -1,6 +1,8 @@
 -i https://pypi.org/simple
+aiohttp
 alabaster
 alpha-vantage
+async-timeout
 attrs
 babel
 certifi
@@ -9,12 +11,11 @@ docutils
 govuk-bank-holidays
 idna
 imagesize
-importlib-metadata
 jinja2
-m2r
 markupsafe
-mistune
 more-itertools
+multidict
+multitasking
 numpy
 packaging
 pandas
@@ -40,4 +41,5 @@ sphinxcontrib-qthelp
 sphinxcontrib-serializinghtml
 urllib3
 wcwidth
-zipp
+yarl
+yfinance

@@ -29,12 +29,18 @@ The ``Broker`` class is the wrapper of all the trading services and provides
 the main interface for the ``strategies`` to access market data and perform
 trades.
 
-AbstracInterface
-----------------
+AbstractInterfaces
+------------------
 
-.. automodule:: Components.Broker.AbstracInterface
+.. automodule:: Components.Broker.AbstractInterfaces
 
-.. autoclass:: AbstracInterface
+.. autoclass:: AbstractInterface
+    :members:
+
+.. autoclass:: AccountInterface
+    :members:
+
+.. autoclass:: StocksInterface
     :members:
 
 IGInterface
@@ -68,9 +74,9 @@ Enums
 YFinanceInterface
 -----------------
 
-.. automodule:: Components.Broker.AVInterface
+.. automodule:: Components.Broker.YFinanceInterface
 
-.. autoclass:: AVInterface
+.. autoclass:: YFInterval
     :members:
 
 Broker
@@ -87,6 +93,9 @@ BrokerFactory
 .. automodule:: Components.Broker.BrokerFactory
 
 .. autoclass:: BrokerFactory
+    :members:
+
+.. autoclass:: InterfaceNames
     :members:
 
 MarketProvider
@@ -117,12 +126,12 @@ Enums
 .. autoclass:: TimeAmount
     :members:
 
-BackTester
+Backtester
 ==========
 
-.. automodule:: Components.BackTester
+.. automodule:: Components.Backtester
 
-.. autoclass:: BackTester
+.. autoclass:: Backtester
     :members:
 
 Configuration

@@ -16,4 +16,3 @@ Explore the next sections for a detailed documentation of each module too.
 
    source/system.rst
    source/modules.rst
-   source/changelog.rst

@@ -15,7 +15,6 @@ docutils = "*"
 pytest = "*"
 requests-mock = "*"
 sphinx-rtd-theme = "*"
-m2r = "*"
 sphinx = "*"
 yfinance = "*"
 
