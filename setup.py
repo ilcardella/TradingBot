@@ -14,7 +14,7 @@ setup(
         "govuk-bank-holidays==0.6",
         "numpy==1.18.4",
         "pandas==1.0.3",
-        "pytz==2019.3",
+        "pytz==2020.1",
         "requests==2.23.0",
         "scipy==1.4.1",
         "yfinance==0.1.54",
