@@ -3,17 +3,20 @@ language: python
 python:
   - "3.6"
   - "3.7"
-  - "3.7-dev"
+  - "3.8"
+  - "3.8-dev"
 
 services:
   - docker
 
 install:
-  - export PIPENV_IGNORE_VIRTUALENVS=1
-  - pipenv install
+  - pip install --upgrade pip
+  - pip install poetry
+  - poetry install -v
 
 script:
-  - pipenv run test
-  - pipenv run docs
+  - pytest
+  - make -C doc html
+  - poetry build
   - python setup.py install
   - docker build -t tradingbot -f docker/Dockerfile .

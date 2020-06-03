@@ -5,7 +5,7 @@ This is an attempt to create an autonomous market trading script using the IG
 REST API and any other available data source for market prices.
 
 TradingBot is meant to be a "forever running" process that keeps
-analysing the markets and taking actions whether the conditions are met.
+analysing the markets taking actions whether some conditions are met.
 It is halfway from an academic project and a real useful piece of
 software, I guess I will see how it goes :)
 
@@ -18,10 +18,10 @@ All the credits for the `WeightedAvgPeak` strategy goes to GitHub user @tg12.
 ## Dependencies
 
 - Python 3.6+
-- Pipenv (only for development)
+- Poetry (only for development)
 - Docker (optional)
 
-View file `Pipfile` or `setup.py` for the full list of required python packages.
+View file `pyproject.toml` or `setup.py` for the full list of required python packages.
 
 ## Install
 
@@ -129,27 +129,20 @@ sudo pip3 uninstall TradingBot
 
 ## Development
 
-To ease dependency management there is `Pipfile` which helps installing the required
+To ease dependency management there is the `pyproject.toml` helps installing the required
 python packages in a isolated virtual environment.
 
-Install `pip` and `pipenv`
-```
-sudo apt-get update
-sudo apt-get install python3-pip
-sudo -H pip3 install -U pipenv
-```
-
-Create the virtual environment:
+Install `pip` and `poetry` and create the virtual environment:
 ```
 cd /path/to/repository
-pipenv install
+poetry install
 ```
 
 ## Test
 
 You can run the test from the workspace with:
 ```
-pipenv run test
+poetry run pytest
 ```
 
 ## Documentation
@@ -165,7 +158,9 @@ https://tradingbot.readthedocs.io
 
 You can build it locally with:
 ```
-pipenv run docs
+poetry shell
+cd doc
+make html
 ```
 
 The generated html files will be in `doc/_build/html`.

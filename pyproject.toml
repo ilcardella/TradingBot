@@ -1,0 +1,39 @@
+[tool.poetry]
+name = "TradingBot"
+version = "1.2.0"
+description = "Autonomous market trader based on custom strategies"
+authors = ["Alberto Cardellini"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/ilcardella/TradingBot"
+documentation = "https://tradingbot.readthedocs.io/en/latest"
+packages = [
+    { include = "src" }
+]
+include = ["config/config.json"]
+
+[tool.poetry.dependencies]
+python = ">=3.6.1"
+alpha-vantage = "^2.2.0"
+govuk-bank-holidays = "^0.6"
+numpy = "^1.18.4"
+pandas = "^1.0.4"
+pytz = "^2020.1"
+requests = "^2.23.0"
+scipy = "^1.4.1"
+yfinance = "^0.1.54"
+
+[tool.poetry.dev-dependencies]
+docutils = "*"
+pytest = "*"
+requests-mock = "*"
+sphinx-rtd-theme = "*"
+m2r = "*"
+sphinx = "*"
+
+[tool.poetry.scripts]
+trading_bot = 'src.TradingBot:main'
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
