@@ -10,11 +10,13 @@ services:
   - docker
 
 install:
-  - export PIPENV_IGNORE_VIRTUALENVS=1
-  - pipenv install
+  - pip install --upgrade pip
+  - pip install poetry
+  - poetry install -v
 
 script:
-  - pipenv run test
-  - pipenv run docs
+  - pytest
+  - make -C doc/Makefile html
+  - poetry build
   - python setup.py install
   - docker build -t tradingbot -f docker/Dockerfile .
