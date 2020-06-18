@@ -13,7 +13,7 @@ setup(
         "alpha-vantage==2.2.0",
         "govuk-bank-holidays==0.6",
         "numpy==1.18.5",
-        "pandas==1.0.4",
+        "pandas==1.0.5",
         "pytz==2020.1",
         "requests==2.23.0",
         "scipy==1.4.1",
