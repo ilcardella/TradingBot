@@ -12,7 +12,7 @@ setup(
     install_requires=[
         "alpha-vantage==2.2.0",
         "govuk-bank-holidays==0.6",
-        "numpy==1.18.5",
+        "numpy==1.19.0",
         "pandas==1.0.4",
         "pytz==2020.1",
         "requests==2.23.0",
