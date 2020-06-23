@@ -8,5 +8,6 @@
   },
   "poetry": {
       "enabled": true
-  }
+  },
+  "rebaseWhen": "behind-base-branch"
 }
