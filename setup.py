@@ -16,7 +16,7 @@ setup(
         "pandas==1.0.4",
         "pytz==2020.1",
         "requests==2.23.0",
-        "scipy==1.4.1",
+        "scipy==1.5.0",
         "yfinance==0.1.54",
     ],
     package_data={"config": ["*.json"]},
