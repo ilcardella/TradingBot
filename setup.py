@@ -15,7 +15,7 @@ setup(
         "numpy==1.19.0",
         "pandas==1.0.5",
         "pytz==2020.1",
-        "requests==2.23.0",
+        "requests==2.24.0",
         "scipy==1.4.1",
         "yfinance==0.1.54",
     ],
