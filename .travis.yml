@@ -15,8 +15,8 @@ install:
   - poetry install -v
 
 script:
-  - pytest
-  - make -C doc html
+  - poetry run pytest
+  - poetry run make -C docs html
   - poetry build
   - python setup.py install
   - docker build -t tradingbot -f docker/Dockerfile .

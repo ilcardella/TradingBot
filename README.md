@@ -159,11 +159,11 @@ https://tradingbot.readthedocs.io
 You can build it locally with:
 ```
 poetry shell
-cd doc
+cd docs
 make html
 ```
 
-The generated html files will be in `doc/_build/html`.
+The generated html files will be in `docs/_build/html`.
 
 ## Automate
 
