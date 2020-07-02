@@ -1,16 +1,9 @@
 import logging
-import os
-import inspect
-import sys
 import time
 import pytz
 from enum import Enum
 from datetime import datetime
 from govuk_bank_holidays.bank_holidays import BankHolidays
-
-currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parentdir = os.path.dirname(currentdir)
-sys.path.insert(0, parentdir)
 
 from .Utils import Utils
 

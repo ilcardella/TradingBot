@@ -1,15 +1,8 @@
 import requests
 import json
 import logging
-import os
-import inspect
-import sys
 from enum import Enum
-import pandas as pd
 
-currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parentdir = os.path.dirname(currentdir)
-sys.path.insert(0, parentdir)
 
 from Components.Utils import Utils, TradeDirection
 from Interfaces.MarketHistory import MarketHistory

@@ -7,10 +7,6 @@ from numpy import NaN, Inf, arange, isscalar, asarray, array
 from scipy import stats
 import math
 
-currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parentdir = os.path.dirname(currentdir)
-sys.path.insert(0, parentdir)
-
 from .Strategy import Strategy
 from Components.Utils import Utils, TradeDirection, Interval
 from Interfaces.MarketHistory import MarketHistory

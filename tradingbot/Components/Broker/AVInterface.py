@@ -1,18 +1,10 @@
 import logging
 from enum import Enum
-import os
 import sys
-import inspect
-import datetime as dt
-import time
 import traceback
 
 from alpha_vantage.timeseries import TimeSeries
 from alpha_vantage.techindicators import TechIndicators
-
-currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parentdir = os.path.dirname(currentdir)
-sys.path.insert(0, parentdir)
 
 from Components.Utils import Interval
 from Interfaces.MarketHistory import MarketHistory

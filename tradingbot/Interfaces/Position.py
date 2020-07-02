@@ -1,12 +1,3 @@
-import os
-import inspect
-import sys
-
-currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parentdir = os.path.dirname(currentdir)
-sys.path.insert(0, parentdir)
-
-
 class Position:
     def __init__(self, **kargs):
         self.deal_id = kargs["deal_id"]

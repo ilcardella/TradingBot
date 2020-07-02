@@ -8,10 +8,6 @@ import inspect
 import traceback
 import argparse
 
-currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parentdir = os.path.dirname(currentdir)
-sys.path.insert(0, parentdir)
-
 from Components.Utils import (
     TradeDirection,
     NotSafeToTradeException,
@@ -19,7 +15,7 @@ from Components.Utils import (
 )
 from Components.Configuration import Configuration
 from Strategies.StrategyFactory import StrategyFactory
-from Components.Broker.Broker import Broker
+from Components.Broker.Broker import Broker as BrokerInterface
 from Components.Broker.BrokerFactory import BrokerFactory
 from Components.MarketProvider import MarketProvider
 from Components.Backtester import Backtester
@@ -46,7 +42,7 @@ class TradingBot:
 
         # Init trade services and create the broker interface
         # The Factory is used to create the services from the configuration file
-        self.broker = Broker(BrokerFactory(self.config))
+        self.broker = BrokerInterface(BrokerFactory(self.config))
 
         # Create strategy from the factory class
         self.strategy = StrategyFactory(
@@ -233,7 +229,7 @@ class TradingBot:
         try:
             market = (
                 self.market_provider.search_market(market_id)
-                if epic_id is None or epic_id is ""
+                if epic_id is None or epic_id == ""
                 else self.market_provider.get_market_from_epic(epic_id)
             )
         except Exception as e:
