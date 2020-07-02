@@ -16,7 +16,7 @@ docs:
 > poetry run make -C docs html
 
 install:
-> poetry install
+> poetry install -v
 
 install-setup:
 > python setup.py install
