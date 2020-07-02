@@ -114,12 +114,18 @@ class WeightedAvgPeak(Strategy):
         xb = range(0, len(mintab_low_a))
         xc = range(0, len(maxtab_high_a))
 
-        mintab_low_a_slope, mintab_low_a_intercept, mintab_low_a_lo_slope, mintab_low_a_hi_slope = stats.mstats.theilslopes(
-            mintab_low_a, xb, 0.99
-        )
-        maxtab_high_a_slope, maxtab_high_a_intercept, maxtab_high_a_lo_slope, maxtab_high_a_hi_slope = stats.mstats.theilslopes(
-            maxtab_high_a, xc, 0.99
-        )
+        (
+            mintab_low_a_slope,
+            mintab_low_a_intercept,
+            mintab_low_a_lo_slope,
+            mintab_low_a_hi_slope,
+        ) = stats.mstats.theilslopes(mintab_low_a, xb, 0.99)
+        (
+            maxtab_high_a_slope,
+            maxtab_high_a_intercept,
+            maxtab_high_a_lo_slope,
+            maxtab_high_a_hi_slope,
+        ) = stats.mstats.theilslopes(maxtab_high_a, xc, 0.99)
 
         peak_count_high = 0
         peak_count_low = 0

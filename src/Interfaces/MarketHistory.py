@@ -9,6 +9,7 @@ sys.path.insert(0, parentdir)
 
 from Interfaces.Market import Market
 
+
 class MarketHistory:
     DATE_COLUMN = "date"
     HIGH_COLUMN = "high"

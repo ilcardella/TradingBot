@@ -13,6 +13,7 @@ sys.path.insert(0, "{}/src".format(parentdir))
 from Components.TimeProvider import TimeProvider, TimeAmount
 from Components.Utils import Utils
 
+
 def test_get_seconds_to_market_opening():
     tp = TimeProvider()
     now = datetime.now()
@@ -47,6 +48,7 @@ def test_is_market_open():
     result = tp.is_market_open(timezone)
 
     assert result == expected
+
 
 def test_wait_for():
     tp = TimeProvider()

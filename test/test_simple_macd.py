@@ -83,9 +83,7 @@ def create_mock_market(broker):
 
 
 def test_find_trade_signal_buy(config, broker, requests_mock):
-    av_request_macd_ext(
-        requests_mock, data="mock_macd_ext_buy.json"
-    )
+    av_request_macd_ext(requests_mock, data="mock_macd_ext_buy.json")
     strategy = SimpleMACD(config, broker)
     # Create a mock market data from the json file
     market = create_mock_market(broker)
@@ -101,9 +99,7 @@ def test_find_trade_signal_buy(config, broker, requests_mock):
 
 
 def test_find_trade_signal_sell(config, broker, requests_mock):
-    av_request_macd_ext(
-        requests_mock, data="mock_macd_ext_sell.json"
-    )
+    av_request_macd_ext(requests_mock, data="mock_macd_ext_sell.json")
     strategy = SimpleMACD(config, broker)
     # Create a mock market data from the json file
     market = create_mock_market(broker)
@@ -118,9 +114,7 @@ def test_find_trade_signal_sell(config, broker, requests_mock):
 
 
 def test_find_trade_signal_hold(config, broker, requests_mock):
-    av_request_macd_ext(
-        requests_mock, data="mock_macd_ext_hold.json"
-    )
+    av_request_macd_ext(requests_mock, data="mock_macd_ext_hold.json")
     strategy = SimpleMACD(config, broker)
     # Create a mock market data from the json file
     market = create_mock_market(broker)
@@ -155,9 +149,7 @@ def test_calculate_stop_limit(config, broker):
 
 
 def test_generate_signals_from_dataframe(config, broker, requests_mock):
-    av_request_macd_ext(
-        requests_mock, data="mock_macd_ext_hold.json"
-    )
+    av_request_macd_ext(requests_mock, data="mock_macd_ext_hold.json")
     strategy = SimpleMACD(config, broker)
     data = strategy.fetch_datapoints(create_mock_market(broker))
     px = strategy.generate_signals_from_dataframe(data.dataframe)
@@ -168,9 +160,7 @@ def test_generate_signals_from_dataframe(config, broker, requests_mock):
 
 
 def test_get_trade_direction_from_signals(config, broker, requests_mock):
-    av_request_macd_ext(
-        requests_mock, data="mock_macd_ext_buy.json"
-    )
+    av_request_macd_ext(requests_mock, data="mock_macd_ext_buy.json")
     strategy = SimpleMACD(config, broker)
     data = strategy.fetch_datapoints(create_mock_market(broker))
     dataframe = strategy.generate_signals_from_dataframe(data.dataframe)
