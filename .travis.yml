@@ -12,11 +12,13 @@ services:
 install:
   - pip install --upgrade pip
   - pip install poetry
-  - poetry install -v
+  - make install
 
 script:
-  - poetry run pytest
-  - poetry run make -C docs html
-  - poetry build
-  - python setup.py install
-  - docker build -t tradingbot -f docker/Dockerfile .
+  - make format
+  - make lint
+  - make test
+  - make docs
+  - make build
+  - make install-setup
+  - make docker

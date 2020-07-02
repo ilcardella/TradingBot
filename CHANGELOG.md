@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Common interfaces to unify stocks and account interfaces
 - Support for YFinance
+- Formatting and linting support with black and flake8
 
 ## [1.2.0] - 2019-11-16
 ### Added
