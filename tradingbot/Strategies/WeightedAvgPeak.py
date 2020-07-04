@@ -1,6 +1,3 @@
-import os
-import inspect
-import sys
 import logging
 import numpy
 from numpy import NaN, Inf, arange, isscalar, asarray, array
@@ -53,8 +50,8 @@ class WeightedAvgPeak(Strategy):
         """
         TODO add description of strategy key points
         """
-        limit_perc = self.limit_p
-        stop_perc = max(market.stop_distance_min, self.stop_p)
+        # limit_perc = self.limit_p
+        # stop_perc = max(market.stop_distance_min, self.stop_p)
 
         # Spread constraint
         if market.bid - market.offer > self.max_spread:

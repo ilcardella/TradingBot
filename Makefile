@@ -4,10 +4,10 @@ endif
 .RECIPEPREFIX = >
 
 format:
-> poetry run black .
+> poetry run black tradingbot test
 
 lint:
-> poetry run flake8
+> poetry run flake8 tradingbot test
 
 test:
 > poetry run pytest
@@ -18,7 +18,7 @@ docs:
 install:
 > poetry install -v
 
-install-setup:
+install-system:
 > python setup.py install
 
 build:
@@ -27,6 +27,6 @@ build:
 docker:
 > docker build -t tradingbot -f docker/Dockerfile .
 
-ci: install format lint test docs build install-setup docker
+ci: install lint test docs build install-system docker
 
-.PHONY: test lint format install docs build docker install-setup ci
+.PHONY: test lint format install docs build docker install-system ci

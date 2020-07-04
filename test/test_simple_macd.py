@@ -1,20 +1,9 @@
-import os
-import sys
-import inspect
-import pytest
-import json
-from datetime import datetime as dt
-import pandas as pd
 
-currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parentdir = os.path.dirname(currentdir)
-sys.path.insert(0, "{}/tradingbot".format(parentdir))
+import pytest
 
 from Components.Configuration import Configuration
 from Strategies.SimpleMACD import SimpleMACD
 from Components.Utils import TradeDirection
-from Interfaces.Market import Market
-from Interfaces.MarketMACD import MarketMACD
 from Components.Broker.Broker import Broker
 from Components.Broker.BrokerFactory import BrokerFactory
 from common.MockRequests import (

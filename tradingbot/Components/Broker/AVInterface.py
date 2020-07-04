@@ -175,7 +175,7 @@ class AVInterface(StocksInterface):
                 symbol=market, outputsize="full"
             )
             return data
-        except:
+        except Exception:
             logging.error("AlphaVantage wrong api call for {}".format(market))
         return None
 

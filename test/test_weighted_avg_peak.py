@@ -1,22 +1,10 @@
-import os
-import sys
-import inspect
 import pytest
-import json
-import pandas as pd
 from enum import Enum
 
-currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parentdir = os.path.dirname(currentdir)
-sys.path.insert(0, "{}/src".format(parentdir))
-
 from Strategies.WeightedAvgPeak import WeightedAvgPeak
-from Components.Utils import TradeDirection, Interval
-from Interfaces.Market import Market
+from Components.Utils import TradeDirection
 from Components.Broker.Broker import Broker
 from Components.Broker.BrokerFactory import BrokerFactory
-from Components.Broker.IGInterface import IGInterface
-from Components.Broker.AVInterface import AVInterface
 from Components.Configuration import Configuration
 from common.MockRequests import (
     ig_request_login,

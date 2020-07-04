@@ -74,7 +74,7 @@ class IGInterface(AccountInterface, StocksInterface):
         try:
             CST_token = headers_json["CST"]
             x_sec_token = headers_json["X-SECURITY-TOKEN"]
-        except:
+        except Exception:
             return False
 
         self.authenticated_headers = {
@@ -377,7 +377,7 @@ class IGInterface(AccountInterface, StocksInterface):
                     try:
                         if not self.close_position(p):
                             result = False
-                    except:
+                    except Exception:
                         logging.error(
                             "Error closing position for {}".format(
                                 p["market"]["instrumentName"]
@@ -387,7 +387,7 @@ class IGInterface(AccountInterface, StocksInterface):
             else:
                 logging.error("Unable to retrieve open positions!")
                 result = False
-        except:
+        except Exception:
             logging.error("Error during close all positions")
             result = False
         return result

@@ -1,14 +1,7 @@
-import os
-import sys
-import inspect
 import pytest
 from datetime import datetime, timedelta
 import pytz
 from govuk_bank_holidays.bank_holidays import BankHolidays
-
-currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parentdir = os.path.dirname(currentdir)
-sys.path.insert(0, "{}/tradingbot".format(parentdir))
 
 from Components.TimeProvider import TimeProvider, TimeAmount
 from Components.Utils import Utils
@@ -53,9 +46,9 @@ def test_is_market_open():
 def test_wait_for():
     tp = TimeProvider()
     # Invalid seconds
-    with pytest.raises(ValueError) as e:
+    with pytest.raises(ValueError):
         tp.wait_for(TimeAmount.SECONDS)
-    with pytest.raises(ValueError) as e:
+    with pytest.raises(ValueError):
         tp.wait_for(TimeAmount.SECONDS, -100)
     # Wait for 3 seconds
     now = datetime.now()
