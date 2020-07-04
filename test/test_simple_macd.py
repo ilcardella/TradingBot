@@ -1,4 +1,3 @@
-
 import pytest
 
 from Components.Configuration import Configuration
