@@ -1,15 +1,9 @@
-import os
-import sys
-import inspect
-from abc import ABC, abstractmethod
 import datetime as dt
 import time
 import functools
 import threading
 
-currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parentdir = os.path.dirname(currentdir)
-sys.path.insert(0, parentdir)
+from abc import abstractmethod
 
 # Mutex used for thread synchronisation
 lock = threading.Lock()

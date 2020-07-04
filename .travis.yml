@@ -1,10 +1,11 @@
 language: python
 
 python:
-  - "3.6"
   - "3.7"
   - "3.8"
   - "3.8-dev"
+
+cache: pip
 
 services:
   - docker
@@ -12,11 +13,6 @@ services:
 install:
   - pip install --upgrade pip
   - pip install poetry
-  - poetry install -v
 
 script:
-  - poetry run pytest
-  - poetry run make -C docs html
-  - poetry build
-  - python setup.py install
-  - docker build -t tradingbot -f docker/Dockerfile .
+  - make ci

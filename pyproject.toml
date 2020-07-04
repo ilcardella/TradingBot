@@ -8,31 +8,31 @@ readme = "README.md"
 homepage = "https://github.com/ilcardella/TradingBot"
 documentation = "https://tradingbot.readthedocs.io/en/latest"
 packages = [
-    { include = "src" }
+    { include = "tradingbot" }
 ]
 include = ["config/config.json"]
 
 [tool.poetry.dependencies]
-python = ">=3.6.1"
+python = ">=3.7"
 alpha-vantage = "^2.2.0"
-govuk-bank-holidays = "^0.6"
+govuk-bank-holidays = "^0.8"
 numpy = "^1.18.4"
-pandas = "^1.0.4"
+pandas = "^1.0.5"
 pytz = "^2020.1"
 requests = "^2.23.0"
 scipy = "^1.4.1"
 yfinance = "^0.1.54"
 
 [tool.poetry.dev-dependencies]
-docutils = "*"
-pytest = "*"
-requests-mock = "*"
-sphinx-rtd-theme = "*"
-m2r = "*"
-sphinx = "*"
+sphinx = "^3.1.1"
+sphinx-rtd-theme = "^0.5.0"
+requests-mock = "^1.8.0"
+pytest = "^5.4.3"
+black = {version = "^19.10b0", allow-prereleases = true}
+flake8 = "^3.8.3"
 
 [tool.poetry.scripts]
-trading_bot = 'src.TradingBot:main'
+trading_bot = 'tradingbot.TradingBot:main'
 
 [build-system]
 requires = ["poetry>=0.12"]

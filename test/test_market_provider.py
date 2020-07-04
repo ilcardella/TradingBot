@@ -1,12 +1,4 @@
-import os
-import sys
-import inspect
 import pytest
-import json
-
-currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parentdir = os.path.dirname(currentdir)
-sys.path.insert(0, "{}/src".format(parentdir))
 
 from Components.Configuration import Configuration
 from Components.MarketProvider import MarketProvider
@@ -71,7 +63,7 @@ def test_market_provider_epics_list(config, broker):
             # Verify we read all epics in the list
             assert len(expected_list) == len(actual_list)
             # Verify reading the next raise another exception
-            with pytest.raises(StopIteration) as e:
+            with pytest.raises(StopIteration):
                 mp.next()
             mp.reset()
             continue
@@ -99,7 +91,7 @@ def test_market_provider_watchlist(config, broker):
         assert mp.next().epic == "KA.D.GSK.DAILY.IP"
         assert mp.next().epic == "KA.D.GSK.DAILY.IP"
 
-        with pytest.raises(StopIteration) as e:
+        with pytest.raises(StopIteration):
             mp.next()
         mp.reset()
 
@@ -149,5 +141,5 @@ def test_search_market(config, broker, requests_mock):
     # The mock search data contains multiple markets
     ig_request_search_market(requests_mock, data="mock_error.json")
     with pytest.raises(RuntimeError):
-        market = mp.search_market("mock")
+        _ = mp.search_market("mock")
     # TODO test with single market mock data and verify no exception

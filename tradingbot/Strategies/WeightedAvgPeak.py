@@ -1,15 +1,8 @@
-import os
-import inspect
-import sys
 import logging
 import numpy
 from numpy import NaN, Inf, arange, isscalar, asarray, array
 from scipy import stats
 import math
-
-currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parentdir = os.path.dirname(currentdir)
-sys.path.insert(0, parentdir)
 
 from .Strategy import Strategy
 from Components.Utils import Utils, TradeDirection, Interval
@@ -57,8 +50,8 @@ class WeightedAvgPeak(Strategy):
         """
         TODO add description of strategy key points
         """
-        limit_perc = self.limit_p
-        stop_perc = max(market.stop_distance_min, self.stop_p)
+        # limit_perc = self.limit_p
+        # stop_perc = max(market.stop_distance_min, self.stop_p)
 
         # Spread constraint
         if market.bid - market.offer > self.max_spread:
@@ -114,12 +107,18 @@ class WeightedAvgPeak(Strategy):
         xb = range(0, len(mintab_low_a))
         xc = range(0, len(maxtab_high_a))
 
-        mintab_low_a_slope, mintab_low_a_intercept, mintab_low_a_lo_slope, mintab_low_a_hi_slope = stats.mstats.theilslopes(
-            mintab_low_a, xb, 0.99
-        )
-        maxtab_high_a_slope, maxtab_high_a_intercept, maxtab_high_a_lo_slope, maxtab_high_a_hi_slope = stats.mstats.theilslopes(
-            maxtab_high_a, xc, 0.99
-        )
+        (
+            mintab_low_a_slope,
+            mintab_low_a_intercept,
+            mintab_low_a_lo_slope,
+            mintab_low_a_hi_slope,
+        ) = stats.mstats.theilslopes(mintab_low_a, xb, 0.99)
+        (
+            maxtab_high_a_slope,
+            maxtab_high_a_intercept,
+            maxtab_high_a_lo_slope,
+            maxtab_high_a_hi_slope,
+        ) = stats.mstats.theilslopes(maxtab_high_a, xc, 0.99)
 
         peak_count_high = 0
         peak_count_low = 0

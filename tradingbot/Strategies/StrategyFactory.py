@@ -4,10 +4,6 @@ import inspect
 from enum import Enum
 import logging
 
-currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parentdir = os.path.dirname(currentdir)
-sys.path.insert(0, parentdir)
-
 from .SimpleMACD import SimpleMACD
 from .WeightedAvgPeak import WeightedAvgPeak
 

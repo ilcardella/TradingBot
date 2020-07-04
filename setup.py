@@ -5,9 +5,9 @@ setup(
     name="TradingBot",
     version="1.2.0",
     python_requires=">=3",
-    package_dir={"": "src"},
-    packages=find_namespace_packages(where="src"),
-    scripts=["src/TradingBot.py"],
+    package_dir={"": "tradingbot"},
+    packages=find_namespace_packages(where="tradingbot"),
+    scripts=["tradingbot/TradingBot.py"],
     entry_points={"console_scripts": ["trading_bot = TradingBot:main"]},
     install_requires=[
         "alpha-vantage==2.2.0",

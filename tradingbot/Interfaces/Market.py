@@ -12,4 +12,3 @@ class Market:
         self.high = 0
         self.low = 0
         self.stop_distance_min = 0
-

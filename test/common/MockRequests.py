@@ -1,14 +1,6 @@
-import os
-import inspect
-import sys
 from enum import Enum
 import json
-import requests_mock
 import re
-
-currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parentdir = os.path.dirname(currentdir)
-sys.path.insert(0, "{}/src".format(parentdir))
 
 from Components.Broker.IGInterface import IG_API_URL
 

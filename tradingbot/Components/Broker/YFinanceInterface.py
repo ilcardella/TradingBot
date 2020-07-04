@@ -1,13 +1,6 @@
 import logging
 from enum import Enum
-import os
-import sys
-import inspect
 import yfinance as yf
-
-currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parentdir = os.path.dirname(currentdir)
-sys.path.insert(0, parentdir)
 
 from Components.Utils import Interval, Utils
 from Interfaces.MarketHistory import MarketHistory

@@ -1,12 +1,5 @@
-import os
-import sys
-import inspect
 import pytest
 import json
-
-currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parentdir = os.path.dirname(currentdir)
-sys.path.insert(0, "{}/src".format(parentdir))
 
 from Components.Configuration import Configuration
 from Components.Broker.Broker import Broker
@@ -33,8 +26,7 @@ from common.MockRequests import (
     yf_request_prices,
 )
 
-# Parametrize this fixture to run all the dependant test cases for each
-# stock interface
+
 @pytest.fixture(
     params=[
         InterfaceNames.IG_INDEX.value,

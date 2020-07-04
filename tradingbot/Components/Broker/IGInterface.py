@@ -1,15 +1,8 @@
 import requests
 import json
 import logging
-import os
-import inspect
-import sys
 from enum import Enum
-import pandas as pd
 
-currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parentdir = os.path.dirname(currentdir)
-sys.path.insert(0, parentdir)
 
 from Components.Utils import Utils, TradeDirection
 from Interfaces.MarketHistory import MarketHistory
@@ -81,7 +74,7 @@ class IGInterface(AccountInterface, StocksInterface):
         try:
             CST_token = headers_json["CST"]
             x_sec_token = headers_json["X-SECURITY-TOKEN"]
-        except:
+        except Exception:
             return False
 
         self.authenticated_headers = {
@@ -384,7 +377,7 @@ class IGInterface(AccountInterface, StocksInterface):
                     try:
                         if not self.close_position(p):
                             result = False
-                    except:
+                    except Exception:
                         logging.error(
                             "Error closing position for {}".format(
                                 p["market"]["instrumentName"]
@@ -394,7 +387,7 @@ class IGInterface(AccountInterface, StocksInterface):
             else:
                 logging.error("Unable to retrieve open positions!")
                 result = False
-        except:
+        except Exception:
             logging.error("Error during close all positions")
             result = False
         return result

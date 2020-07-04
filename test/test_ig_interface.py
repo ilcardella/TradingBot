@@ -1,12 +1,5 @@
-import os
-import sys
-import inspect
 import pytest
 import json
-
-currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parentdir = os.path.dirname(currentdir)
-sys.path.insert(0, "{}/src".format(parentdir))
 
 from Components.Configuration import Configuration
 from Components.Broker.BrokerFactory import InterfaceNames
@@ -58,7 +51,7 @@ def test_authenticate(ig):
     # Assert results
     assert ig.authenticated_headers["CST"] == "mock"
     assert ig.authenticated_headers["X-SECURITY-TOKEN"] == "mock"
-    assert result == True
+    assert result is True
 
 
 def test_authenticate_fail(requests_mock, ig):
@@ -67,19 +60,19 @@ def test_authenticate_fail(requests_mock, ig):
     # Call function to test
     result = ig.authenticate()
     # Assert results
-    assert result == False
+    assert result is False
 
 
 # No need to use requests_mock fixture
 def test_set_default_account(ig):
     result = ig.set_default_account("mock")
-    assert result == True
+    assert result is True
 
 
 def test_set_default_account_fail(requests_mock, ig):
     ig_request_set_account(requests_mock, fail=True)
     result = ig.set_default_account("mock")
-    assert result == False
+    assert result is False
 
 
 def test_get_account_balances(requests_mock, ig):
@@ -93,7 +86,7 @@ def test_get_account_balances(requests_mock, ig):
 
 def test_get_account_balances_fail(requests_mock, ig):
     ig_request_account_details(requests_mock, fail=True)
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(RuntimeError):
         balance, deposit = ig.get_account_balances()
 
 
@@ -110,8 +103,8 @@ def test_get_open_positions(ig, requests_mock):
 
 def test_get_open_positions_fail(ig, requests_mock):
     ig_request_open_positions(requests_mock, fail=True)
-    with pytest.raises(RuntimeError) as e:
-        positions = ig.get_open_positions()
+    with pytest.raises(RuntimeError):
+        _ = ig.get_open_positions()
 
 
 def test_get_market_info(ig, requests_mock):
@@ -124,8 +117,8 @@ def test_get_market_info(ig, requests_mock):
 
 def test_get_market_info_fail(ig, requests_mock):
     ig_request_market_info(requests_mock, fail=True)
-    with pytest.raises(RuntimeError) as e:
-        info = ig.get_market_info("mock")
+    with pytest.raises(RuntimeError):
+        _ = ig.get_market_info("mock")
 
 
 def test_search_market(ig, requests_mock):
@@ -141,8 +134,8 @@ def test_search_market(ig, requests_mock):
 
 def test_search_market_fail(ig, requests_mock):
     ig_request_search_market(requests_mock, fail=True)
-    with pytest.raises(RuntimeError) as e:
-        markets = ig.search_market("mock")
+    with pytest.raises(RuntimeError):
+        _ = ig.search_market("mock")
 
 
 def test_get_prices(ig, requests_mock):
@@ -157,8 +150,8 @@ def test_get_prices(ig, requests_mock):
 def test_get_prices_fail(ig, requests_mock):
     ig_request_market_info(requests_mock)
     ig_request_prices(requests_mock, fail=True)
-    with pytest.raises(RuntimeError) as e:
-        p = ig.get_prices(ig.get_market_info("mock"), Interval.HOUR, 10)
+    with pytest.raises(RuntimeError):
+        _ = ig.get_prices(ig.get_market_info("mock"), Interval.HOUR, 10)
 
 
 def test_trade(ig, requests_mock):
@@ -172,7 +165,7 @@ def test_trade_fail(ig, requests_mock):
     ig_request_trade(requests_mock, fail=True)
     ig_request_confirm_trade(requests_mock, fail=True)
     result = ig.trade("mock", TradeDirection.BUY, 0, 0)
-    assert result == False
+    assert result is False
 
 
 def test_confirm_order(ig, requests_mock):
@@ -187,10 +180,10 @@ def test_confirm_order_fail(ig, requests_mock):
         data={"dealId": "123456789", "dealStatus": "REJECTED", "reason": "FAIL"},
     )
     result = ig.confirm_order("123456789")
-    assert result == False
+    assert result is False
 
     ig_request_confirm_trade(requests_mock, fail=True)
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(RuntimeError):
         result = ig.confirm_order("123456789")
 
 
@@ -229,7 +222,7 @@ def test_close_position_fail(ig, requests_mock):
         market_id=None,
     )
     result = ig.close_position(pos)
-    assert result == False
+    assert result is False
 
 
 def test_close_all_positions(ig, requests_mock):
@@ -246,7 +239,7 @@ def test_close_all_positions_fail(ig, requests_mock):
     ig_request_confirm_trade(requests_mock)
 
     result = ig.close_all_positions()
-    assert result == False
+    assert result is False
 
     ig_request_open_positions(requests_mock)
     ig_request_trade(requests_mock)
@@ -256,7 +249,7 @@ def test_close_all_positions_fail(ig, requests_mock):
     )
 
     result = ig.close_all_positions()
-    assert result == False
+    assert result is False
 
 
 def test_get_account_used_perc(ig, requests_mock):
@@ -269,8 +262,8 @@ def test_get_account_used_perc(ig, requests_mock):
 
 def test_get_account_used_perc_fail(ig, requests_mock):
     ig_request_account_details(requests_mock, fail=True)
-    with pytest.raises(RuntimeError) as e:
-        perc = ig.get_account_used_perc()
+    with pytest.raises(RuntimeError):
+        _ = ig.get_account_used_perc()
 
 
 def test_navigate_market_node_nodes(ig, requests_mock):
@@ -287,7 +280,7 @@ def test_navigate_market_node_nodes(ig, requests_mock):
     assert len(data["markets"]) == 0
 
     ig_request_navigate_market(requests_mock, fail=True)
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(RuntimeError):
         data = ig.navigate_market_node("")
 
 

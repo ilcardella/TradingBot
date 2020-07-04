@@ -1,15 +1,6 @@
 import logging
-import os
-import inspect
-import sys
 from collections import deque
 from enum import Enum
-
-currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-parentdir = os.path.dirname(currentdir)
-sys.path.insert(0, parentdir)
-
-from Interfaces.Market import Market
 
 
 class MarketSource(Enum):
@@ -135,7 +126,7 @@ class MarketProvider:
         try:
             epic = next(self.epic_list_iter)
             return self._create_market(epic)
-        except Exception as e:
+        except Exception:
             raise StopIteration
 
     def _load_epic_ids_from_watchlist(self, watchlist_name):
@@ -173,7 +164,7 @@ class MarketProvider:
         # navigate the next node in the stack and return a new list
         try:
             return self._next_from_list()
-        except Exception as e:
+        except Exception:
             self.epic_list = self._load_epic_ids_from_api_node(self.node_stack.pop())
             self.epic_list_iter = iter(self.epic_list)
             return self._next_from_list()
