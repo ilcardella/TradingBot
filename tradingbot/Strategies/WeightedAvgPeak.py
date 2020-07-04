@@ -1,12 +1,13 @@
 import logging
-import numpy
-from numpy import NaN, Inf, arange, isscalar, asarray, array
-from scipy import stats
 import math
 
-from .Strategy import Strategy
-from Components.Utils import Utils, TradeDirection, Interval
+import numpy
+from Components.Utils import Interval, TradeDirection, Utils
 from Interfaces.MarketHistory import MarketHistory
+from numpy import Inf, NaN, arange, array, asarray, isscalar
+from scipy import stats
+
+from .Strategy import Strategy
 
 
 class WeightedAvgPeak(Strategy):

@@ -1,8 +1,7 @@
 import datetime as dt
-import time
 import functools
 import threading
-
+import time
 from abc import abstractmethod
 
 # Mutex used for thread synchronisation

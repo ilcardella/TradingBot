@@ -1,10 +1,11 @@
 import logging
 from enum import Enum
-import yfinance as yf
 
+import yfinance as yf
 from Components.Utils import Interval, Utils
 from Interfaces.MarketHistory import MarketHistory
 from Interfaces.MarketMACD import MarketMACD
+
 from .AbstractInterfaces import StocksInterface
 
 

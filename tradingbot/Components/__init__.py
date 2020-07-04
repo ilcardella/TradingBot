@@ -1,15 +1,8 @@
-from . import (  # noqa
-    Backtester,
-    Configuration,
-    MarketProvider,
-    TimeProvider,
-    Utils,
-)
-
-from .Broker import (  # noqa
+from . import Backtester, Configuration, MarketProvider, TimeProvider, Utils  # NOQA
+from .Broker import Broker  # NOQA
+from .Broker import (  # NOQA
     AbstractInterfaces,
     AVInterface,
-    Broker,
     BrokerFactory,
     IGInterface,
     YFinanceInterface,

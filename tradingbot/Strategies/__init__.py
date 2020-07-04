@@ -1,6 +1,1 @@
-from . import (  # noqa
-    SimpleMACD,
-    Strategy,
-    StrategyFactory,
-    WeightedAvgPeak,
-)
+from . import SimpleMACD, Strategy, StrategyFactory, WeightedAvgPeak  # noqa

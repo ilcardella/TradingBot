@@ -1,6 +1,6 @@
-from enum import Enum
 import json
 import re
+from enum import Enum
 
 from Components.Broker.IGInterface import IG_API_URL
 

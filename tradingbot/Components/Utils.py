@@ -1,6 +1,7 @@
-import threading
 import functools
+import threading
 from enum import Enum
+
 import pandas as pd
 
 

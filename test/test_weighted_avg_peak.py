@@ -1,19 +1,19 @@
-import pytest
 from enum import Enum
 
-from Strategies.WeightedAvgPeak import WeightedAvgPeak
-from Components.Utils import TradeDirection
+import pytest
+from common.MockRequests import (
+    ig_request_confirm_trade,
+    ig_request_login,
+    ig_request_market_info,
+    ig_request_prices,
+    ig_request_set_account,
+    ig_request_trade,
+)
 from Components.Broker.Broker import Broker
 from Components.Broker.BrokerFactory import BrokerFactory
 from Components.Configuration import Configuration
-from common.MockRequests import (
-    ig_request_login,
-    ig_request_set_account,
-    ig_request_market_info,
-    ig_request_prices,
-    ig_request_trade,
-    ig_request_confirm_trade,
-)
+from Components.Utils import TradeDirection
+from Strategies.WeightedAvgPeak import WeightedAvgPeak
 
 
 class Mock_Interval(Enum):

@@ -4,6 +4,7 @@ endif
 .RECIPEPREFIX = >
 
 format:
+> poetry run isort tradingbot test
 > poetry run black tradingbot test
 
 lint:

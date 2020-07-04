@@ -1,14 +1,14 @@
-import requests
 import json
 import logging
 from enum import Enum
 
-
-from Components.Utils import Utils, TradeDirection
+import requests
+from Components.Utils import TradeDirection, Utils
+from Interfaces.Market import Market
 from Interfaces.MarketHistory import MarketHistory
 from Interfaces.MarketMACD import MarketMACD
 from Interfaces.Position import Position
-from Interfaces.Market import Market
+
 from .AbstractInterfaces import AccountInterface, StocksInterface
 
 

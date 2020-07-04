@@ -1,7 +1,7 @@
-from Interfaces.Market import Market
-from Interfaces.MarketMACD import MarketMACD
-from Interfaces.MarketHistory import MarketHistory
 from Components.Utils import Interval
+from Interfaces.Market import Market
+from Interfaces.MarketHistory import MarketHistory
+from Interfaces.MarketMACD import MarketMACD
 
 
 class Broker:

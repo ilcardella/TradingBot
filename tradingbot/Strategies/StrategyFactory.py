@@ -1,8 +1,5 @@
-import os
-import sys
-import inspect
-from enum import Enum
 import logging
+from enum import Enum
 
 from .SimpleMACD import SimpleMACD
 from .WeightedAvgPeak import WeightedAvgPeak

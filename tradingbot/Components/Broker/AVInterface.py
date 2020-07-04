@@ -1,14 +1,14 @@
 import logging
-from enum import Enum
 import sys
 import traceback
+from enum import Enum
 
-from alpha_vantage.timeseries import TimeSeries
 from alpha_vantage.techindicators import TechIndicators
-
+from alpha_vantage.timeseries import TimeSeries
 from Components.Utils import Interval
 from Interfaces.MarketHistory import MarketHistory
 from Interfaces.MarketMACD import MarketMACD
+
 from .AbstractInterfaces import StocksInterface
 
 

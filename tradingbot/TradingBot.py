@@ -1,25 +1,23 @@
+import argparse
 import logging
-import pytz
-import time
-from datetime import datetime as dt
 import os
 import sys
-import inspect
 import traceback
-import argparse
+from datetime import datetime as dt
 
-from Components.Utils import (
-    TradeDirection,
-    NotSafeToTradeException,
-    MarketClosedException,
-)
-from Components.Configuration import Configuration
-from Strategies.StrategyFactory import StrategyFactory
+import pytz
+from Components.Backtester import Backtester
 from Components.Broker.Broker import Broker as BrokerInterface
 from Components.Broker.BrokerFactory import BrokerFactory
+from Components.Configuration import Configuration
 from Components.MarketProvider import MarketProvider
-from Components.Backtester import Backtester
-from Components.TimeProvider import TimeProvider, TimeAmount
+from Components.TimeProvider import TimeAmount, TimeProvider
+from Components.Utils import (
+    MarketClosedException,
+    NotSafeToTradeException,
+    TradeDirection,
+)
+from Strategies.StrategyFactory import StrategyFactory
 
 
 class TradingBot:
