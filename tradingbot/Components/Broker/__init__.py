@@ -1,8 +1,8 @@
-from . import (  # noqa
+from . import BrokerFactory  # NOQA
+from . import (  # NOQA
     AbstractInterfaces,
     AVInterface,
     Broker,
-    BrokerFactory,
     IGInterface,
     YFinanceInterface,
 )

@@ -1,5 +1,4 @@
 import pandas
-
 from Interfaces.Market import Market
 
 

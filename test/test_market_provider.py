@@ -1,16 +1,15 @@
 import pytest
-
-from Components.Configuration import Configuration
-from Components.MarketProvider import MarketProvider
-from Components.Broker.Broker import Broker
-from Components.Broker.BrokerFactory import BrokerFactory
 from common.MockRequests import (
     ig_request_login,
-    ig_request_set_account,
     ig_request_market_info,
     ig_request_search_market,
+    ig_request_set_account,
     ig_request_watchlist,
 )
+from Components.Broker.Broker import Broker
+from Components.Broker.BrokerFactory import BrokerFactory
+from Components.Configuration import Configuration
+from Components.MarketProvider import MarketProvider
 
 
 @pytest.fixture

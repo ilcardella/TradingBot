@@ -1,30 +1,30 @@
-import pytest
 import json
 
-from Components.Configuration import Configuration
-from Components.Broker.Broker import Broker
-from Components.Broker.BrokerFactory import BrokerFactory, InterfaceNames
-from Components.Utils import TradeDirection, Interval
-from Interfaces.Position import Position
-from Interfaces.Market import Market
-from Interfaces.MarketMACD import MarketMACD
-from Interfaces.MarketHistory import MarketHistory
+import pytest
 from common.MockRequests import (
-    ig_request_login,
-    ig_request_set_account,
-    ig_request_account_details,
-    ig_request_open_positions,
-    ig_request_market_info,
-    ig_request_search_market,
-    ig_request_prices,
-    ig_request_trade,
-    ig_request_confirm_trade,
-    ig_request_navigate_market,
-    ig_request_watchlist,
-    av_request_prices,
     av_request_macd_ext,
+    av_request_prices,
+    ig_request_account_details,
+    ig_request_confirm_trade,
+    ig_request_login,
+    ig_request_market_info,
+    ig_request_navigate_market,
+    ig_request_open_positions,
+    ig_request_prices,
+    ig_request_search_market,
+    ig_request_set_account,
+    ig_request_trade,
+    ig_request_watchlist,
     yf_request_prices,
 )
+from Components.Broker.Broker import Broker
+from Components.Broker.BrokerFactory import BrokerFactory, InterfaceNames
+from Components.Configuration import Configuration
+from Components.Utils import Interval, TradeDirection
+from Interfaces.Market import Market
+from Interfaces.MarketHistory import MarketHistory
+from Interfaces.MarketMACD import MarketMACD
+from Interfaces.Position import Position
 
 
 @pytest.fixture(

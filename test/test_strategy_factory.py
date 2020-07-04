@@ -1,8 +1,7 @@
 import pytest
-
 from Components.Configuration import Configuration
-from Strategies.StrategyFactory import StrategyFactory
 from Strategies.SimpleMACD import SimpleMACD
+from Strategies.StrategyFactory import StrategyFactory
 from Strategies.WeightedAvgPeak import WeightedAvgPeak
 
 

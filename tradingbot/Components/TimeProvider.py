@@ -1,8 +1,9 @@
 import logging
 import time
-import pytz
-from enum import Enum
 from datetime import datetime
+from enum import Enum
+
+import pytz
 from govuk_bank_holidays.bank_holidays import BankHolidays
 
 from .Utils import Utils

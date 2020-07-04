@@ -1,12 +1,10 @@
 import logging
+
 import numpy as np
-import os
-import inspect
-import sys
+from Components.Utils import Interval, TradeDirection, Utils
+from Interfaces.MarketMACD import MarketMACD
 
 from .Strategy import Strategy
-from Components.Utils import Utils, TradeDirection, Interval
-from Interfaces.MarketMACD import MarketMACD
 
 
 class SimpleMACD(Strategy):

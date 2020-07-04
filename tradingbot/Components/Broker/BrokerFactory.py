@@ -1,7 +1,7 @@
 from enum import Enum
 
-from .IGInterface import IGInterface
 from .AVInterface import AVInterface
+from .IGInterface import IGInterface
 from .YFinanceInterface import YFinanceInterface
 
 
