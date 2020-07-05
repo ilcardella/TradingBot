@@ -22,10 +22,10 @@ class TimeProvider:
     such as wait, sleep or compute date/time operations
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         logging.debug("TimeProvider __init__")
 
-    def is_market_open(self, timezone):
+    def is_market_open(self, timezone: str) -> bool:
         """
         Return True if the market is open, false otherwise
 
@@ -37,7 +37,7 @@ class TimeProvider:
             str(now_time), ("07:55", "16:35")
         )
 
-    def get_seconds_to_market_opening(self, from_time):
+    def get_seconds_to_market_opening(self, from_time: datetime) -> int:
         """Return the amount of seconds from now to the next market opening,
         taking into account UK bank holidays and weekends"""
         today_opening = datetime(
@@ -67,7 +67,7 @@ class TimeProvider:
         # Calculate the delta from from_time to the next market opening
         return (nextMarketOpening - from_time).total_seconds()
 
-    def wait_for(self, time_amount_type, amount=-1):
+    def wait_for(self, time_amount_type: TimeAmount, amount: int = -1) -> None:
         """Wait for the specified amount of time.
         An TimeAmount type can be specified
         """

@@ -1,7 +1,18 @@
 import logging
 from abc import ABC, abstractmethod
+from datetime import datetime
+from typing import Any, Dict, List, Tuple, TypeVar, Union
 
+from Components.Broker.Broker import Broker
+from Components.Configuration import Configuration
 from Components.Utils import TradeDirection
+from Interfaces.Market import Market
+from Interfaces.Position import Position
+
+DataPoints = Any
+BacktestResult = Dict[str, Union[float, List[Tuple[str, TradeDirection, float]]]]
+TradeSignal = Tuple[TradeDirection, float, float]
+StrategyImpl = TypeVar("StrategyImpl", bound="Strategy")
 
 
 class Strategy(ABC):
@@ -9,7 +20,7 @@ class Strategy(ABC):
     Generic strategy template to use as a parent class for custom strategies.
     """
 
-    def __init__(self, config, broker):
+    def __init__(self, config: Configuration, broker: Broker) -> None:
         self.positions = None
         self.broker = broker
         # Read configuration of derived Strategy
@@ -17,13 +28,13 @@ class Strategy(ABC):
         # Initialise derived Strategy
         self.initialise()
 
-    def set_open_positions(self, positions):
+    def set_open_positions(self, positions: List[Position]) -> None:
         """
         Set the account open positions
         """
         self.positions = positions
 
-    def run(self, market):
+    def run(self, market: Market) -> Tuple[TradeDirection, float, float]:
         """
         Run the strategy against the specified market
         """
@@ -39,21 +50,23 @@ class Strategy(ABC):
     #############################################################
 
     @abstractmethod
-    def initialise(self):
+    def initialise(self) -> None:
         pass
 
     @abstractmethod
-    def read_configuration(self, config):
+    def read_configuration(self, config: Configuration) -> None:
         pass
 
     @abstractmethod
-    def fetch_datapoints(self, market):
+    def fetch_datapoints(self, market: Market) -> DataPoints:
         pass
 
     @abstractmethod
-    def find_trade_signal(self, epic_id, prices):
+    def find_trade_signal(self, market: Market, datapoints: DataPoints) -> TradeSignal:
         pass
 
     @abstractmethod
-    def backtest(self, market, start_date, end_date):
+    def backtest(
+        self, market: Market, start_date: datetime, end_date: datetime
+    ) -> BacktestResult:
         pass

@@ -28,6 +28,11 @@ build:
 docker:
 > docker build -t tradingbot -f docker/Dockerfile .
 
-ci: install lint test docs build install-system
+ci: install check docs build install-system docker
 
-.PHONY: test lint format install docs build docker install-system ci
+check: format lint mypy test
+
+mypy:
+> poetry run mypy tradingbot
+
+.PHONY: test lint format install docs build docker install-system ci check mypy
