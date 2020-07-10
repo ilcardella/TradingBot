@@ -1,11 +1,12 @@
 import json
 import logging
-from typing import Dict, List, Union
+from typing import Any, Dict, List, Union
 
 DEFAULT_CONFIGURATION_PATH = "/opt/TradingBot/config/config.json"
 CONFIGURATION_ROOT = "trading_mate_root"
 
-Property = Union[int, float, str, bool]
+# FIXME Property should be of type JSON byt it requires typing to accepts recursive types
+Property = Any
 CredentialDict = Dict[str, str]
 
 

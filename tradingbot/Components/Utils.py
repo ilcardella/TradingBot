@@ -1,7 +1,7 @@
 import functools
 import threading
 from enum import Enum
-from typing import List, Tuple, Union
+from typing import Any, Dict, List, Tuple, Union
 
 import pandas
 
@@ -50,27 +50,16 @@ class NotSafeToTradeException(Exception):
     pass
 
 
-class Singleton(type):
-    """Metaclass to implement the Singleton desing pattern"""
-
-    _instances = {}
-
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super().__call__(*args, **kwargs)
-        return cls._instances[cls]
-
-
 # Mutex used for thread synchronisation
-lock = threading.Lock()
+lock: threading.Lock = threading.Lock()
 
 
-def synchronised(lock):
+def synchronised(lock: threading.Lock) -> Any:
     """ Thread synchronization decorator """
 
-    def wrapper(f):
+    def wrapper(f: Any) -> Any:
         @functools.wraps(f)
-        def inner_wrapper(*args, **kw):
+        def inner_wrapper(*args: Any, **kw: Any) -> Any:
             with lock:
                 return f(*args, **kw)
 
@@ -82,10 +71,21 @@ def synchronised(lock):
 class SynchSingleton(type):
     """Metaclass to implement the Singleton desing pattern"""
 
-    _instances = {}
+    _instances: Dict[Any, Any] = {}
 
     @synchronised(lock)
-    def __call__(cls, *args, **kwargs):
+    def __call__(cls, *args: Any, **kwargs: Any) -> Any:
+        if cls not in cls._instances:
+            cls._instances[cls] = super().__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+
+class Singleton(type):
+    """Metaclass to implement the Singleton desing pattern"""
+
+    _instances: Dict[Any, Any] = {}
+
+    def __call__(cls, *args: Any, **kwargs: Any) -> Any:
         if cls not in cls._instances:
             cls._instances[cls] = super().__call__(*args, **kwargs)
         return cls._instances[cls]

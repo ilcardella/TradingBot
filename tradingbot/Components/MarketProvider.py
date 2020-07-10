@@ -1,7 +1,7 @@
 import logging
 from collections import deque
 from enum import Enum
-from typing import List, Optional
+from typing import Deque, Iterator, List, Optional
 
 from Components.Broker import Broker
 from Components.Configuration import Configuration
@@ -24,6 +24,12 @@ class MarketProvider:
     Provide markets from different sources based on configuration. Supports
     market lists, dynamic market exploration or watchlists
     """
+
+    config: Configuration
+    broker: Broker
+    epic_list: List[str] = []
+    epic_list_iter: Iterator[str]
+    node_stack: Deque[str]
 
     def __init__(self, config: Configuration, broker: Broker) -> None:
         self.config = config
@@ -86,7 +92,7 @@ class MarketProvider:
     def _initialise(self) -> None:
         # Initialise epic list
         self.epic_list = []
-        self.epic_list_iter = None
+        self.epic_list_iter = iter([])
         # Initialise API members
         self.node_stack = deque()
 

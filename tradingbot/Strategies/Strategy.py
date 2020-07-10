@@ -1,7 +1,7 @@
 import logging
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import Any, Dict, List, Tuple, TypeVar, Union
+from typing import Any, Dict, List, Optional, Tuple, TypeVar, Union
 
 from Components.Broker.Broker import Broker
 from Components.Configuration import Configuration
@@ -11,7 +11,7 @@ from Interfaces.Position import Position
 
 DataPoints = Any
 BacktestResult = Dict[str, Union[float, List[Tuple[str, TradeDirection, float]]]]
-TradeSignal = Tuple[TradeDirection, float, float]
+TradeSignal = Tuple[TradeDirection, Optional[float], Optional[float]]
 StrategyImpl = TypeVar("StrategyImpl", bound="Strategy")
 
 
@@ -19,6 +19,9 @@ class Strategy(ABC):
     """
     Generic strategy template to use as a parent class for custom strategies.
     """
+
+    positions: Optional[List[Position]] = None
+    broker: Broker
 
     def __init__(self, config: Configuration, broker: Broker) -> None:
         self.positions = None
@@ -34,7 +37,7 @@ class Strategy(ABC):
         """
         self.positions = positions
 
-    def run(self, market: Market) -> Tuple[TradeDirection, float, float]:
+    def run(self, market: Market) -> TradeSignal:
         """
         Run the strategy against the specified market
         """
