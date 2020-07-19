@@ -2,7 +2,7 @@ import json
 import re
 from enum import Enum
 
-from Components.Broker.IGInterface import IG_API_URL
+from tradingbot.Components.Broker.IGInterface import IG_API_URL
 
 # Set global variables used in fixtures
 TEST_DATA_IG = "test/test_data/ig"

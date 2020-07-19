@@ -1,23 +1,29 @@
+from typing import List
+
 import pandas
-from Interfaces.Market import Market
+
+from .Market import Market
 
 
 class MarketHistory:
-    DATE_COLUMN = "date"
-    HIGH_COLUMN = "high"
-    LOW_COLUMN = "low"
-    CLOSE_COLUMN = "close"
-    VOLUME_COLUMN = "volume"
+    DATE_COLUMN: str = "date"
+    HIGH_COLUMN: str = "high"
+    LOW_COLUMN: str = "low"
+    CLOSE_COLUMN: str = "close"
+    VOLUME_COLUMN: str = "volume"
+
+    market: Market
+    dataframe: pandas.DataFrame
 
     def __init__(
         self,
         market: Market,
-        date: list,
-        high: list,
-        low: list,
-        close: list,
-        volume: list,
-    ):
+        date: List[str],
+        high: List[float],
+        low: List[float],
+        close: List[float],
+        volume: List[float],
+    ) -> None:
         self.market = market
         self.dataframe = pandas.DataFrame(
             columns=[

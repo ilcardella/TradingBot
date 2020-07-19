@@ -2,14 +2,19 @@ import logging
 import sys
 import traceback
 from enum import Enum
+from typing import Dict, Optional, Union
 
+import pandas
 from alpha_vantage.techindicators import TechIndicators
 from alpha_vantage.timeseries import TimeSeries
-from Components.Utils import Interval
-from Interfaces.MarketHistory import MarketHistory
-from Interfaces.MarketMACD import MarketMACD
 
+from ...Interfaces.Market import Market
+from ...Interfaces.MarketHistory import MarketHistory
+from ...Interfaces.MarketMACD import MarketMACD
+from ..Utils import Interval
 from .AbstractInterfaces import StocksInterface
+
+AVReturnType = Dict[str, Union[str, int, float]]
 
 
 class AVInterval(Enum):
@@ -33,7 +38,7 @@ class AVInterface(StocksInterface):
     and return the result in useful format handling possible errors.
     """
 
-    def initialise(self):
+    def initialise(self) -> None:
         logging.info("Initialising AVInterface...")
         api_key = self._config.get_credentials()["av_api_key"]
         self.TS = TimeSeries(
@@ -43,7 +48,7 @@ class AVInterface(StocksInterface):
             key=api_key, output_format="pandas", treat_info_as_error=True
         )
 
-    def _to_av_interval(self, interval):
+    def _to_av_interval(self, interval: Interval) -> AVInterval:
         """
         Convert the Broker Interval to AlphaVantage compatible intervals.
         Return the converted interval or None if a conversion is not available
@@ -72,7 +77,9 @@ class AVInterface(StocksInterface):
             )
             raise ValueError("Unsupported Interval value: {}".format(interval))
 
-    def get_prices(self, market, interval, data_range):
+    def get_prices(
+        self, market: Market, interval: Interval, data_range: int
+    ) -> MarketHistory:
         data = None
         av_interval = self._to_av_interval(interval)
         if (
@@ -100,7 +107,7 @@ class AVInterface(StocksInterface):
         )
         return history
 
-    def daily(self, marketId):
+    def daily(self, marketId: str) -> AVReturnType:
         """
         Calls AlphaVantage API and return the Daily time series for the given market
 
@@ -120,7 +127,7 @@ class AVInterface(StocksInterface):
             logging.debug(sys.exc_info()[0])
         return None
 
-    def intraday(self, marketId, interval):
+    def intraday(self, marketId: str, interval: AVInterval) -> AVReturnType:
         """
         Calls AlphaVantage API and return the Intraday time series for the given market
 
@@ -142,7 +149,7 @@ class AVInterface(StocksInterface):
             logging.debug(sys.exc_info()[0])
         return None
 
-    def weekly(self, marketId):
+    def weekly(self, marketId: str) -> AVReturnType:
         """
         Calls AlphaVantage API and return the Weekly time series for the given market
 
@@ -161,7 +168,7 @@ class AVInterface(StocksInterface):
             logging.debug(sys.exc_info()[0])
         return None
 
-    def quote_endpoint(self, market_id):
+    def quote_endpoint(self, market_id: str) -> AVReturnType:
         """
         Calls AlphaVantage API and return the Quote Endpoint data for the given market
 
@@ -181,7 +188,9 @@ class AVInterface(StocksInterface):
 
     # Technical indicators
 
-    def get_macd(self, market, interval, datapoints_range):
+    def get_macd(
+        self, market: Market, interval: Interval, datapoints_range: int
+    ) -> MarketMACD:
         av_interval = self._to_av_interval(interval)
         data = self.macdext(market.id, av_interval)
         print(data)
@@ -194,7 +203,9 @@ class AVInterface(StocksInterface):
         )
         return macd
 
-    def macdext(self, marketId, interval):
+    def macdext(
+        self, marketId: str, interval: AVInterval
+    ) -> Optional[pandas.DataFrame]:
         """
         Calls AlphaVantage API and return the MACDEXT tech indicator series for the given market
 
@@ -224,7 +235,7 @@ class AVInterface(StocksInterface):
             logging.debug(sys.exc_info()[0])
         return None
 
-    def macd(self, marketId, interval):
+    def macd(self, marketId: str, interval: AVInterval) -> Optional[pandas.DataFrame]:
         """
         Calls AlphaVantage API and return the MACDEXT tech indicator series for the given market
 
@@ -253,7 +264,7 @@ class AVInterface(StocksInterface):
 
     # Utils functions
 
-    def _format_market_id(self, marketId):
+    def _format_market_id(self, marketId: str) -> str:
         """
         Convert a standard market id to be compatible with AlphaVantage API.
         Adds the market exchange prefix (i.e. London is LON:)

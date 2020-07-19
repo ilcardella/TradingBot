@@ -1,8 +1,9 @@
 import pytest
-from Components.Configuration import Configuration
-from Strategies.SimpleMACD import SimpleMACD
-from Strategies.StrategyFactory import StrategyFactory
-from Strategies.WeightedAvgPeak import WeightedAvgPeak
+
+from tradingbot.Components.Configuration import Configuration
+from tradingbot.Strategies.SimpleMACD import SimpleMACD
+from tradingbot.Strategies.StrategyFactory import StrategyFactory
+from tradingbot.Strategies.WeightedAvgPeak import WeightedAvgPeak
 
 
 @pytest.fixture

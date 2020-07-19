@@ -1,16 +1,27 @@
+from typing import List
+
 import pandas
-from Interfaces.Market import Market
+
+from .Market import Market
 
 
 class MarketMACD:
-    DATE_COLUMN = "Date"
-    MACD_COLUMN = "MACD"
-    SIGNAL_COLUMN = "Signal"
-    HIST_COLUMN = "Hist"
+    DATE_COLUMN: str = "Date"
+    MACD_COLUMN: str = "MACD"
+    SIGNAL_COLUMN: str = "Signal"
+    HIST_COLUMN: str = "Hist"
+
+    market: Market
+    dataframe: pandas.DataFrame
 
     def __init__(
-        self, market: Market, date: list, macd: list, signal: list, hist: list
-    ):
+        self,
+        market: Market,
+        date: List[str],
+        macd: List[float],
+        signal: List[float],
+        hist: List[float],
+    ) -> None:
         self.market = market
         self.dataframe = pandas.DataFrame(
             columns=[

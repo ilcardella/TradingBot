@@ -1,5 +1,22 @@
+from typing import Any
+
+from ..Components.Utils import TradeDirection
+
+
 class Position:
-    def __init__(self, **kargs):
+
+    deal_id: str
+    size: int
+    create_date: str
+    direction: TradeDirection
+    level: float
+    limit: float
+    stop: float
+    currency: str
+    epic: str
+    market_id: str
+
+    def __init__(self, **kargs: Any) -> None:
         self.deal_id = kargs["deal_id"]
         self.size = kargs["size"]
         self.create_date = kargs["create_date"]

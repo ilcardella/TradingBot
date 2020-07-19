@@ -1,47 +1,26 @@
 import datetime as dt
-import functools
-import threading
 import time
 from abc import abstractmethod
+from typing import Dict, List, Optional, Tuple
 
-# Mutex used for thread synchronisation
-lock = threading.Lock()
+from ...Interfaces.Market import Market
+from ...Interfaces.MarketHistory import MarketHistory
+from ...Interfaces.MarketMACD import MarketMACD
+from ...Interfaces.Position import Position
+from ..Configuration import Configuration
+from ..Utils import Interval, SynchSingleton, TradeDirection
 
-
-def synchronised(lock):
-    """ Thread synchronization decorator """
-
-    def wrapper(f):
-        @functools.wraps(f)
-        def inner_wrapper(*args, **kw):
-            with lock:
-                return f(*args, **kw)
-
-        return inner_wrapper
-
-    return wrapper
-
-
-class Singleton(type):
-    """Metaclass to implement the Singleton desing pattern"""
-
-    _instances = {}
-
-    @synchronised(lock)
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
+AccountBalances = Tuple[Optional[float], Optional[float]]
 
 
 # TODO ABC can't be used anymore as base class if we define the metaclass
-class AbstractInterface(metaclass=Singleton):
-    def __init__(self, config):
+class AbstractInterface(metaclass=SynchSingleton):
+    def __init__(self, config: Configuration) -> None:
         self._config = config
         self._last_call_ts = dt.datetime.now()
         self.initialise()
 
-    def _wait_before_call(self, timeout: float):
+    def _wait_before_call(self, timeout: float) -> None:
         """
         Wait between API calls to not overload the server
         """
@@ -52,83 +31,89 @@ class AbstractInterface(metaclass=Singleton):
 
 class AccountInterface(AbstractInterface):
     # This MUST not be overwritten. Use the "initialise()" to init a children interface
-    def __init__(self, config):
+    def __init__(self, config: Configuration) -> None:
         super().__init__(config)
 
     @abstractmethod
-    def initialise(self):
+    def initialise(self) -> None:
         pass
 
     @abstractmethod
-    def authenticate(self):
+    def authenticate(self) -> bool:
         pass
 
     @abstractmethod
-    def set_default_account(self, account_id):
+    def set_default_account(self, account_id: str) -> bool:
         pass
 
     @abstractmethod
-    def get_account_balances(self):
+    def get_account_balances(self) -> AccountBalances:
         pass
 
     @abstractmethod
-    def get_open_positions(self):
+    def get_open_positions(self) -> List[Position]:
         pass
 
     @abstractmethod
-    def get_positions_map(self):
+    def get_positions_map(self) -> Dict[str, int]:
         pass
 
     @abstractmethod
-    def get_market_info(self, market_ticker):
+    def get_market_info(self, market_ticker: str) -> Market:
         pass
 
     @abstractmethod
-    def search_market(self, search_string):
+    def search_market(self, search_string: str) -> List[Market]:
         pass
 
     @abstractmethod
-    def trade(self, ticker, direction, limit, stop):
+    def trade(
+        self, ticker: str, direction: TradeDirection, limit: float, stop: float
+    ) -> bool:
         pass
 
     @abstractmethod
-    def close_position(self, position):
+    def close_position(self, position: Position) -> bool:
         pass
 
     @abstractmethod
-    def close_all_positions(self):
+    def close_all_positions(self) -> bool:
         pass
 
     @abstractmethod
-    def get_account_used_perc(self):
+    def get_account_used_perc(self) -> Optional[float]:
         pass
 
     @abstractmethod
-    def get_markets_from_watchlist(self, watchlist_id):
+    def get_markets_from_watchlist(self, watchlist_id: str) -> List[Market]:
         pass
 
     # No need to override this
-    def _wait_before_call(self, timeout: float):
+    def _wait_before_call(self, timeout: float) -> None:
         super()._wait_before_call(timeout)
 
 
 class StocksInterface(AbstractInterface):
     # This MUST not be overwritten. Use the "initialise()" to init a children interface
-    def __init__(self, config):
+    def __init__(self, config: Configuration) -> None:
         super().__init__(config)
 
     @abstractmethod
-    def initialise(self):
+    def initialise(self) -> None:
         pass
 
     @abstractmethod
-    def get_prices(self, market, interval, data_range):
+    def get_prices(
+        self, market: Market, interval: Interval, data_range: int
+    ) -> MarketHistory:
         pass
 
     @abstractmethod
-    def get_macd(self, market, interval, data_range):
+    def get_macd(
+        self, market: Market, interval: Interval, data_range: int
+    ) -> MarketMACD:
         pass
 
     # No need to override this
-    def _wait_before_call(self, timeout: float):
+    def _wait_before_call(self, timeout: float) -> None:
         super()._wait_before_call(timeout)

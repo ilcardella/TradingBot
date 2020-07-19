@@ -1,13 +1,18 @@
 import logging
 import math
+from datetime import datetime
+from typing import Optional, Tuple
 
 import numpy
-from Components.Utils import Interval, TradeDirection, Utils
-from Interfaces.MarketHistory import MarketHistory
 from numpy import Inf, NaN, arange, array, asarray, isscalar
 from scipy import stats
 
-from .Strategy import Strategy
+from ..Components.Broker import Broker
+from ..Components.Configuration import Configuration
+from ..Components.Utils import Interval, TradeDirection, Utils
+from ..Interfaces.Market import Market
+from ..Interfaces.MarketHistory import MarketHistory
+from .Strategy import BacktestResult, Strategy, TradeSignal
 
 
 class WeightedAvgPeak(Strategy):
@@ -15,11 +20,11 @@ class WeightedAvgPeak(Strategy):
     All credits of this strategy goes to GitHub user @tg12.
     """
 
-    def __init__(self, config, broker):
+    def __init__(self, config: Configuration, broker: Broker) -> None:
         super().__init__(config, broker)
         logging.info("Weighted Average Peak strategy initialised.")
 
-    def read_configuration(self, config):
+    def read_configuration(self, config: Configuration) -> None:
         """
         Read the json configuration
         """
@@ -35,19 +40,21 @@ class WeightedAvgPeak(Strategy):
         self.ce_multiplier = 2
         self.greed_indicator = 99999
 
-    def initialise(self):
+    def initialise(self) -> None:
         """
         Initialise the strategy
         """
         pass
 
-    def fetch_datapoints(self, market):
+    def fetch_datapoints(self, market: Market) -> MarketHistory:
         """
         Fetch weekly prices of past 18 weeks
         """
         return self.broker.get_prices(market, Interval.WEEK, 18)
 
-    def find_trade_signal(self, market, datapoints):
+    def find_trade_signal(
+        self, market: Market, datapoints: MarketHistory
+    ) -> TradeSignal:
         """
         TODO add description of strategy key points
         """
@@ -204,7 +211,12 @@ class WeightedAvgPeak(Strategy):
             return TradeDirection.NONE, None, None
         return trade_direction, pip_limit, stop_pips
 
-    def calculate_stop_loss(self, close_prices, high_prices, low_prices):
+    def calculate_stop_loss(
+        self,
+        close_prices: numpy.ndarray,
+        high_prices: numpy.ndarray,
+        low_prices: numpy.ndarray,
+    ) -> str:
         price_ranges = []
         closing_prices = []
         first_time_round_loop = True
@@ -262,7 +274,9 @@ class WeightedAvgPeak(Strategy):
 
         return str(int(float(max(TR_prices))))
 
-    def weighted_avg_and_std(self, values, weights):
+    def weighted_avg_and_std(
+        self, values: numpy.ndarray, weights: numpy.ndarray
+    ) -> Tuple[Tuple[float, float], float]:
         """
         Return the weighted average and standard deviation.
 
@@ -272,7 +286,9 @@ class WeightedAvgPeak(Strategy):
         variance = numpy.average((values - average) ** 2, weights=weights)
         return (average, math.sqrt(variance))
 
-    def peakdet(self, v, delta, x=None):
+    def peakdet(
+        self, v: numpy.ndarray, delta: float, x: Optional[numpy.ndarray] = None
+    ) -> Tuple[Optional[numpy.ndarray], Optional[numpy.ndarray]]:
         """
         Converted from MATLAB script at http://billauer.co.il/peakdet.html
 
@@ -346,7 +362,9 @@ class WeightedAvgPeak(Strategy):
 
         return array(maxtab), array(mintab)
 
-    def Chandelier_Exit_formula(self, TRADE_DIR, ATR, Price):
+    def Chandelier_Exit_formula(
+        self, TRADE_DIR: TradeDirection, ATR: str, Price: float
+    ) -> float:
         # Chandelier Exit (long) = 22-day High - ATR(22) x 3
         # Chandelier Exit (short) = 22-day Low + ATR(22) x 3
         if TRADE_DIR is TradeDirection.BUY:
@@ -354,7 +372,9 @@ class WeightedAvgPeak(Strategy):
         elif TRADE_DIR is TradeDirection.SELL:
             return float(Price) + float(ATR) * int(self.ce_multiplier)
 
-    def backtest(self, market, start_date, end_date):
+    def backtest(
+        self, market: Market, start_date: datetime, end_date: datetime
+    ) -> BacktestResult:
         """Backtest the strategy
             """
         # TODO

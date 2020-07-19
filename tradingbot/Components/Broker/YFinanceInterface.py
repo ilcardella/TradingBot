@@ -2,10 +2,11 @@ import logging
 from enum import Enum
 
 import yfinance as yf
-from Components.Utils import Interval, Utils
-from Interfaces.MarketHistory import MarketHistory
-from Interfaces.MarketMACD import MarketMACD
 
+from ...Interfaces.Market import Market
+from ...Interfaces.MarketHistory import MarketHistory
+from ...Interfaces.MarketMACD import MarketMACD
+from ..Utils import Interval, Utils
 from .AbstractInterfaces import StocksInterface
 
 
@@ -26,10 +27,12 @@ class YFInterval(Enum):
 
 
 class YFinanceInterface(StocksInterface):
-    def initialise(self):
+    def initialise(self) -> None:
         logging.info("Initialising YFinanceInterface...")
 
-    def get_prices(self, market, interval, data_range):
+    def get_prices(
+        self, market: Market, interval: Interval, data_range: int
+    ) -> MarketHistory:
         self._wait_before_call(self._config.get_yfinance_api_timeout())
 
         ticker = yf.Ticker(self._format_market_id(market.id))
@@ -49,7 +52,9 @@ class YFinanceInterface(StocksInterface):
         )
         return history
 
-    def get_macd(self, market, interval, data_range):
+    def get_macd(
+        self, market: Market, interval: Interval, data_range: int
+    ) -> MarketMACD:
         self._wait_before_call(self._config.get_yfinance_api_timeout())
         # Fetch prices with at least 26 data points
         prices = self.get_prices(market, interval, 30)
@@ -65,7 +70,7 @@ class YFinanceInterface(StocksInterface):
             data["Hist"].values,
         )
 
-    def _format_market_id(self, market_id) -> str:
+    def _format_market_id(self, market_id: str) -> str:
         market_id = market_id.replace("-UK", "")
         return "{}.L".format(market_id)
 

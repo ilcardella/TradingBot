@@ -1,23 +1,25 @@
-import argparse
 import logging
 import os
-import sys
 import traceback
 from datetime import datetime as dt
+from typing import List, Optional
 
 import pytz
-from Components.Backtester import Backtester
-from Components.Broker.Broker import Broker as BrokerInterface
-from Components.Broker.BrokerFactory import BrokerFactory
-from Components.Configuration import Configuration
-from Components.MarketProvider import MarketProvider
-from Components.TimeProvider import TimeAmount, TimeProvider
-from Components.Utils import (
+
+from .Components.Backtester import Backtester
+from .Components.Broker.Broker import Broker as BrokerInterface
+from .Components.Broker.BrokerFactory import BrokerFactory
+from .Components.Configuration import Configuration
+from .Components.MarketProvider import MarketProvider
+from .Components.TimeProvider import TimeAmount, TimeProvider
+from .Components.Utils import (
     MarketClosedException,
     NotSafeToTradeException,
     TradeDirection,
 )
-from Strategies.StrategyFactory import StrategyFactory
+from .Interfaces.Market import Market
+from .Interfaces.Position import Position
+from .Strategies.StrategyFactory import StrategyFactory
 
 
 class TradingBot:
@@ -26,7 +28,11 @@ class TradingBot:
     broker interface, the strategy or the epic_ids list
     """
 
-    def __init__(self, time_provider=None, config_filepath=None):
+    def __init__(
+        self,
+        time_provider: Optional[TimeProvider] = None,
+        config_filepath: Optional[str] = None,
+    ) -> None:
         # Time manager
         self.time_provider = time_provider if time_provider else TimeProvider()
         # Set timezone
@@ -50,7 +56,7 @@ class TradingBot:
         # Create the market provider
         self.market_provider = MarketProvider(self.config, self.broker)
 
-    def setup_logging(self):
+    def setup_logging(self) -> None:
         """
         Setup the global logging settings
         """
@@ -79,7 +85,7 @@ class TradingBot:
                 level=debugLevel, format="[%(asctime)s] %(levelname)s: %(message)s"
             )
 
-    def start(self):
+    def start(self) -> None:
         """
         Starts the TradingBot main loop
         - process open positions
@@ -113,7 +119,7 @@ class TradingBot:
                 logging.error(traceback.format_exc())
                 continue
 
-    def process_open_positions(self):
+    def process_open_positions(self) -> None:
         """
         Fetch open positions markets and run the strategy against them closing the
         trades if required
@@ -127,7 +133,7 @@ class TradingBot:
             market = self.market_provider.get_market_from_epic(epic)
             self.process_market(market, positions)
 
-    def process_market_source(self):
+    def process_market_source(self) -> None:
         """
         Process markets from the configured market source
         """
@@ -139,7 +145,7 @@ class TradingBot:
                 raise RuntimeError("Unable to fetch open positions")
             self.process_market(market, positions)
 
-    def process_market(self, market, open_positions):
+    def process_market(self, market: Market, open_positions: List[Position]) -> None:
         """Spin the strategy on all the markets"""
         self.safety_checks()
         logging.info("Processing {}".format(market.id))
@@ -152,7 +158,7 @@ class TradingBot:
             logging.error(traceback.format_exc())
             return
 
-    def close_open_positions(self):
+    def close_open_positions(self) -> None:
         """
         Closes all the open positions in the account
         """
@@ -162,7 +168,7 @@ class TradingBot:
         else:
             logging.error("Impossible to close all open positions, retry.")
 
-    def safety_checks(self):
+    def safety_checks(self) -> None:
         """
         Perform some safety checks before running the strategy against the next market
 
@@ -182,35 +188,44 @@ class TradingBot:
         if not self.time_provider.is_market_open(self.config.get_time_zone()):
             raise MarketClosedException()
 
-    def process_trade(self, market, direction, limit, stop, open_positions):
+    def process_trade(
+        self,
+        market: Market,
+        direction: TradeDirection,
+        limit: float,
+        stop: float,
+        open_positions: List[Position],
+    ) -> None:
         """
         Process a trade checking if it is a "close position" trade or a new trade
         """
         # Perform trade only if required
-        if direction is not TradeDirection.NONE:
-            if open_positions is not None:
-                for item in open_positions["positions"]:
-                    # If a same direction trade already exist, don't trade
-                    if (
-                        item["market"]["epic"] == market.epic
-                        and direction.name == item["position"]["direction"]
-                    ):
-                        logging.info(
-                            "There is already an open position for this epic, skip trade"
-                        )
-                        return
-                    # If a trade in opposite direction exist, close the position
-                    elif (
-                        item["market"]["epic"] == market.epic
-                        and direction.name != item["position"]["direction"]
-                    ):
-                        self.broker.close_position(item)
-                        return
-                self.broker.trade(market.epic, direction, limit, stop)
-            else:
-                logging.error("Unable to fetch open positions! Avoid trading this epic")
+        if direction is TradeDirection.NONE:
+            return
 
-    def backtest(self, market_id, start_date, end_date, epic_id=None):
+        if len(open_positions) > 0:
+            for item in open_positions:
+                # If a same direction trade already exist, don't trade
+                if item.epic == market.epic and direction is item.direction:
+                    logging.info(
+                        "There is already an open position for this epic, skip trade"
+                    )
+                    return
+                # If a trade in opposite direction exist, close the position
+                elif item.epic == market.epic and direction is not item.direction:
+                    self.broker.close_position(item)
+                    return
+            self.broker.trade(market.epic, direction, limit, stop)
+        else:
+            logging.error("Unable to fetch open positions! Avoid trading this epic")
+
+    def backtest(
+        self,
+        market_id: str,
+        start_date: str,
+        end_date: str,
+        epic_id: Optional[str] = None,
+    ) -> None:
         """
         Backtest a market using the configured strategy
         """
@@ -236,64 +251,3 @@ class TradingBot:
 
         bt.start(market, start, end)
         bt.print_results()
-
-
-def get_menu_parser():
-    # TODO use pip for version
-    VERSION = "1.2.0"
-    parser = argparse.ArgumentParser(prog="TradingBot")
-    main_group = parser.add_mutually_exclusive_group()
-    main_group.add_argument(
-        "-v", "--version", action="version", version="%(prog)s {}".format(VERSION)
-    )
-    main_group.add_argument(
-        "-c",
-        "--close-positions",
-        help="Close all the open positions",
-        action="store_true",
-    )
-    backtest_group = parser.add_argument_group("Backtesting")
-    backtest_group.add_argument(
-        "--backtest",
-        help="Backtest the market related to the specified id",
-        nargs=1,
-        metavar="MARKET_ID",
-    )
-    backtest_group.add_argument(
-        "--epic",
-        help="IG epic of the market to backtest. MARKET_ID will be ignored",
-        nargs=1,
-        metavar="EPIC_ID",
-        default=None,
-    )
-    backtest_group.add_argument(
-        "--start",
-        help="Start date for the strategy backtest",
-        nargs=1,
-        metavar="YYYY-MM-DD",
-        required="--backtest" in sys.argv,
-    )
-    backtest_group.add_argument(
-        "--end",
-        help="End date for the strategy backtest",
-        nargs=1,
-        metavar="YYYY-MM-DD",
-        required="--backtest" in sys.argv,
-    )
-    return parser.parse_args()
-
-
-def main():
-    tp = TimeProvider()
-    args = get_menu_parser()
-    if args.close_positions:
-        TradingBot(tp).close_open_positions()
-    elif args.backtest and args.start and args.end:
-        epic = args.epic[0] if args.epic else None
-        TradingBot(tp).backtest(args.backtest[0], args.start[0], args.end[0], epic)
-    else:
-        TradingBot(tp).start()
-
-
-if __name__ == "__main__":
-    main()

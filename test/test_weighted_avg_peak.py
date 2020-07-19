@@ -1,5 +1,3 @@
-from enum import Enum
-
 import pytest
 from common.MockRequests import (
     ig_request_confirm_trade,
@@ -9,15 +7,12 @@ from common.MockRequests import (
     ig_request_set_account,
     ig_request_trade,
 )
-from Components.Broker.Broker import Broker
-from Components.Broker.BrokerFactory import BrokerFactory
-from Components.Configuration import Configuration
-from Components.Utils import TradeDirection
-from Strategies.WeightedAvgPeak import WeightedAvgPeak
 
-
-class Mock_Interval(Enum):
-    MOCK = "mock"
+from tradingbot.Components.Broker.Broker import Broker
+from tradingbot.Components.Broker.BrokerFactory import BrokerFactory
+from tradingbot.Components.Configuration import Configuration
+from tradingbot.Components.Utils import TradeDirection
+from tradingbot.Strategies.WeightedAvgPeak import WeightedAvgPeak
 
 
 @pytest.fixture

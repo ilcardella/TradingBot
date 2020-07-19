@@ -1,7 +1,12 @@
-from Components.Utils import Interval
-from Interfaces.Market import Market
-from Interfaces.MarketHistory import MarketHistory
-from Interfaces.MarketMACD import MarketMACD
+from typing import Dict, List, Optional, Union
+
+from ...Interfaces.Market import Market
+from ...Interfaces.MarketHistory import MarketHistory
+from ...Interfaces.MarketMACD import MarketMACD
+from ...Interfaces.Position import Position
+from ..Utils import Interval, TradeDirection
+from .AbstractInterfaces import AccountInterface, StocksInterface
+from .BrokerFactory import BrokerFactory
 
 
 class Broker:
@@ -10,48 +15,56 @@ class Broker:
     actions/tasks wrapping the actual implementation class internally
     """
 
-    def __init__(self, factory):
+    factory: BrokerFactory
+    stocks_ifc: StocksInterface
+    account_ifc: AccountInterface
+
+    def __init__(self, factory: BrokerFactory) -> None:
         self.factory = factory
         self.stocks_ifc = self.factory.make_stock_interface_from_config()
         self.account_ifc = self.factory.make_account_interface_from_config()
 
-    def get_open_positions(self) -> list:
+    def get_open_positions(self) -> List[Position]:
         """
         Returns the current open positions
         """
         return self.account_ifc.get_open_positions()
 
-    def get_markets_from_watchlist(self, watchlist_name: str) -> list:
+    def get_markets_from_watchlist(self, watchlist_name: str) -> List[Market]:
         """
         Return a name list of the markets in the required watchlist
         """
         return self.account_ifc.get_markets_from_watchlist(watchlist_name)
 
-    def navigate_market_node(self, node_id: str) -> list:
+    def navigate_market_node(
+        self, node_id: str
+    ) -> Optional[Dict[str, Union[int, float, str]]]:
         """
         Return the children nodes of the requested node
         """
         return self.account_ifc.navigate_market_node(node_id)
 
-    def get_account_used_perc(self) -> float:
+    def get_account_used_perc(self) -> Optional[float]:
         """
         Returns the account used value in percentage
         """
         return self.account_ifc.get_account_used_perc()
 
-    def close_all_positions(self):
+    def close_all_positions(self) -> bool:
         """
         Attempt to close all the current open positions
         """
         return self.account_ifc.close_all_positions()
 
-    def close_position(self, position):
+    def close_position(self, position: Position) -> bool:
         """
         Attempt to close the requested open position
         """
         return self.account_ifc.close_position(position)
 
-    def trade(self, market_id, trade_direction, limit, stop):
+    def trade(
+        self, market_id: str, trade_direction: TradeDirection, limit: float, stop: float
+    ):
         """
         Request a trade of the given market
         """
@@ -63,7 +76,7 @@ class Broker:
         """
         return self.account_ifc.get_market_info(market_id)
 
-    def search_market(self, search: str) -> list:
+    def search_market(self, search: str) -> List[Market]:
         """
         Search for a market from a search string
         """

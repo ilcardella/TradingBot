@@ -1,6 +1,11 @@
 import logging
 from collections import deque
 from enum import Enum
+from typing import Deque, Iterator, List, Optional
+
+from ..Components.Configuration import Configuration
+from ..Interfaces.Market import Market
+from .Broker import Broker
 
 
 class MarketSource(Enum):
@@ -20,12 +25,18 @@ class MarketProvider:
     market lists, dynamic market exploration or watchlists
     """
 
-    def __init__(self, config, broker):
+    config: Configuration
+    broker: Broker
+    epic_list: List[str] = []
+    epic_list_iter: Iterator[str]
+    node_stack: Deque[str]
+
+    def __init__(self, config: Configuration, broker: Broker) -> None:
         self.config = config
         self.broker = broker
         self._initialise()
 
-    def next(self):
+    def next(self) -> Market:
         """
         Return the next market from the configured source
         """
@@ -38,20 +49,20 @@ class MarketProvider:
         else:
             raise RuntimeError("ERROR: invalid market_source configuration")
 
-    def reset(self):
+    def reset(self) -> None:
         """
         Reset internal market pointer to the beginning
         """
         logging.info("Resetting MarketProvider")
         self._initialise()
 
-    def get_market_from_epic(self, epic):
+    def get_market_from_epic(self, epic: str) -> Market:
         """
         Given a market epic id returns the related market snapshot
         """
         return self._create_market(epic)
 
-    def search_market(self, search):
+    def search_market(self, search: str) -> Optional[Market]:
         """
         Tries to find the market which id matches the given search string.
         If successful return the market snapshot.
@@ -78,10 +89,10 @@ class MarketProvider:
             # Good, it means the result are all the same market
             return markets[0]
 
-    def _initialise(self):
+    def _initialise(self) -> None:
         # Initialise epic list
         self.epic_list = []
-        self.epic_list_iter = None
+        self.epic_list_iter = iter([])
         # Initialise API members
         self.node_stack = deque()
 
@@ -99,7 +110,7 @@ class MarketProvider:
             raise RuntimeError("ERROR: invalid market_source configuration")
         self.epic_list_iter = iter(self.epic_list)
 
-    def _load_epic_ids_from_local_file(self, filepath):
+    def _load_epic_ids_from_local_file(self, filepath: str) -> List[str]:
         """
         Read a file from filesystem containing a list of epic ids.
         The filepath is defined in config.json file
@@ -122,14 +133,14 @@ class MarketProvider:
             logging.error("Epic list is empty!")
         return epic_ids
 
-    def _next_from_list(self):
+    def _next_from_list(self) -> Market:
         try:
             epic = next(self.epic_list_iter)
             return self._create_market(epic)
         except Exception:
             raise StopIteration
 
-    def _load_epic_ids_from_watchlist(self, watchlist_name):
+    def _load_epic_ids_from_watchlist(self, watchlist_name: str) -> List[str]:
         markets = self.broker.get_markets_from_watchlist(
             self.config.get_watchlist_name()
         )
@@ -139,7 +150,7 @@ class MarketProvider:
             raise RuntimeError(message)
         return [m.epic for m in markets]
 
-    def _load_epic_ids_from_api_node(self, node_id):
+    def _load_epic_ids_from_api_node(self, node_id: str) -> List[str]:
         node = self.broker.navigate_market_node(node_id)
         if "nodes" in node and isinstance(node["nodes"], list):
             for node in node["nodes"]:
@@ -159,7 +170,7 @@ class MarketProvider:
             ]
         return []
 
-    def _next_from_api(self):
+    def _next_from_api(self) -> Market:
         # Return the next item in the epic_list, but if the list is finished
         # navigate the next node in the stack and return a new list
         try:
@@ -169,7 +180,7 @@ class MarketProvider:
             self.epic_list_iter = iter(self.epic_list)
             return self._next_from_list()
 
-    def _create_market(self, epic_id):
+    def _create_market(self, epic_id: str) -> Market:
         market = self.broker.get_market_info(epic_id)
         if market is None:
             raise RuntimeError("Unable to fetch data for {}".format(epic_id))

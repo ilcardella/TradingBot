@@ -1,15 +1,17 @@
 import json
 import logging
 from enum import Enum
+from typing import Dict, List, Optional, Union
 
+import pandas
 import requests
-from Components.Utils import TradeDirection, Utils
-from Interfaces.Market import Market
-from Interfaces.MarketHistory import MarketHistory
-from Interfaces.MarketMACD import MarketMACD
-from Interfaces.Position import Position
 
-from .AbstractInterfaces import AccountInterface, StocksInterface
+from ...Interfaces.Market import Market
+from ...Interfaces.MarketHistory import MarketHistory
+from ...Interfaces.MarketMACD import MarketMACD
+from ...Interfaces.Position import Position
+from ..Utils import Interval, TradeDirection, Utils
+from .AbstractInterfaces import AccountBalances, AccountInterface, StocksInterface
 
 
 class IG_API_URL(Enum):
@@ -35,7 +37,7 @@ class IGInterface(AccountInterface, StocksInterface):
     IG broker interface class, provides functions to use the IG REST API
     """
 
-    def initialise(self):
+    def initialise(self) -> None:
         logging.info("initialising IGInterface...")
         demoPrefix = (
             IG_API_URL.DEMO_PREFIX.value
@@ -50,7 +52,7 @@ class IGInterface(AccountInterface, StocksInterface):
             logging.error("Authentication failed")
             raise RuntimeError("Unable to authenticate to IG Index. Check credentials")
 
-    def authenticate(self):
+    def authenticate(self) -> bool:
         """
         Authenticate the IGInterface instance with the configured credentials
         """
@@ -88,7 +90,7 @@ class IGInterface(AccountInterface, StocksInterface):
         self.set_default_account(self._config.get_credentials()["account_id"])
         return True
 
-    def set_default_account(self, accountId):
+    def set_default_account(self, accountId: str) -> bool:
         """
         Sets the IG account to use
 
@@ -107,7 +109,7 @@ class IGInterface(AccountInterface, StocksInterface):
         logging.info("Using default account: {}".format(accountId))
         return True
 
-    def get_account_balances(self):
+    def get_account_balances(self) -> AccountBalances:
         """
         Returns a tuple (balance, deposit) for the account in use
 
@@ -124,7 +126,7 @@ class IGInterface(AccountInterface, StocksInterface):
         else:
             return None, None
 
-    def get_open_positions(self):
+    def get_open_positions(self) -> List[Position]:
         """
         Returns the account open positions in an json object
 
@@ -150,7 +152,7 @@ class IGInterface(AccountInterface, StocksInterface):
             )
         return positions
 
-    def get_positions_map(self):
+    def get_positions_map(self) -> Dict[str, int]:
         """
         Returns a *dict* containing the account open positions in the form
         {string: int} where the string is defined as 'marketId-tradeDirection' and
@@ -174,7 +176,7 @@ class IGInterface(AccountInterface, StocksInterface):
         else:
             return None
 
-    def get_market_info(self, epic_id):
+    def get_market_info(self, epic_id: str) -> Market:
         """
         Returns info for the given market including a price snapshot
 
@@ -202,7 +204,7 @@ class IGInterface(AccountInterface, StocksInterface):
         ]
         return market
 
-    def search_market(self, search):
+    def search_market(self, search: str) -> List[Market]:
         """
         Returns a list of markets that matched the search string
         """
@@ -215,7 +217,9 @@ class IGInterface(AccountInterface, StocksInterface):
             markets = [self.get_market_info(m["epic"]) for m in data["markets"]]
         return markets
 
-    def get_prices(self, market, interval, data_range):
+    def get_prices(
+        self, market: Market, interval: Interval, data_range: int
+    ) -> MarketHistory:
         url = "{}/{}/{}/{}/{}".format(
             self.api_base_url,
             IG_API_URL.PRICES.value,
@@ -246,7 +250,9 @@ class IGInterface(AccountInterface, StocksInterface):
         history = MarketHistory(market, dates, highs, lows, closes, volumes)
         return history
 
-    def trade(self, epic_id, trade_direction, limit, stop):
+    def trade(
+        self, epic_id: str, trade_direction: TradeDirection, limit: float, stop: float
+    ) -> bool:
         """
         Try to open a new trade for the given epic
 
@@ -300,7 +306,7 @@ class IGInterface(AccountInterface, StocksInterface):
             )
             return False
 
-    def confirm_order(self, dealRef):
+    def confirm_order(self, dealRef: str) -> bool:
         """
         Confirm an order from a dealing reference
 
@@ -317,7 +323,7 @@ class IGInterface(AccountInterface, StocksInterface):
                 return True
         return False
 
-    def close_position(self, position):
+    def close_position(self, position: Position) -> bool:
         """
         Close the given market position
 
@@ -363,7 +369,7 @@ class IGInterface(AccountInterface, StocksInterface):
             logging.error("Could not close position for {}".format(position.epic))
             return False
 
-    def close_all_positions(self):
+    def close_all_positions(self) -> bool:
         """
         Try to close all the account open positions.
 
@@ -392,7 +398,7 @@ class IGInterface(AccountInterface, StocksInterface):
             result = False
         return result
 
-    def get_account_used_perc(self):
+    def get_account_used_perc(self) -> Optional[float]:
         """
         Fetch the percentage of available balance is currently used
 
@@ -403,7 +409,9 @@ class IGInterface(AccountInterface, StocksInterface):
             return None
         return Utils.percentage(deposit, balance)
 
-    def navigate_market_node(self, node_id):
+    def navigate_market_node(
+        self, node_id: str
+    ) -> Optional[Dict[str, Union[int, float, str]]]:
         """
         Navigate the market node id
 
@@ -413,7 +421,7 @@ class IGInterface(AccountInterface, StocksInterface):
         data = self._http_get(url)
         return data if data is not None else None
 
-    def _get_watchlist(self, id):
+    def _get_watchlist(self, id: str) -> Optional[Dict[str, Union[int, float, str]]]:
         """
         Get the watchlist info
 
@@ -424,7 +432,7 @@ class IGInterface(AccountInterface, StocksInterface):
         data = self._http_get(url)
         return data if data is not None else None
 
-    def get_markets_from_watchlist(self, name):
+    def get_markets_from_watchlist(self, name: str) -> List[Market]:
         """
         Get the list of markets included in the watchlist
 
@@ -443,7 +451,7 @@ class IGInterface(AccountInterface, StocksInterface):
                     break
         return markets
 
-    def _http_get(self, url):
+    def _http_get(self, url: str) -> Optional[Dict[str, Union[int, float, str]]]:
         """
         Perform an HTTP GET request to the url.
         Return the json object returned from the API if 200 is received
@@ -459,7 +467,9 @@ class IGInterface(AccountInterface, StocksInterface):
             raise RuntimeError(data["errorCode"])
         return data
 
-    def get_macd(self, market, interval, data_range):
+    def get_macd(
+        self, market: Market, interval: Interval, data_range: int
+    ) -> MarketMACD:
         data = self._macd_dataframe(market, interval)
         # TODO Put date instead of index numbers
         return MarketMACD(
@@ -470,7 +480,7 @@ class IGInterface(AccountInterface, StocksInterface):
             data["Hist"].values,
         )
 
-    def _macd_dataframe(self, market, interval):
+    def _macd_dataframe(self, market: Market, interval: Interval) -> pandas.DataFrame:
         prices = self.get_prices(market, "DAY", 26)
         if prices is None:
             return None

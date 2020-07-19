@@ -1,10 +1,16 @@
+import datetime
 import logging
+from typing import Tuple
 
 import numpy as np
-from Components.Utils import Interval, TradeDirection, Utils
-from Interfaces.MarketMACD import MarketMACD
+import pandas
 
-from .Strategy import Strategy
+from ..Components.Broker.Broker import Broker
+from ..Components.Configuration import Configuration
+from ..Components.Utils import Interval, TradeDirection, Utils
+from ..Interfaces.Market import Market
+from ..Interfaces.MarketMACD import MarketMACD
+from .Strategy import BacktestResult, Strategy, TradeSignal
 
 
 class SimpleMACD(Strategy):
@@ -15,11 +21,11 @@ class SimpleMACD(Strategy):
     Sell when the MACD cross below the MACD signal.
     """
 
-    def __init__(self, config, broker):
+    def __init__(self, config: Configuration, broker: Broker) -> None:
         super().__init__(config, broker)
         logging.info("Simple MACD strategy initialised.")
 
-    def read_configuration(self, config):
+    def read_configuration(self, config: Configuration) -> None:
         """
         Read the json configuration
         """
@@ -28,19 +34,19 @@ class SimpleMACD(Strategy):
         self.limit_p = raw["strategies"]["simple_macd"]["limit_perc"]
         self.stop_p = raw["strategies"]["simple_macd"]["stop_perc"]
 
-    def initialise(self):
+    def initialise(self) -> None:
         """
         Initialise SimpleMACD strategy
         """
         pass
 
-    def fetch_datapoints(self, market):
+    def fetch_datapoints(self, market: Market) -> MarketMACD:
         """
         Fetch historic MACD data
         """
         return self.broker.get_macd(market, Interval.DAY, None)
 
-    def find_trade_signal(self, market, datapoints):
+    def find_trade_signal(self, market: Market, datapoints: MarketMACD) -> TradeSignal:
         """
         Calculate the MACD of the previous days and find a cross between MACD
         and MACD signal
@@ -75,8 +81,13 @@ class SimpleMACD(Strategy):
         return tradeDirection, limit, stop
 
     def calculate_stop_limit(
-        self, tradeDirection, current_offer, current_bid, limit_perc, stop_perc
-    ):
+        self,
+        tradeDirection: TradeDirection,
+        current_offer: float,
+        current_bid: float,
+        limit_perc: float,
+        stop_perc: float,
+    ) -> Tuple[float, float]:
         """
         Calculate the stop and limit levels from the given percentages
         """
@@ -90,7 +101,9 @@ class SimpleMACD(Strategy):
             stop = current_offer + Utils.percentage_of(stop_perc, current_offer)
         return limit, stop
 
-    def generate_signals_from_dataframe(self, dataframe):
+    def generate_signals_from_dataframe(
+        self, dataframe: pandas.DataFrame
+    ) -> pandas.DataFrame:
         dataframe.loc[:, "positions"] = 0
         dataframe.loc[:, "positions"] = np.where(
             dataframe[MarketMACD.HIST_COLUMN] >= 0, 1, 0
@@ -98,7 +111,9 @@ class SimpleMACD(Strategy):
         dataframe.loc[:, "signals"] = dataframe["positions"].diff()
         return dataframe
 
-    def get_trade_direction_from_signals(self, dataframe):
+    def get_trade_direction_from_signals(
+        self, dataframe: pandas.DataFrame
+    ) -> TradeDirection:
         tradeDirection = TradeDirection.NONE
         if len(dataframe["signals"]) > 0:
             if dataframe["signals"].iloc[1] < 0:
@@ -107,7 +122,9 @@ class SimpleMACD(Strategy):
                 tradeDirection = TradeDirection.SELL
         return tradeDirection
 
-    def backtest(self, market, start_date, end_date):
+    def backtest(
+        self, market: Market, start_date: datetime.datetime, end_date: datetime.datetime
+    ) -> BacktestResult:
         """Backtest the strategy
         """
         # TODO
@@ -133,7 +150,8 @@ class SimpleMACD(Strategy):
                     try:
                         price = prices.loc[trade_dt.strftime("%Y-%m-%d"), "4. close"]
                         trades.append(
-                            [trade_dt.strftime("%Y-%m-%d"), trade, float(price)]
+                            # [trade_dt.strftime("%Y-%m-%d"), trade, float(price)]
+                            (trade_dt.strftime("%Y-%m-%d"), trade, float(price))
                         )
                     except Exception as e:
                         logging.debug(e)
