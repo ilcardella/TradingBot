@@ -200,28 +200,24 @@ class TradingBot:
         Process a trade checking if it is a "close position" trade or a new trade
         """
         # Perform trade only if required
-        if direction is not TradeDirection.NONE:
-            if open_positions is not None:
-                for item in open_positions["positions"]:
-                    # If a same direction trade already exist, don't trade
-                    if (
-                        item["market"]["epic"] == market.epic
-                        and direction.name == item["position"]["direction"]
-                    ):
-                        logging.info(
-                            "There is already an open position for this epic, skip trade"
-                        )
-                        return
-                    # If a trade in opposite direction exist, close the position
-                    elif (
-                        item["market"]["epic"] == market.epic
-                        and direction.name != item["position"]["direction"]
-                    ):
-                        self.broker.close_position(item)
-                        return
-                self.broker.trade(market.epic, direction, limit, stop)
-            else:
-                logging.error("Unable to fetch open positions! Avoid trading this epic")
+        if direction is TradeDirection.NONE:
+            return
+
+        if len(open_positions) > 0:
+            for item in open_positions:
+                # If a same direction trade already exist, don't trade
+                if item.epic == market.epic and direction is item.direction:
+                    logging.info(
+                        "There is already an open position for this epic, skip trade"
+                    )
+                    return
+                # If a trade in opposite direction exist, close the position
+                elif item.epic == market.epic and direction is not item.direction:
+                    self.broker.close_position(item)
+                    return
+            self.broker.trade(market.epic, direction, limit, stop)
+        else:
+            logging.error("Unable to fetch open positions! Avoid trading this epic")
 
     def backtest(
         self,

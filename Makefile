@@ -24,16 +24,16 @@ docker:
 > docker build -t tradingbot -f docker/Dockerfile .
 
 mypy:
-> poetry run mypy tradingbot
+> poetry run mypy tradingbot/
 
 flake:
-> poetry run flake8 tradingbot test
+> poetry run flake8 tradingbot/ test/
 
 isort:
-> poetry run isort tradingbot test
+> poetry run isort tradingbot/ test/
 
 black:
-> poetry run black tradingbot test
+> poetry run black tradingbot/ test/
 
 format: isort black
 

@@ -1,5 +1,3 @@
-from enum import Enum
-
 import pytest
 from common.MockRequests import (
     ig_request_confirm_trade,
