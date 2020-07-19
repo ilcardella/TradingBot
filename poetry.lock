@@ -672,7 +672,7 @@ pandas = ">=0.24"
 requests = ">=2.20"
 
 [metadata]
-content-hash = "2011534cb3cf63236a3e2c65adadf38013bf65ea2f2c513893e2f1bc93c1a288"
+content-hash = "de5fbd76641495fcf929437529867cafc1f8ea72509da2a1d92ad2253682385d"
 python-versions = "^3.8"
 
 [metadata.files]

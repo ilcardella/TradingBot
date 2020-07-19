@@ -1,9 +1,9 @@
 import logging
 from datetime import datetime
 
-from Components.Broker import Broker
-from Interfaces.Market import Market
-from Strategies.Strategy import StrategyImpl
+from ..Interfaces.Market import Market
+from ..Strategies.Strategy import StrategyImpl
+from .Broker import Broker
 
 
 class Backtester:

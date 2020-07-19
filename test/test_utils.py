@@ -1,4 +1,4 @@
-from Components.Utils import Utils
+from tradingbot.Components.Utils import Utils
 
 
 def test_midpoint():

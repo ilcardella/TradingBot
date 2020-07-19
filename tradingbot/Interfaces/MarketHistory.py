@@ -1,7 +1,8 @@
 from typing import List
 
 import pandas
-from Interfaces.Market import Market
+
+from .Market import Market
 
 
 class MarketHistory:

@@ -4,14 +4,14 @@ from datetime import datetime
 from typing import Optional, Tuple
 
 import numpy
-from Components.Broker import Broker
-from Components.Configuration import Configuration
-from Components.Utils import Interval, TradeDirection, Utils
-from Interfaces.Market import Market
-from Interfaces.MarketHistory import MarketHistory
 from numpy import Inf, NaN, arange, array, asarray, isscalar
 from scipy import stats
 
+from ..Components.Broker import Broker
+from ..Components.Configuration import Configuration
+from ..Components.Utils import Interval, TradeDirection, Utils
+from ..Interfaces.Market import Market
+from ..Interfaces.MarketHistory import MarketHistory
 from .Strategy import BacktestResult, Strategy, TradeSignal
 
 

@@ -1,12 +1,12 @@
 from typing import Dict, List, Optional, Union
 
-from Components.Broker.AbstractInterfaces import AccountInterface, StocksInterface
-from Components.Broker.BrokerFactory import BrokerFactory
-from Components.Utils import Interval, TradeDirection
-from Interfaces.Market import Market
-from Interfaces.MarketHistory import MarketHistory
-from Interfaces.MarketMACD import MarketMACD
-from Interfaces.Position import Position
+from ...Interfaces.Market import Market
+from ...Interfaces.MarketHistory import MarketHistory
+from ...Interfaces.MarketMACD import MarketMACD
+from ...Interfaces.Position import Position
+from ..Utils import Interval, TradeDirection
+from .AbstractInterfaces import AccountInterface, StocksInterface
+from .BrokerFactory import BrokerFactory
 
 
 class Broker:

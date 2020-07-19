@@ -15,9 +15,9 @@ from common.MockRequests import (
     ig_request_watchlist,
     yf_request_prices,
 )
-from Components.TimeProvider import TimeProvider
 
-from TradingBot import TradingBot
+from tradingbot.Components.TimeProvider import TimeProvider
+from tradingbot.TradingBot import TradingBot
 
 
 class MockTimeProvider(TimeProvider):

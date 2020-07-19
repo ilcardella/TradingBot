@@ -7,11 +7,11 @@ from typing import Dict, Optional, Union
 import pandas
 from alpha_vantage.techindicators import TechIndicators
 from alpha_vantage.timeseries import TimeSeries
-from Components.Utils import Interval
-from Interfaces.Market import Market
-from Interfaces.MarketHistory import MarketHistory
-from Interfaces.MarketMACD import MarketMACD
 
+from ...Interfaces.Market import Market
+from ...Interfaces.MarketHistory import MarketHistory
+from ...Interfaces.MarketMACD import MarketMACD
+from ..Utils import Interval
 from .AbstractInterfaces import StocksInterface
 
 AVReturnType = Dict[str, Union[str, int, float]]

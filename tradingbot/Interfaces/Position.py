@@ -1,6 +1,6 @@
 from typing import Any
 
-from Components.Utils import TradeDirection
+from ..Components.Utils import TradeDirection
 
 
 class Position:

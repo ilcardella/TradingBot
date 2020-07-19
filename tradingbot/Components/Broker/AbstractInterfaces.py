@@ -3,12 +3,12 @@ import time
 from abc import abstractmethod
 from typing import Dict, List, Optional, Tuple
 
-from Components.Configuration import Configuration
-from Components.Utils import Interval, SynchSingleton, TradeDirection
-from Interfaces.Market import Market
-from Interfaces.MarketHistory import MarketHistory
-from Interfaces.MarketMACD import MarketMACD
-from Interfaces.Position import Position
+from ...Interfaces.Market import Market
+from ...Interfaces.MarketHistory import MarketHistory
+from ...Interfaces.MarketMACD import MarketMACD
+from ...Interfaces.Position import Position
+from ..Configuration import Configuration
+from ..Utils import Interval, SynchSingleton, TradeDirection
 
 AccountBalances = Tuple[Optional[float], Optional[float]]
 

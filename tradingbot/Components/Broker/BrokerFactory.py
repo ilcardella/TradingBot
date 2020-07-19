@@ -1,8 +1,7 @@
 from enum import Enum
 from typing import Union
 
-from Components.Configuration import Configuration
-
+from ..Configuration import Configuration
 from .AVInterface import AVInterface
 from .IGInterface import IGInterface
 from .YFinanceInterface import YFinanceInterface

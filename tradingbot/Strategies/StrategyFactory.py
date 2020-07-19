@@ -2,9 +2,8 @@ import logging
 from enum import Enum
 from typing import Type
 
-from Components.Broker.Broker import Broker
-from Components.Configuration import Configuration
-
+from ..Components.Broker.Broker import Broker
+from ..Components.Configuration import Configuration
 from .SimpleMACD import SimpleMACD
 from .Strategy import StrategyImpl
 from .WeightedAvgPeak import WeightedAvgPeak

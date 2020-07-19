@@ -6,10 +6,11 @@ from common.MockRequests import (
     ig_request_set_account,
     ig_request_watchlist,
 )
-from Components.Broker.Broker import Broker
-from Components.Broker.BrokerFactory import BrokerFactory
-from Components.Configuration import Configuration
-from Components.MarketProvider import MarketProvider
+
+from tradingbot.Components.Broker.Broker import Broker
+from tradingbot.Components.Broker.BrokerFactory import BrokerFactory
+from tradingbot.Components.Configuration import Configuration
+from tradingbot.Components.MarketProvider import MarketProvider
 
 
 @pytest.fixture

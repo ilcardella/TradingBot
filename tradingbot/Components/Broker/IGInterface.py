@@ -5,12 +5,12 @@ from typing import Dict, List, Optional, Union
 
 import pandas
 import requests
-from Components.Utils import Interval, TradeDirection, Utils
-from Interfaces.Market import Market
-from Interfaces.MarketHistory import MarketHistory
-from Interfaces.MarketMACD import MarketMACD
-from Interfaces.Position import Position
 
+from ...Interfaces.Market import Market
+from ...Interfaces.MarketHistory import MarketHistory
+from ...Interfaces.MarketMACD import MarketMACD
+from ...Interfaces.Position import Position
+from ..Utils import Interval, TradeDirection, Utils
 from .AbstractInterfaces import AccountBalances, AccountInterface, StocksInterface
 
 

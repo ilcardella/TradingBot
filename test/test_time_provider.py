@@ -2,9 +2,10 @@ from datetime import datetime, timedelta
 
 import pytest
 import pytz
-from Components.TimeProvider import TimeAmount, TimeProvider
-from Components.Utils import Utils
 from govuk_bank_holidays.bank_holidays import BankHolidays
+
+from tradingbot.Components.TimeProvider import TimeAmount, TimeProvider
+from tradingbot.Components.Utils import Utils
 
 
 def test_get_seconds_to_market_opening():
