@@ -1,10 +1,16 @@
 FROM python:3.8-slim-buster
 
-COPY ./ /workspace
+ENV DEBIAN_FRONTEND noninteractive
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends make \
+    && rm -rf /var/lib/apt/lists/* \
+    && pip install 'poetry==1.0.5'
+
 WORKDIR /workspace
 
-RUN pip install --upgrade pip \
-    && pip install . \
+COPY ./ /workspace
+
+RUN make install-system \
     && rm -rf /workspace
 
 WORKDIR /
