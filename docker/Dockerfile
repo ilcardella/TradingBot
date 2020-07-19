@@ -1,11 +1,12 @@
 FROM python:3.8-slim-buster
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends git \
-    && rm -rf /var/lib/apt/lists/* \
-    && pip install --upgrade pip \
-    && git clone https://github.com/ilcardella/TradingBot /workspace \
-    && cd /workspace && pip install . \
+COPY ./ /workspace
+WORKDIR /workspace
+
+RUN pip install --upgrade pip \
+    && pip install . \
     && rm -rf /workspace
+
+WORKDIR /
 
 CMD ["trading_bot"]
