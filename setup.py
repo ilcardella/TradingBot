@@ -12,12 +12,12 @@ setup(
     install_requires=[
         "alpha-vantage==2.2.0",
         "govuk-bank-holidays==0.8",
-        "numpy==1.19.0",
         "pandas==1.0.5",
         "pytz==2020.1",
         "requests==2.24.0",
-        "scipy==1.5.0",
+        "scipy==1.5.1",
         "yfinance==0.1.54",
+        "numpy==1.19.0",
     ],
     package_data={"config": ["*.json"]},
     data_files=[

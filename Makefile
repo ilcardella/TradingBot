@@ -28,6 +28,6 @@ build:
 docker:
 > docker build -t tradingbot -f docker/Dockerfile .
 
-ci: install lint test docs build install-system docker
+ci: install lint test docs build install-system
 
 .PHONY: test lint format install docs build docker install-system ci

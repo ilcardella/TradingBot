@@ -1,3 +1,6 @@
+os: linux
+dist: bionic
+
 language: python
 
 python:
@@ -16,3 +19,4 @@ install:
 
 script:
   - make ci
+  - make docker
