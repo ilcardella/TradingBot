@@ -17,7 +17,7 @@ setup(
         "requests==2.24.0",
         "scipy==1.5.1",
         "yfinance==0.1.54",
-        "numpy==1.19.0",
+        "numpy==1.19.1",
     ],
     package_data={"config": ["*.json"]},
     data_files=[
