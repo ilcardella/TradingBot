@@ -3,6 +3,11 @@ ifeq ($(origin .RECIPEPREFIX), undefined)
 endif
 .RECIPEPREFIX = >
 
+INSTALL_DIR = /opt/TradingBot
+DATA_DIR = $(INSTALL_DIR)/data
+CONFIG_DIR = $(INSTALL_DIR)/config
+LOG_DIR = $(INSTALL_DIR)/log
+
 default: check
 
 test:
@@ -15,7 +20,11 @@ install:
 > poetry install -v
 
 install-system:
-> python setup.py install
+> pip install .
+> mkdir -p $(CONFIG_DIR)
+> mkdir -p $(DATA_DIR)
+> mkdir -p $(LOG_DIR)
+> cp config/config.json $(CONFIG_DIR)
 
 build:
 > poetry build

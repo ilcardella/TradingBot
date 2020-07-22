@@ -1,7 +1,7 @@
 {
     "max_account_usable": 50,
     "time_zone": "Europe/London",
-    "credentials_filepath": "/opt/TradingBot/data/.credentials",
+    "credentials_filepath": "/opt/TradingBot/config/.credentials",
     "spin_interval": 3600,
     "logging": {
         "enable": true,

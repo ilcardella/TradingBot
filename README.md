@@ -58,11 +58,11 @@ This must be in json format
     "av_api_key": "apiKey"
 }
 ```
-- Copy the `.credentials` file into the `/opt/TradingBot/data` folder
+- Copy the `.credentials` file into the `/opt/TradingBot/config` folder
 - Revoke permissions to read the file
 ```
-cd data
-sudo chmod 600 /opt/TradingBot/data/.credentials
+cd config
+sudo chmod 600 /opt/TradingBot/config/.credentials
 ```
 
 ### Market source
@@ -72,7 +72,7 @@ There are different ways to define which markets to analyse with TradinbgBot. Yo
 - **Local file**
 
 You can create a file `epic_ids.txt` containg IG epics of the companies you want to monitor.
-You need to copy this file into the `data` folder.
+You need to copy this file into the `/opt/TradingBot/data` folder.
 
 - **Watchlist**
 
@@ -214,7 +214,7 @@ Once the image is available you can run `TradingBot` in a Docker container mount
 ```
 docker run -d \
     -v /path/to/config.json:/opt/TradingBot/config/config.json \
-    -v /path/to/.credentials:/opt/TradingBot/data/.credentials \
+    -v /path/to/.credentials:/opt/TradingBot/config/.credentials \
     tradingbot:latest
 ```
 
