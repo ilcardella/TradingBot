@@ -19,6 +19,12 @@ docs:
 install:
 > poetry install -v
 
+update:
+> poetry update
+
+remove-env:
+> poetry env remove python3
+
 install-system:
 > pip install .
 > mkdir -p $(CONFIG_DIR)
@@ -52,4 +58,4 @@ check: format lint test
 
 ci: install check docs build install-system
 
-.PHONY: test lint format install docs build docker install-system ci check mypy flake isort black
+.PHONY: test lint format install docs build docker install-system ci check mypy flake isort black remove update

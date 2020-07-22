@@ -1,7 +1,7 @@
 import datetime as dt
 import time
 from abc import abstractmethod
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from ...Interfaces.Market import Market
 from ...Interfaces.MarketHistory import MarketHistory
@@ -28,15 +28,15 @@ class AbstractInterface(metaclass=SynchSingleton):
             time.sleep(0.5)
         self._last_call_ts = dt.datetime.now()
 
+    @abstractmethod
+    def initialise(self) -> None:
+        pass
+
 
 class AccountInterface(AbstractInterface):
     # This MUST not be overwritten. Use the "initialise()" to init a children interface
     def __init__(self, config: Configuration) -> None:
         super().__init__(config)
-
-    @abstractmethod
-    def initialise(self) -> None:
-        pass
 
     @abstractmethod
     def authenticate(self) -> bool:
@@ -88,6 +88,10 @@ class AccountInterface(AbstractInterface):
     def get_markets_from_watchlist(self, watchlist_id: str) -> List[Market]:
         pass
 
+    @abstractmethod
+    def navigate_market_node(self, node_id: str) -> Dict[str, Any]:
+        pass
+
     # No need to override this
     def _wait_before_call(self, timeout: float) -> None:
         super()._wait_before_call(timeout)
@@ -97,10 +101,6 @@ class StocksInterface(AbstractInterface):
     # This MUST not be overwritten. Use the "initialise()" to init a children interface
     def __init__(self, config: Configuration) -> None:
         super().__init__(config)
-
-    @abstractmethod
-    def initialise(self) -> None:
-        pass
 
     @abstractmethod
     def get_prices(

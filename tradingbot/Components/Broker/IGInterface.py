@@ -1,7 +1,7 @@
 import json
 import logging
 from enum import Enum
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 import pandas
 import requests
@@ -36,6 +36,9 @@ class IGInterface(AccountInterface, StocksInterface):
     """
     IG broker interface class, provides functions to use the IG REST API
     """
+
+    api_base_url: str
+    authenticated_headers: Dict[str, str]
 
     def initialise(self) -> None:
         logging.info("initialising IGInterface...")
@@ -123,8 +126,7 @@ class IGInterface(AccountInterface, StocksInterface):
                     balance = i["balance"]["balance"]
                     deposit = i["balance"]["deposit"]
                     return balance, deposit
-        else:
-            return None, None
+        return None, None
 
     def get_open_positions(self) -> List[Position]:
         """
@@ -160,21 +162,14 @@ class IGInterface(AccountInterface, StocksInterface):
 
             - Returns **None** if an error occurs otherwise a dict(string:int)
         """
-        positionMap = {}
-        position_json = self.get_open_positions()
-        if position_json is not None:
-            for item in position_json["positions"]:
-                direction = item["position"]["direction"]
-                dealSize = item["position"]["dealSize"]
-                ccypair = item["market"]["epic"]
-                key = ccypair + "-" + direction
-                if key in positionMap:
-                    positionMap[key] = dealSize + positionMap[key]
-                else:
-                    positionMap[key] = dealSize
-            return positionMap
-        else:
-            return None
+        positionMap: Dict[str, int] = {}
+        for item in self.get_open_positions():
+            key = item.epic + "-" + item.direction.name
+            if key in positionMap:
+                positionMap[key] = item.size + positionMap[key]
+            else:
+                positionMap[key] = item.size
+        return positionMap
 
     def get_market_info(self, epic_id: str) -> Market:
         """
@@ -186,9 +181,8 @@ class IGInterface(AccountInterface, StocksInterface):
         url = "{}/{}/{}".format(self.api_base_url, IG_API_URL.MARKETS.value, epic_id)
         info = self._http_get(url)
 
-        if info is None or "markets" in info:
-            # TODO raise exception
-            return None
+        if "markets" in info:
+            raise RuntimeError("Multiple matches found for epic: {}".format(epic_id))
         if self._config.get_ig_controlled_risk():
             info["minNormalStopOrLimitDistance"] = info["minControlledRiskStopDistance"]
         market = Market()
@@ -202,6 +196,7 @@ class IGInterface(AccountInterface, StocksInterface):
         market.stop_distance_min = info["dealingRules"]["minNormalStopOrLimitDistance"][
             "value"
         ]
+        market.expiry = info["instrument"]["expiry"]
         return market
 
     def search_market(self, search: str) -> List[Market]:
@@ -246,7 +241,7 @@ class IGInterface(AccountInterface, StocksInterface):
             highs.append(price["highPrice"]["bid"])
             lows.append(price["lowPrice"]["bid"])
             closes.append(price["closePrice"]["bid"])
-            volumes.append(int(price["lastTradedVolume"]))
+            volumes.append(float(price["lastTradedVolume"]))
         history = MarketHistory(market, dates, highs, lows, closes, volumes)
         return history
 
@@ -335,10 +330,10 @@ class IGInterface(AccountInterface, StocksInterface):
             return True
         # To close we need the opposite direction
         direction = TradeDirection.NONE
-        if position.direction == TradeDirection.BUY:
-            direction = TradeDirection.SELL.name
-        elif position.direction == TradeDirection.SELL:
-            direction = TradeDirection.BUY.name
+        if position.direction is TradeDirection.BUY:
+            direction = TradeDirection.SELL
+        elif position.direction is TradeDirection.SELL:
+            direction = TradeDirection.BUY
         else:
             logging.error("Wrong position direction!")
             return False
@@ -348,7 +343,7 @@ class IGInterface(AccountInterface, StocksInterface):
             "dealId": position.deal_id,
             "epic": None,
             "expiry": None,
-            "direction": direction,
+            "direction": direction.name,
             "size": "1",
             "level": None,
             "orderType": "MARKET",
@@ -385,9 +380,7 @@ class IGInterface(AccountInterface, StocksInterface):
                             result = False
                     except Exception:
                         logging.error(
-                            "Error closing position for {}".format(
-                                p["market"]["instrumentName"]
-                            )
+                            "Error closing position for {}".format(p.market_id)
                         )
                         result = False
             else:
@@ -409,19 +402,16 @@ class IGInterface(AccountInterface, StocksInterface):
             return None
         return Utils.percentage(deposit, balance)
 
-    def navigate_market_node(
-        self, node_id: str
-    ) -> Optional[Dict[str, Union[int, float, str]]]:
+    def navigate_market_node(self, node_id: str) -> Dict[str, Any]:
         """
         Navigate the market node id
 
             - Returns the json representing the market node
         """
         url = "{}/{}/{}".format(self.api_base_url, IG_API_URL.MARKET_NAV.value, node_id)
-        data = self._http_get(url)
-        return data if data is not None else None
+        return self._http_get(url)
 
-    def _get_watchlist(self, id: str) -> Optional[Dict[str, Union[int, float, str]]]:
+    def _get_watchlist(self, id: str) -> Dict[str, Any]:
         """
         Get the watchlist info
 
@@ -429,8 +419,7 @@ class IGInterface(AccountInterface, StocksInterface):
               function returns the list of all the watchlist in the account
         """
         url = "{}/{}/{}".format(self.api_base_url, IG_API_URL.WATCHLISTS.value, id)
-        data = self._http_get(url)
-        return data if data is not None else None
+        return self._http_get(url)
 
     def get_markets_from_watchlist(self, name: str) -> List[Market]:
         """
@@ -441,17 +430,16 @@ class IGInterface(AccountInterface, StocksInterface):
         markets = []
         # Request with empty name returns list of all the watchlists
         all_watchlists = self._get_watchlist("")
-        if all_watchlists is not None:
-            for w in all_watchlists["watchlists"]:
-                if "name" in w and w["name"] == name:
-                    data = self._get_watchlist(w["id"])
-                    if data is not None and "markets" in data:
-                        for m in data["markets"]:
-                            markets.append(self.get_market_info(m["epic"]))
-                    break
+        for w in all_watchlists["watchlists"]:
+            if "name" in w and w["name"] == name:
+                data = self._get_watchlist(w["id"])
+                if "markets" in data:
+                    for m in data["markets"]:
+                        markets.append(self.get_market_info(m["epic"]))
+                break
         return markets
 
-    def _http_get(self, url: str) -> Optional[Dict[str, Union[int, float, str]]]:
+    def _http_get(self, url: str) -> Dict[str, Any]:
         """
         Perform an HTTP GET request to the url.
         Return the json object returned from the API if 200 is received
@@ -474,14 +462,14 @@ class IGInterface(AccountInterface, StocksInterface):
         # TODO Put date instead of index numbers
         return MarketMACD(
             market,
-            range(len(data)),
+            data.index,
             data["MACD"].values,
             data["Signal"].values,
             data["Hist"].values,
         )
 
     def _macd_dataframe(self, market: Market, interval: Interval) -> pandas.DataFrame:
-        prices = self.get_prices(market, "DAY", 26)
+        prices = self.get_prices(market, Interval.DAY, 26)
         if prices is None:
             return None
         return Utils.macd_df_from_list(

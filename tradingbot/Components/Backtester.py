@@ -1,15 +1,21 @@
 import logging
 from datetime import datetime
+from typing import Optional
 
 from ..Interfaces.Market import Market
-from ..Strategies.Strategy import StrategyImpl
-from .Broker import Broker
+from ..Strategies.Strategy import BacktestResult
+from ..Strategies.StrategyFactory import StrategyImpl
+from .Broker.Broker import Broker
 
 
 class Backtester:
     """
     Provides capability to backtest markets on a defined range of time
     """
+
+    broker: Broker
+    strategy: StrategyImpl
+    result: Optional[BacktestResult]
 
     def __init__(self, broker: Broker, strategy: StrategyImpl) -> None:
         logging.info("Backtester created")

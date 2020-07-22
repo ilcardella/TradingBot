@@ -44,7 +44,7 @@ class SimpleMACD(Strategy):
         """
         Fetch historic MACD data
         """
-        return self.broker.get_macd(market, Interval.DAY, None)
+        return self.broker.get_macd(market, Interval.DAY, 30)
 
     def find_trade_signal(self, market: Market, datapoints: MarketMACD) -> TradeSignal:
         """
@@ -73,6 +73,8 @@ class SimpleMACD(Strategy):
             logging.info(
                 "SimpleMACD says: {} {}".format(tradeDirection.name, market.id)
             )
+        else:
+            return TradeDirection.NONE, None, None
 
         # Calculate stop and limit distances
         limit, stop = self.calculate_stop_limit(
@@ -99,6 +101,8 @@ class SimpleMACD(Strategy):
         elif tradeDirection == TradeDirection.SELL:
             limit = current_bid - Utils.percentage_of(limit_perc, current_bid)
             stop = current_offer + Utils.percentage_of(stop_perc, current_offer)
+        else:
+            raise ValueError("Trade direction cannot be NONE")
         return limit, stop
 
     def generate_signals_from_dataframe(

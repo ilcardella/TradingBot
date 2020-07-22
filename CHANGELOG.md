@@ -6,18 +6,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## []
 ### Changed
-- Improved and expanded onfiguration file format
+- Improved and expanded configuration file format
 
 ### Fixed
 - Broker package missing __init__.py
 
 ### Removed
 - Support of Python 3.5
+- Setup.py configuration
 
 ### Added
 - Common interfaces to unify stocks and account interfaces
 - Support for YFinance
 - Formatting and linting support with black and flake8
+- Static types checking with mypy
+- Make `install-system` target to install TradingBot
 
 ## [1.2.0] - 2019-11-16
 ### Added

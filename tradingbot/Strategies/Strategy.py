@@ -1,7 +1,7 @@
 import logging
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple, TypeVar, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from ..Components.Broker.Broker import Broker
 from ..Components.Configuration import Configuration
@@ -12,7 +12,6 @@ from ..Interfaces.Position import Position
 DataPoints = Any
 BacktestResult = Dict[str, Union[float, List[Tuple[str, TradeDirection, float]]]]
 TradeSignal = Tuple[TradeDirection, Optional[float], Optional[float]]
-StrategyImpl = TypeVar("StrategyImpl", bound="Strategy")
 
 
 class Strategy(ABC):

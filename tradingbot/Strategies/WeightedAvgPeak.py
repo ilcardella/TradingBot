@@ -7,7 +7,7 @@ import numpy
 from numpy import Inf, NaN, arange, array, asarray, isscalar
 from scipy import stats
 
-from ..Components.Broker import Broker
+from ..Components.Broker.Broker import Broker
 from ..Components.Configuration import Configuration
 from ..Components.Utils import Interval, TradeDirection, Utils
 from ..Interfaces.Market import Market
@@ -179,7 +179,7 @@ class WeightedAvgPeak(Strategy):
             ce_stop = self.Chandelier_Exit_formula(
                 trade_direction, ATR, min(low_prices)
             )
-            stop_pips = str(int(abs(float(market.bid) - (ce_stop))))
+            stop_pips = int(abs(float(market.bid) - (ce_stop)))
         elif trade_direction is TradeDirection.SELL:
             pip_limit = int(
                 abs(float(min(low_prices)) - float(market.bid))
@@ -188,7 +188,7 @@ class WeightedAvgPeak(Strategy):
             ce_stop = self.Chandelier_Exit_formula(
                 trade_direction, ATR, max(high_prices)
             )
-        stop_pips = str(int(abs(float(market.bid) - (ce_stop))))
+        stop_pips = int(abs(float(market.bid) - (ce_stop)))
 
         esma_new_margin_req = int(Utils.percentage_of(self.ESMA_new_margin, market.bid))
 
@@ -276,7 +276,7 @@ class WeightedAvgPeak(Strategy):
 
     def weighted_avg_and_std(
         self, values: numpy.ndarray, weights: numpy.ndarray
-    ) -> Tuple[Tuple[float, float], float]:
+    ) -> Tuple[float, float]:
         """
         Return the weighted average and standard deviation.
 
@@ -284,7 +284,7 @@ class WeightedAvgPeak(Strategy):
         """
         average = numpy.average(values, weights=weights)
         variance = numpy.average((values - average) ** 2, weights=weights)
-        return (average, math.sqrt(variance))
+        return (float(average), math.sqrt(variance))
 
     def peakdet(
         self, v: numpy.ndarray, delta: float, x: Optional[numpy.ndarray] = None
@@ -371,6 +371,7 @@ class WeightedAvgPeak(Strategy):
             return float(Price) - float(ATR) * int(self.ce_multiplier)
         elif TRADE_DIR is TradeDirection.SELL:
             return float(Price) + float(ATR) * int(self.ce_multiplier)
+        raise ValueError("trade direction can't be NONE")
 
     def backtest(
         self, market: Market, start_date: datetime, end_date: datetime

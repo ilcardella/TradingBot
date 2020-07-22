@@ -1,12 +1,12 @@
-import logging
 from enum import Enum
-from typing import Type
+from typing import Union
 
 from ..Components.Broker.Broker import Broker
 from ..Components.Configuration import Configuration
 from .SimpleMACD import SimpleMACD
-from .Strategy import StrategyImpl
 from .WeightedAvgPeak import WeightedAvgPeak
+
+StrategyImpl = Union[SimpleMACD, WeightedAvgPeak]
 
 
 class StrategyNames(Enum):
@@ -20,6 +20,9 @@ class StrategyFactory:
     interface to instantiate new objects of a given Strategy name
     """
 
+    config: Configuration
+    broker: Broker
+
     def __init__(self, config: Configuration, broker: Broker) -> None:
         """
         Constructor of the StrategyFactory
@@ -32,7 +35,7 @@ class StrategyFactory:
         self.config = config
         self.broker = broker
 
-    def make_strategy(self, strategy_name: str) -> Type[StrategyImpl]:
+    def make_strategy(self, strategy_name: str) -> StrategyImpl:
         """
         Create and return an instance of the Strategy class specified by
         the strategy_name
@@ -47,9 +50,9 @@ class StrategyFactory:
         elif strategy_name == StrategyNames.WEIGHTED_AVG_PEAK.value:
             return WeightedAvgPeak(self.config, self.broker)
         else:
-            logging.error("Strategy {} does not exist".format(strategy_name))
+            raise ValueError("Strategy {} does not exist".format(strategy_name))
 
-    def make_from_configuration(self) -> Type[StrategyImpl]:
+    def make_from_configuration(self) -> StrategyImpl:
         """
         Create and return an instance of the Strategy class as configured in the
         configuration file

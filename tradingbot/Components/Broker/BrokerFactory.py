@@ -1,12 +1,15 @@
 from enum import Enum
-from typing import Union
+from typing import TypeVar, Union
 
 from ..Configuration import Configuration
+from .AbstractInterfaces import AccountInterface, StocksInterface
 from .AVInterface import AVInterface
 from .IGInterface import IGInterface
 from .YFinanceInterface import YFinanceInterface
 
-InterfaceTypes = Union[IGInterface, AVInterface, YFinanceInterface]
+AccountInterfaceImpl = TypeVar("AccountInterfaceImpl", bound=AccountInterface)
+StocksInterfaceImpl = TypeVar("StocksInterfaceImpl", bound=StocksInterface)
+BrokerInterfaces = Union[AccountInterfaceImpl, StocksInterfaceImpl]
 
 
 class InterfaceNames(Enum):
@@ -21,7 +24,7 @@ class BrokerFactory:
     def __init__(self, config: Configuration) -> None:
         self.config = config
 
-    def make(self, name: str) -> InterfaceTypes:
+    def make(self, name: str) -> BrokerInterfaces:
         if name == InterfaceNames.IG_INDEX.value:
             return IGInterface(self.config)
         elif name == InterfaceNames.ALPHA_VANTAGE.value:
@@ -31,8 +34,8 @@ class BrokerFactory:
         else:
             raise ValueError("Interface {} not supported".format(name))
 
-    def make_stock_interface_from_config(self) -> InterfaceTypes:
+    def make_stock_interface_from_config(self,) -> BrokerInterfaces:
         return self.make(self.config.get_active_stocks_interface())
 
-    def make_account_interface_from_config(self) -> InterfaceTypes:
+    def make_account_interface_from_config(self,) -> BrokerInterfaces:
         return self.make(self.config.get_active_account_interface())

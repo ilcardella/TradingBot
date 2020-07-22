@@ -131,9 +131,10 @@ def test_calculate_stop_limit(config, broker):
     assert limit == 90
     assert stop == 110
 
-    limit, stop = strategy.calculate_stop_limit(TradeDirection.NONE, 100, 100, 10, 10)
-    assert limit is None
-    assert stop is None
+    with pytest.raises(ValueError):
+        limit, stop = strategy.calculate_stop_limit(
+            TradeDirection.NONE, 100, 100, 10, 10
+        )
 
 
 def test_generate_signals_from_dataframe(config, broker, requests_mock):

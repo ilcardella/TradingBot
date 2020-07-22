@@ -2,7 +2,6 @@ import logging
 import sys
 import traceback
 from enum import Enum
-from typing import Dict, Optional, Union
 
 import pandas
 from alpha_vantage.techindicators import TechIndicators
@@ -13,8 +12,6 @@ from ...Interfaces.MarketHistory import MarketHistory
 from ...Interfaces.MarketMACD import MarketMACD
 from ..Utils import Interval
 from .AbstractInterfaces import StocksInterface
-
-AVReturnType = Dict[str, Union[str, int, float]]
 
 
 class AVInterval(Enum):
@@ -99,7 +96,7 @@ class AVInterface(StocksInterface):
             raise ValueError("Unsupported Interval.{}".format(interval.name))
         history = MarketHistory(
             market,
-            range(len(data)),
+            data.index,
             data["2. high"].values,
             data["3. low"].values,
             data["4. close"].values,
@@ -107,7 +104,7 @@ class AVInterface(StocksInterface):
         )
         return history
 
-    def daily(self, marketId: str) -> AVReturnType:
+    def daily(self, marketId: str) -> pandas.DataFrame:
         """
         Calls AlphaVantage API and return the Daily time series for the given market
 
@@ -127,7 +124,7 @@ class AVInterface(StocksInterface):
             logging.debug(sys.exc_info()[0])
         return None
 
-    def intraday(self, marketId: str, interval: AVInterval) -> AVReturnType:
+    def intraday(self, marketId: str, interval: AVInterval) -> pandas.DataFrame:
         """
         Calls AlphaVantage API and return the Intraday time series for the given market
 
@@ -149,7 +146,7 @@ class AVInterface(StocksInterface):
             logging.debug(sys.exc_info()[0])
         return None
 
-    def weekly(self, marketId: str) -> AVReturnType:
+    def weekly(self, marketId: str) -> pandas.DataFrame:
         """
         Calls AlphaVantage API and return the Weekly time series for the given market
 
@@ -168,7 +165,7 @@ class AVInterface(StocksInterface):
             logging.debug(sys.exc_info()[0])
         return None
 
-    def quote_endpoint(self, market_id: str) -> AVReturnType:
+    def quote_endpoint(self, market_id: str) -> pandas.DataFrame:
         """
         Calls AlphaVantage API and return the Quote Endpoint data for the given market
 
@@ -193,7 +190,6 @@ class AVInterface(StocksInterface):
     ) -> MarketMACD:
         av_interval = self._to_av_interval(interval)
         data = self.macdext(market.id, av_interval)
-        print(data)
         macd = MarketMACD(
             market,
             data.index,
@@ -203,9 +199,7 @@ class AVInterface(StocksInterface):
         )
         return macd
 
-    def macdext(
-        self, marketId: str, interval: AVInterval
-    ) -> Optional[pandas.DataFrame]:
+    def macdext(self, marketId: str, interval: AVInterval) -> pandas.DataFrame:
         """
         Calls AlphaVantage API and return the MACDEXT tech indicator series for the given market
 
@@ -215,27 +209,20 @@ class AVInterface(StocksInterface):
         """
         self._wait_before_call(self._config.get_alphavantage_api_timeout())
         market = self._format_market_id(marketId)
-        try:
-            data, meta_data = self.TI.get_macdext(
-                market,
-                interval=interval.value,
-                series_type="close",
-                fastperiod=12,
-                slowperiod=26,
-                signalperiod=9,
-                fastmatype=2,
-                slowmatype=1,
-                signalmatype=0,
-            )
-            return data
-        except Exception as e:
-            logging.error("AlphaVantage wrong api call for {}".format(market))
-            logging.debug(e)
-            logging.debug(traceback.format_exc())
-            logging.debug(sys.exc_info()[0])
-        return None
+        data, meta_data = self.TI.get_macdext(
+            market,
+            interval=interval.value,
+            series_type="close",
+            fastperiod=12,
+            slowperiod=26,
+            signalperiod=9,
+            fastmatype=2,
+            slowmatype=1,
+            signalmatype=0,
+        )
+        return data
 
-    def macd(self, marketId: str, interval: AVInterval) -> Optional[pandas.DataFrame]:
+    def macd(self, marketId: str, interval: AVInterval) -> pandas.DataFrame:
         """
         Calls AlphaVantage API and return the MACDEXT tech indicator series for the given market
 
@@ -245,22 +232,15 @@ class AVInterface(StocksInterface):
         """
         self._wait_before_call(self._config.get_alphavantage_api_timeout())
         market = self._format_market_id(marketId)
-        try:
-            data, meta_data = self.TI.get_macd(
-                market,
-                interval=interval.value,
-                series_type="close",
-                fastperiod=12,
-                slowperiod=26,
-                signalperiod=9,
-            )
-            return data
-        except Exception as e:
-            logging.error("AlphaVantage wrong api call for {}".format(market))
-            logging.debug(e)
-            logging.debug(traceback.format_exc())
-            logging.debug(sys.exc_info()[0])
-        return None
+        data, meta_data = self.TI.get_macd(
+            market,
+            interval=interval.value,
+            series_type="close",
+            fastperiod=12,
+            slowperiod=26,
+            signalperiod=9,
+        )
+        return data
 
     # Utils functions
 
