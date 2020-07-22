@@ -18,11 +18,11 @@ def broker():
 
 def test_make_strategy_fail(config, broker):
     sf = StrategyFactory(config, broker)
-    strategy = sf.make_strategy("")
-    assert strategy is None
+    with pytest.raises(ValueError):
+        _ = sf.make_strategy("")
 
-    strategy = sf.make_strategy("wrong")
-    assert strategy is None
+    with pytest.raises(ValueError):
+        _ = sf.make_strategy("wrong")
 
 
 def test_make_strategy(config, broker):

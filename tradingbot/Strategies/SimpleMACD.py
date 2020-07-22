@@ -73,6 +73,8 @@ class SimpleMACD(Strategy):
             logging.info(
                 "SimpleMACD says: {} {}".format(tradeDirection.name, market.id)
             )
+        else:
+            return TradeDirection.NONE, None, None
 
         # Calculate stop and limit distances
         limit, stop = self.calculate_stop_limit(
