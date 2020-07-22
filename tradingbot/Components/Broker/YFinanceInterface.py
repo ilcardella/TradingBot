@@ -64,7 +64,7 @@ class YFinanceInterface(StocksInterface):
         # TODO use dates instead of index
         return MarketMACD(
             market,
-            range(len(data)),
+            data.index,
             data["MACD"].values,
             data["Signal"].values,
             data["Hist"].values,
@@ -103,3 +103,4 @@ class YFinanceInterface(StocksInterface):
             return YFInterval.DAY_5
         elif interval == Interval.MONTH:
             return YFInterval.MONTH_1
+        raise ValueError("Unsupported interval {}".format(interval.name))

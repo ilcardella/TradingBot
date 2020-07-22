@@ -35,7 +35,7 @@ class Configuration:
         return value
 
     def get_raw_config(self) -> Dict[str, Property]:
-        return self._find_property(CONFIGURATION_ROOT)
+        return self._find_property([CONFIGURATION_ROOT])
 
     def get_max_account_usable(self) -> Property:
         return self._find_property(["max_account_usable"])

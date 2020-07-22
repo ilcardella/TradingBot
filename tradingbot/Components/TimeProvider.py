@@ -37,7 +37,7 @@ class TimeProvider:
             str(now_time), ("07:55", "16:35")
         )
 
-    def get_seconds_to_market_opening(self, from_time: datetime) -> int:
+    def get_seconds_to_market_opening(self, from_time: datetime) -> float:
         """Return the amount of seconds from now to the next market opening,
         taking into account UK bank holidays and weekends"""
         today_opening = datetime(
@@ -67,7 +67,7 @@ class TimeProvider:
         # Calculate the delta from from_time to the next market opening
         return (nextMarketOpening - from_time).total_seconds()
 
-    def wait_for(self, time_amount_type: TimeAmount, amount: int = -1) -> None:
+    def wait_for(self, time_amount_type: TimeAmount, amount: float = -1.0) -> None:
         """Wait for the specified amount of time.
         An TimeAmount type can be specified
         """

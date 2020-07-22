@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 from ...Interfaces.Market import Market
 from ...Interfaces.MarketHistory import MarketHistory
@@ -36,9 +36,7 @@ class Broker:
         """
         return self.account_ifc.get_markets_from_watchlist(watchlist_name)
 
-    def navigate_market_node(
-        self, node_id: str
-    ) -> Optional[Dict[str, Union[int, float, str]]]:
+    def navigate_market_node(self, node_id: str) -> Dict[str, Any]:
         """
         Return the children nodes of the requested node
         """
