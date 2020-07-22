@@ -104,7 +104,7 @@ class AVInterface(StocksInterface):
         )
         return history
 
-    def daily(self, marketId: str) -> pandas.Dataframe:
+    def daily(self, marketId: str) -> pandas.DataFrame:
         """
         Calls AlphaVantage API and return the Daily time series for the given market
 
@@ -124,7 +124,7 @@ class AVInterface(StocksInterface):
             logging.debug(sys.exc_info()[0])
         return None
 
-    def intraday(self, marketId: str, interval: AVInterval) -> pandas.Dataframe:
+    def intraday(self, marketId: str, interval: AVInterval) -> pandas.DataFrame:
         """
         Calls AlphaVantage API and return the Intraday time series for the given market
 
@@ -146,7 +146,7 @@ class AVInterface(StocksInterface):
             logging.debug(sys.exc_info()[0])
         return None
 
-    def weekly(self, marketId: str) -> pandas.Dataframe:
+    def weekly(self, marketId: str) -> pandas.DataFrame:
         """
         Calls AlphaVantage API and return the Weekly time series for the given market
 
@@ -165,7 +165,7 @@ class AVInterface(StocksInterface):
             logging.debug(sys.exc_info()[0])
         return None
 
-    def quote_endpoint(self, market_id: str) -> pandas.Dataframe:
+    def quote_endpoint(self, market_id: str) -> pandas.DataFrame:
         """
         Calls AlphaVantage API and return the Quote Endpoint data for the given market
 

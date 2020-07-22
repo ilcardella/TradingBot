@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 DEFAULT_CONFIGURATION_PATH = "/opt/TradingBot/config/config.json"
 CONFIGURATION_ROOT = "trading_mate_root"
@@ -18,7 +18,7 @@ class Configuration:
         logging.info("Configuration loaded")
 
     @staticmethod
-    def from_filepath(filepath: str) -> "Configuration":
+    def from_filepath(filepath: Optional[str]) -> "Configuration":
         filepath = filepath if filepath else DEFAULT_CONFIGURATION_PATH
         logging.debug("Loading configuration from: {}".format(filepath))
         with open(filepath, "r") as f:

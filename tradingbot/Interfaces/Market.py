@@ -11,6 +11,7 @@ class Market:
     high: float = 0.0
     low: float = 0.0
     stop_distance_min: float = 0.0
+    expiry: str = "unknown"
 
     def __init__(self) -> None:
         pass

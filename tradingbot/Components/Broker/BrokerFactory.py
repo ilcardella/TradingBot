@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Type, TypeVar, Union
+from typing import TypeVar, Union
 
 from ..Configuration import Configuration
 from .AbstractInterfaces import AccountInterface, StocksInterface
@@ -9,8 +9,7 @@ from .YFinanceInterface import YFinanceInterface
 
 AccountInterfaceImpl = TypeVar("AccountInterfaceImpl", bound=AccountInterface)
 StocksInterfaceImpl = TypeVar("StocksInterfaceImpl", bound=StocksInterface)
-
-BrokerInterfaces = Type[Union[AccountInterfaceImpl, StocksInterfaceImpl]]
+BrokerInterfaces = Union[AccountInterfaceImpl, StocksInterfaceImpl]
 
 
 class InterfaceNames(Enum):

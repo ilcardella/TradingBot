@@ -196,6 +196,7 @@ class IGInterface(AccountInterface, StocksInterface):
         market.stop_distance_min = info["dealingRules"]["minNormalStopOrLimitDistance"][
             "value"
         ]
+        market.expiry = info["instrument"]["expiry"]
         return market
 
     def search_market(self, search: str) -> List[Market]:

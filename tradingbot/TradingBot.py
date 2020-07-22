@@ -19,7 +19,7 @@ from .Components.Utils import (
 )
 from .Interfaces.Market import Market
 from .Interfaces.Position import Position
-from .Strategies.StrategyFactory import StrategyFactory
+from .Strategies.StrategyFactory import StrategyFactory, StrategyImpl
 
 
 class TradingBot:
@@ -27,6 +27,12 @@ class TradingBot:
     Class that initialise and hold references of main components like the
     broker interface, the strategy or the epic_ids list
     """
+
+    time_provider: TimeProvider
+    config: Configuration
+    broker: BrokerInterface
+    strategy: StrategyImpl
+    market_provider: MarketProvider
 
     def __init__(
         self,
@@ -192,15 +198,15 @@ class TradingBot:
         self,
         market: Market,
         direction: TradeDirection,
-        limit: float,
-        stop: float,
+        limit: Optional[float],
+        stop: Optional[float],
         open_positions: List[Position],
     ) -> None:
         """
         Process a trade checking if it is a "close position" trade or a new trade
         """
         # Perform trade only if required
-        if direction is TradeDirection.NONE:
+        if direction is TradeDirection.NONE or limit is None or stop is None:
             return
 
         if len(open_positions) > 0:

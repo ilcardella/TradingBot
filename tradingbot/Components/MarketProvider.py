@@ -1,11 +1,11 @@
 import logging
 from collections import deque
 from enum import Enum
-from typing import Deque, Iterator, List, Optional
+from typing import Deque, Iterator, List
 
 from ..Components.Configuration import Configuration
 from ..Interfaces.Market import Market
-from .Broker import Broker
+from .Broker.Broker import Broker
 
 
 class MarketSource(Enum):
@@ -62,7 +62,7 @@ class MarketProvider:
         """
         return self._create_market(epic)
 
-    def search_market(self, search: str) -> Optional[Market]:
+    def search_market(self, search: str) -> Market:
         """
         Tries to find the market which id matches the given search string.
         If successful return the market snapshot.
