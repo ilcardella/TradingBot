@@ -34,7 +34,7 @@ sudo apt-get install python3
 Clone this repo in your workspace and install `TradingBot` by running the following
 command in the repository root folder
 ```
-sudo python3 setup.py install
+sudo make install-system
 ```
 
 ## Setup
@@ -129,20 +129,21 @@ sudo pip3 uninstall TradingBot
 
 ## Development
 
-To ease dependency management there is the `pyproject.toml` helps installing the required
-python packages in a isolated virtual environment.
+The `Makefile` is the entrypoint for any development action.
+`Poetry` handles the dependency management and the `pyproject.toml` contains the required
+python packages.
 
-Install `pip` and `poetry` and create the virtual environment:
+Install [poetry](https://python-poetry.org/docs/) and create the virtual environment:
 ```
 cd /path/to/repository
-poetry install
+make install
 ```
 
 ## Test
 
 You can run the test from the workspace with:
 ```
-poetry run pytest
+make test
 ```
 
 ## Documentation
@@ -158,9 +159,7 @@ https://tradingbot.readthedocs.io
 
 You can build it locally with:
 ```
-poetry shell
-cd docs
-make html
+make docs
 ```
 
 The generated html files will be in `docs/_build/html`.
@@ -205,7 +204,7 @@ docker pull ilcardella/tradingbot:v1.2.0
 You can build the Docker image yourself using the `Dockerfile` in the `docker` folder:
 ```
 cd /path/to/repo
-docker build -t tradingbot -f docker/Dockerfile .
+make docker
 ```
 
 ### Run
