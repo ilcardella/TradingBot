@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Broker package missing __init__.py
+- Module imports to absolute from installed main package
 
 ### Removed
 - Support of Python 3.5
