@@ -3,9 +3,9 @@ from collections import deque
 from enum import Enum
 from typing import Deque, Iterator, List
 
-from ..Components.Configuration import Configuration
-from ..Interfaces.Market import Market
-from .Broker.Broker import Broker
+from tradingbot.Components.Broker.Broker import Broker
+from tradingbot.Components.Configuration import Configuration
+from tradingbot.Interfaces.Market import Market
 
 
 class MarketSource(Enum):

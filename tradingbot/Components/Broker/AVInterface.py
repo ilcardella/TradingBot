@@ -7,11 +7,11 @@ import pandas
 from alpha_vantage.techindicators import TechIndicators
 from alpha_vantage.timeseries import TimeSeries
 
-from ...Interfaces.Market import Market
-from ...Interfaces.MarketHistory import MarketHistory
-from ...Interfaces.MarketMACD import MarketMACD
-from ..Utils import Interval
-from .AbstractInterfaces import StocksInterface
+from tradingbot.Components.Broker.AbstractInterfaces import StocksInterface
+from tradingbot.Components.Utils import Interval
+from tradingbot.Interfaces.Market import Market
+from tradingbot.Interfaces.MarketHistory import MarketHistory
+from tradingbot.Interfaces.MarketMACD import MarketMACD
 
 
 class AVInterval(Enum):

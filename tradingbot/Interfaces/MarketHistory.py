@@ -2,7 +2,7 @@ from typing import List
 
 import pandas
 
-from .Market import Market
+from tradingbot.Interfaces.Market import Market
 
 
 class MarketHistory:

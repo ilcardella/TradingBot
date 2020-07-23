@@ -3,11 +3,11 @@ from enum import Enum
 
 import yfinance as yf
 
-from ...Interfaces.Market import Market
-from ...Interfaces.MarketHistory import MarketHistory
-from ...Interfaces.MarketMACD import MarketMACD
-from ..Utils import Interval, Utils
-from .AbstractInterfaces import StocksInterface
+from tradingbot.Components.Broker.AbstractInterfaces import StocksInterface
+from tradingbot.Components.Utils import Interval, Utils
+from tradingbot.Interfaces.Market import Market
+from tradingbot.Interfaces.MarketHistory import MarketHistory
+from tradingbot.Interfaces.MarketMACD import MarketMACD
 
 
 class YFInterval(Enum):

@@ -1,6 +1,6 @@
 from typing import Any
 
-from ..Components.Utils import TradeDirection
+from tradingbot.Components.Utils import TradeDirection
 
 
 class Position:

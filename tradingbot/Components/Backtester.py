@@ -2,10 +2,10 @@ import logging
 from datetime import datetime
 from typing import Optional
 
-from ..Interfaces.Market import Market
-from ..Strategies.Strategy import BacktestResult
-from ..Strategies.StrategyFactory import StrategyImpl
-from .Broker.Broker import Broker
+from tradingbot.Components.Broker.Broker import Broker
+from tradingbot.Interfaces.Market import Market
+from tradingbot.Strategies.Strategy import BacktestResult
+from tradingbot.Strategies.StrategyFactory import StrategyImpl
 
 
 class Backtester:

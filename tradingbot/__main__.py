@@ -3,8 +3,8 @@
 import argparse
 import sys
 
-from .Components.TimeProvider import TimeProvider
-from .TradingBot import TradingBot
+from tradingbot.Components.TimeProvider import TimeProvider
+from tradingbot.TradingBot import TradingBot
 
 
 def get_menu_parser() -> argparse.Namespace:

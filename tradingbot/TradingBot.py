@@ -6,20 +6,20 @@ from typing import List, Optional
 
 import pytz
 
-from .Components.Backtester import Backtester
-from .Components.Broker.Broker import Broker as BrokerInterface
-from .Components.Broker.BrokerFactory import BrokerFactory
-from .Components.Configuration import Configuration
-from .Components.MarketProvider import MarketProvider
-from .Components.TimeProvider import TimeAmount, TimeProvider
-from .Components.Utils import (
+from tradingbot.Components.Backtester import Backtester
+from tradingbot.Components.Broker.Broker import Broker as BrokerInterface
+from tradingbot.Components.Broker.BrokerFactory import BrokerFactory
+from tradingbot.Components.Configuration import Configuration
+from tradingbot.Components.MarketProvider import MarketProvider
+from tradingbot.Components.TimeProvider import TimeAmount, TimeProvider
+from tradingbot.Components.Utils import (
     MarketClosedException,
     NotSafeToTradeException,
     TradeDirection,
 )
-from .Interfaces.Market import Market
-from .Interfaces.Position import Position
-from .Strategies.StrategyFactory import StrategyFactory, StrategyImpl
+from tradingbot.Interfaces.Market import Market
+from tradingbot.Interfaces.Position import Position
+from tradingbot.Strategies.StrategyFactory import StrategyFactory, StrategyImpl
 
 
 class TradingBot:
