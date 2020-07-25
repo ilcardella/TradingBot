@@ -37,7 +37,7 @@ class TradingBot:
     def __init__(
         self,
         time_provider: Optional[TimeProvider] = None,
-        config_filepath: Optional[str] = None,
+        config_filepath: Optional[Path] = None,
     ) -> None:
         # Time manager
         self.time_provider = time_provider if time_provider else TimeProvider()

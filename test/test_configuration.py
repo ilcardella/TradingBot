@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 
 from tradingbot.Components.Configuration import Configuration
@@ -20,8 +22,8 @@ def test_init():
 
 def test_from_filepath():
     with pytest.raises(FileNotFoundError):
-        config = Configuration.from_filepath("wrong/path")
-    config = Configuration.from_filepath("test/test_data/config.json")
+        config = Configuration.from_filepath(Path("wrong/path"))
+    config = Configuration.from_filepath(Path("test/test_data/config.json"))
     assert config is not None
 
 
@@ -42,7 +44,7 @@ def test_get_raw_config():
 
 
 def test_value_getters():
-    config = Configuration.from_filepath("test/test_data/config.json")
+    config = Configuration.from_filepath(Path("test/test_data/config.json"))
     assert config is not None
     assert config.get_max_account_usable() == 90
     assert config.get_time_zone() == "Europe/London"

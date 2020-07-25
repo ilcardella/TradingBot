@@ -4,9 +4,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
-DEFAULT_CONFIGURATION_PATH = "{}/.TradingBot/config/config.json".format(
-    str(Path.home())
-)
+DEFAULT_CONFIGURATION_PATH = Path.home() / ".TradingBot" / "config" / "config.json"
 CONFIGURATION_ROOT = "trading_mate_root"
 
 # FIXME Property should be of type JSON byt it requires typing to accepts recursive types
@@ -25,10 +23,10 @@ class Configuration:
         logging.info("Configuration loaded")
 
     @staticmethod
-    def from_filepath(filepath: Optional[str]) -> "Configuration":
+    def from_filepath(filepath: Optional[Path]) -> "Configuration":
         filepath = filepath if filepath else DEFAULT_CONFIGURATION_PATH
         logging.debug("Loading configuration from: {}".format(filepath))
-        with open(filepath, "r") as f:
+        with filepath.open(mode="r") as f:
             return Configuration(json.load(f))
 
     def _find_property(self, fields: List[str]) -> Union[ConfigDict, Property]:
@@ -78,8 +76,7 @@ class Configuration:
         return self._find_property(["credentials_filepath"])
 
     def get_credentials(self) -> CredentialDict:
-        filepath = self.get_credentials_filepath()
-        with open(filepath, "r") as f:
+        with Path(self.get_credentials_filepath()).open(mode="r") as f:
             return json.load(f)
 
     def get_spin_interval(self) -> Property:

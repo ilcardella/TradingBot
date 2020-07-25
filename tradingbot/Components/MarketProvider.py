@@ -1,6 +1,7 @@
 import logging
 from collections import deque
 from enum import Enum
+from pathlib import Path
 from typing import Deque, Iterator, List
 
 from tradingbot.Components.Broker.Broker import Broker
@@ -98,7 +99,7 @@ class MarketProvider:
 
         if self.config.get_active_market_source() == MarketSource.LIST.value:
             self.epic_list = self._load_epic_ids_from_local_file(
-                self.config.get_epic_ids_filepath()
+                Path(self.config.get_epic_ids_filepath())
             )
         elif self.config.get_active_market_source() == MarketSource.WATCHLIST.value:
             self.epic_list = self._load_epic_ids_from_watchlist(
@@ -110,7 +111,7 @@ class MarketProvider:
             raise RuntimeError("ERROR: invalid market_source configuration")
         self.epic_list_iter = iter(self.epic_list)
 
-    def _load_epic_ids_from_local_file(self, filepath: str) -> List[str]:
+    def _load_epic_ids_from_local_file(self, filepath: Path) -> List[str]:
         """
         Read a file from filesystem containing a list of epic ids.
         The filepath is defined in config.json file
@@ -120,8 +121,8 @@ class MarketProvider:
         epic_ids = []
         try:
             # open file and read the content in a list
-            with open(filepath, "r") as filehandle:
-                filecontents = filehandle.readlines()
+            with filepath.open(mode="r") as f:
+                filecontents = f.readlines()
                 for line in filecontents:
                     # remove linebreak which is the last character of the string
                     current_epic_id = line[:-1]

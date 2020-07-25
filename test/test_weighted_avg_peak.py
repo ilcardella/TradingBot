@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 from common.MockRequests import (
     ig_request_confirm_trade,
@@ -17,7 +19,7 @@ from tradingbot.Strategies.WeightedAvgPeak import WeightedAvgPeak
 
 @pytest.fixture
 def config():
-    config = Configuration.from_filepath("test/test_data/config.json")
+    config = Configuration.from_filepath(Path("test/test_data/config.json"))
     config.config["strategies"]["active"] = "weighted_avg_peak"
     return config
 
