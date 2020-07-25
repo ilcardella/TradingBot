@@ -1,7 +1,7 @@
 import logging
-import os
 import traceback
 from datetime import datetime as dt
+from pathlib import Path
 from typing import List, Optional
 
 import pytz
@@ -74,13 +74,9 @@ class TradingBot:
         debugLevel = (
             logging.DEBUG if self.config.is_logging_debug_enabled() else logging.INFO
         )
-        # If enabled define log file filename with current timestamp
         if self.config.is_logging_enabled():
             log_filename = self.config.get_log_filepath()
-            time_str = dt.now().isoformat()
-            time_suffix = time_str.replace(":", "_").replace(".", "_")
-            log_filename = log_filename.replace("{timestamp}", time_suffix)
-            os.makedirs(os.path.dirname(log_filename), exist_ok=True)
+            Path(log_filename).parent.mkdir(parents=True, exist_ok=True)
             logging.basicConfig(
                 filename=log_filename,
                 level=debugLevel,

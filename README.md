@@ -21,7 +21,7 @@ All the credits for the `WeightedAvgPeak` strategy goes to GitHub user @tg12.
 - Poetry (only for development)
 - Docker (optional)
 
-View file `pyproject.toml` or `setup.py` for the full list of required python packages.
+View file `pyproject.toml` for the full list of required python packages.
 
 ## Install
 
@@ -31,10 +31,10 @@ sudo apt-get update
 sudo apt-get install python3
 ```
 
-Clone this repo in your workspace and install `TradingBot` by running the following
-command in the repository root folder
+Clone this repo and install `TradingBot` by running the following command from
+the repository root folder
 ```
-sudo make install-system
+make install-system
 ```
 
 ## Setup
@@ -44,8 +44,7 @@ Login to your IG Dashboard
 - Obtain an API KEY from the settings panel
 - If using the demo account, create demo credentials
 - Take note of your spread betting account ID (demo or real)
-- Visit AlphaVantage website: `https://www.alphavantage.co`
-- Request a free api key
+- (Optional) Visit AlphaVantage website: `https://www.alphavantage.co` and request a free api key
 - Insert these info in a file called `.credentials`
 
 This must be in json format
@@ -58,11 +57,11 @@ This must be in json format
     "av_api_key": "apiKey"
 }
 ```
-- Copy the `.credentials` file into the `/opt/TradingBot/config` folder
+- Copy the `.credentials` file into the `${HOME}/.TradingBot/config` folder
 - Revoke permissions to read the file
 ```
 cd config
-sudo chmod 600 /opt/TradingBot/config/.credentials
+sudo chmod 600 ${HOME}/.TradingBot/config/.credentials
 ```
 
 ### Market source
@@ -72,7 +71,7 @@ There are different ways to define which markets to analyse with TradinbgBot. Yo
 - **Local file**
 
 You can create a file `epic_ids.txt` containg IG epics of the companies you want to monitor.
-You need to copy this file into the `/opt/TradingBot/data` folder.
+You need to copy this file into the `${HOME}/.TradingBot/data` folder.
 
 - **Watchlist**
 
@@ -90,15 +89,6 @@ how TradingBot work. It is important to setup this file appropriately in order t
 ## Start TradingBot
 
 You can start TradingBot with
-```
-sudo trading_bot
-```
-
-Otherwise you can change ownership of the `/opt/TradingBot` folder:
-```
-sudo chown -R $USER: /opt/TradingBot
-```
-and then run `TradingBot` without sudo
 ```
 trading_bot
 ```
@@ -212,12 +202,12 @@ As mentioned above, it's important that you configure TradingBot before starting
 Once the image is available you can run `TradingBot` in a Docker container mounting the configuration files:
 ```
 docker run -d \
-    -v /path/to/config.json:/opt/TradingBot/config/config.json \
-    -v /path/to/.credentials:/opt/TradingBot/config/.credentials \
+    -v /path/to/config.json:/.TradingBot/config/config.json \
+    -v /path/to/.credentials:/.TradingBot/config/.credentials \
     tradingbot:latest
 ```
 
-You can also mount the log folder to store the logs on the host adding `-v /host/folder:/opt/TradingBot/log`
+You can also mount the log folder to store the logs on the host adding `-v /host/folder:/.TradingBot/log`
 
 
 ## Contributing

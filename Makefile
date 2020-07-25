@@ -3,7 +3,7 @@ ifeq ($(origin .RECIPEPREFIX), undefined)
 endif
 .RECIPEPREFIX = >
 
-INSTALL_DIR = /opt/TradingBot
+INSTALL_DIR = ${HOME}/.TradingBot
 DATA_DIR = $(INSTALL_DIR)/data
 CONFIG_DIR = $(INSTALL_DIR)/config
 LOG_DIR = $(INSTALL_DIR)/log
@@ -26,7 +26,7 @@ remove-env:
 > poetry env remove python3
 
 install-system:
-> pip install .
+> pip3 install --user .
 > mkdir -p $(CONFIG_DIR)
 > mkdir -p $(DATA_DIR)
 > mkdir -p $(LOG_DIR)
