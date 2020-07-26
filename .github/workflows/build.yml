@@ -57,6 +57,5 @@ jobs:
         with:
           dockerfile: docker/Dockerfile
           repository: ilcardella/tradingbot
-          tags: latest
           tag_with_ref: true
-          push: false # Disable push until everything is tested
+          push: ${{ startsWith(github.ref, 'refs/tags/') || startsWith(github.ref, 'refs/heads/master') }}
