@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 
 from tradingbot.Components.Configuration import Configuration
@@ -8,7 +10,7 @@ from tradingbot.Strategies.WeightedAvgPeak import WeightedAvgPeak
 
 @pytest.fixture
 def config():
-    return Configuration.from_filepath("test/test_data/config.json")
+    return Configuration.from_filepath(Path("test/test_data/config.json"))
 
 
 @pytest.fixture

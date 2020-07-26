@@ -1,11 +1,11 @@
 {
     "max_account_usable": 50,
     "time_zone": "Europe/London",
-    "credentials_filepath": "/opt/TradingBot/config/.credentials",
+    "credentials_filepath": "{home}/.TradingBot/config/.credentials",
     "spin_interval": 3600,
     "logging": {
         "enable": true,
-        "log_filepath": "/opt/TradingBot/log/trading_bot_{timestamp}.log",
+        "log_filepath": "{home}/.TradingBot/log/trading_bot_{timestamp}.log",
         "debug": false
     },
     "market_source": {
@@ -15,7 +15,7 @@
             "api",
             "watchlist"
         ],
-        "epic_ids_filepath": "/opt/TradingBot/data/epic_ids.txt",
+        "epic_ids_filepath": "{home}/.TradingBot/data/epic_ids.txt",
         "watchlist_name": "trading_bot"
     },
     "stocks_interface": {
@@ -50,7 +50,7 @@
         ]
     },
     "strategies": {
-        "active": "weighted_avg_peak",
+        "active": "simple_macd",
         "values": [
             "simple_macd",
             "weighted_avg_peak"

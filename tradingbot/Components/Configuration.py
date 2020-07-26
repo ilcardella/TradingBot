@@ -1,38 +1,67 @@
 import json
 import logging
+from datetime import datetime
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
-DEFAULT_CONFIGURATION_PATH = "/opt/TradingBot/config/config.json"
+DEFAULT_CONFIGURATION_PATH = Path.home() / ".TradingBot" / "config" / "config.json"
 CONFIGURATION_ROOT = "trading_mate_root"
 
 # FIXME Property should be of type JSON byt it requires typing to accepts recursive types
 Property = Any
+ConfigDict = Dict[str, Property]
 CredentialDict = Dict[str, str]
 
 
 class Configuration:
-    def __init__(self, dictionary: Dict[str, Property]) -> None:
+    config: ConfigDict
+
+    def __init__(self, dictionary: ConfigDict) -> None:
         if not isinstance(dictionary, dict):
             raise ValueError("argument must be a dict")
-        self.config = dictionary
+        self.config = self._parse_raw_config(dictionary)
         logging.info("Configuration loaded")
 
     @staticmethod
-    def from_filepath(filepath: Optional[str]) -> "Configuration":
+    def from_filepath(filepath: Optional[Path]) -> "Configuration":
         filepath = filepath if filepath else DEFAULT_CONFIGURATION_PATH
         logging.debug("Loading configuration from: {}".format(filepath))
-        with open(filepath, "r") as f:
+        with filepath.open(mode="r") as f:
             return Configuration(json.load(f))
 
-    def _find_property(self, fields: List[str]) -> Union[Dict[str, Property], Property]:
+    def _find_property(self, fields: List[str]) -> Union[ConfigDict, Property]:
         if CONFIGURATION_ROOT in fields:
             return self.config
-        if not isinstance(fields, list) or len(fields) < 1:
+        if type(fields) is not list or len(fields) < 1:
             raise ValueError("Can't find properties {} in configuration".format(fields))
         value = self.config[fields[0]]
         for f in fields[1:]:
             value = value[f]
         return value
+
+    def _parse_raw_config(self, config_dict: ConfigDict) -> ConfigDict:
+        config_copy = config_dict
+        for key, value in config_copy.items():
+            if type(value) is dict:
+                config_dict[key] = self._parse_raw_config(value)
+            elif type(value) is list:
+                for i in range(len(value)):
+                    config_dict[key][i] = (
+                        self._replace_placeholders(config_dict[key][i])
+                        if type(config_dict[key][i]) is str
+                        else config_dict[key][i]
+                    )
+            elif type(value) is str:
+                config_dict[key] = self._replace_placeholders(config_dict[key])
+        return config_dict
+
+    def _replace_placeholders(self, string: str) -> str:
+        string = string.replace("{home}", str(Path.home()))
+        string = string.replace(
+            "{timestamp}",
+            datetime.now().isoformat().replace(":", "_").replace(".", "_"),
+        )
+        return string
 
     def get_raw_config(self) -> Dict[str, Property]:
         return self._find_property([CONFIGURATION_ROOT])
@@ -47,8 +76,7 @@ class Configuration:
         return self._find_property(["credentials_filepath"])
 
     def get_credentials(self) -> CredentialDict:
-        filepath = self.get_credentials_filepath()
-        with open(filepath, "r") as f:
+        with Path(self.get_credentials_filepath()).open(mode="r") as f:
             return json.load(f)
 
     def get_spin_interval(self) -> Property:

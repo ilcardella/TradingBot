@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 from common.MockRequests import (
     ig_request_login,
@@ -18,7 +20,7 @@ def config():
     """
     Returns a dict with config parameter for strategy and simpleMACD
     """
-    return Configuration.from_filepath("test/test_data/config.json")
+    return Configuration.from_filepath(Path("test/test_data/config.json"))
 
 
 @pytest.fixture

@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## []
 ### Changed
 - Improved and expanded configuration file format
+- TradingBot is installed in the user spaceand support file in the user home folder
 
 ### Fixed
 - Broker package missing __init__.py
