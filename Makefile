@@ -56,6 +56,6 @@ lint: flake mypy
 
 check: format lint test
 
-ci: install check docs build install-system
+ci: install check docs build
 
 .PHONY: test lint format install docs build docker install-system ci check mypy flake isort black remove update

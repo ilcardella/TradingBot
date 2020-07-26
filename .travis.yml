@@ -8,9 +8,6 @@ python:
   - "3.8"
   - "3.8-dev"
 
-virtualenv:
-  system_site_packages: true
-
 cache: pip
 
 services:
