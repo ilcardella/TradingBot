@@ -52,5 +52,11 @@ jobs:
       - name: Run tests
         run: make ci
 
-    #   - name: Docker build
-    #     run: make docker
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v1
+        with:
+          dockerfile: docker/Dockerfile
+          repository: ilcardella/tradingbot
+          tags: latest
+          tag_with_ref: true
+          push: false # Disable push until everything is tested

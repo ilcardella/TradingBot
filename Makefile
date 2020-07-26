@@ -36,7 +36,7 @@ build:
 > poetry build
 
 docker:
-> docker build -t tradingbot -f docker/Dockerfile .
+> docker build -t ilcardella/tradingbot -f docker/Dockerfile .
 
 mypy:
 > poetry run mypy tradingbot/
