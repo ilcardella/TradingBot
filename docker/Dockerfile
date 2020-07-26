@@ -5,7 +5,7 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update \
     && apt-get install -y --no-install-recommends make \
     && rm -rf /var/lib/apt/lists/* \
-    && pip install 'poetry==${POETRY_VERSION}'
+    && pip install 'poetry==$POETRY_VERSION'
 
 WORKDIR /workspace
 
