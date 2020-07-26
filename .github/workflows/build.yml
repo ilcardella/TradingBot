@@ -57,5 +57,6 @@ jobs:
         with:
           dockerfile: docker/Dockerfile
           repository: ilcardella/tradingbot
+          build_args: POETRY_VERSION=${{ env.poetry-version }}
           tag_with_ref: true
           push: ${{ startsWith(github.ref, 'refs/tags/') || startsWith(github.ref, 'refs/heads/master') }}
