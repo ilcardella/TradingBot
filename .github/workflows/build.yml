@@ -96,4 +96,11 @@ jobs:
         run: echo ${{ steps.buildx.outputs.platforms }}
 
       - name: Run Buildx
-        run: make docker-arm
+        run: |
+          docker buildx build \
+          --platform linux/arm64 \
+          --output "type=image,push=false" \
+          --file docker/Dockerfile-arm \
+          -t ilcardella/tradingbot:arm \
+          --build-arg POETRY_VERSION=${{ env.poetry-version }} \
+          .

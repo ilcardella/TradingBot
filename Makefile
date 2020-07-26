@@ -38,15 +38,6 @@ build:
 docker:
 > docker build -t ilcardella/tradingbot -f docker/Dockerfile .
 
-docker-arm:
-> docker buildx build \
-    --platform linux/arm64 \
-    --output "type=image,push=false" \
-    --file docker/Dockerfile-arm \
-    -t ilcardella/tradingbot:arm \
-    --build-arg POETRY_VERSION=${{ env.poetry-version }} \
-    .
-
 mypy:
 > poetry run mypy tradingbot/
 
@@ -67,4 +58,4 @@ check: format lint test
 
 ci: install check docs build
 
-.PHONY: test lint format install docs build docker install-system ci check mypy flake isort black remove update docker-arm
+.PHONY: test lint format install docs build docker install-system ci check mypy flake isort black remove update
