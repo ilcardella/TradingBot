@@ -1,0 +1,24 @@
+FROM ubuntu:latest
+
+ENV DEBIAN_FRONTEND noninteractive
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends make \
+                                                    build-essentials \
+                                                    python3 \
+                                                    pythno3-pip \
+    && rm -rf /var/lib/apt/lists/*
+
+ARG POETRY_VERSION=1.0.10
+RUN python3 -m pip install --upgrade pip \
+    && python3 -m pip install "poetry==$POETRY_VERSION"
+
+WORKDIR /workspace
+
+COPY ./ /workspace
+
+RUN make install-system \
+    && rm -rf /workspace
+
+WORKDIR /
+
+CMD ["trading_bot"]
