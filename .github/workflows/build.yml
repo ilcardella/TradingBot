@@ -1,0 +1,66 @@
+name: TradingBot CI
+
+on:
+  push:
+  pull_request:
+    - branches: master
+  schedule:
+    - cron: '0 0 * * 0' # weekly
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.8]
+    name: Python ${{ matrix.python-version }}
+    env:
+      poetry-version: 1.0.10
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: x64
+
+      - name: Pip cache
+        uses: actions/cache@v2
+        with:
+          # This path is specific to Ubuntu
+          path: ~/.cache/pip
+          # Look to see if there is a cache hit for the corresponding poetry.lock
+          key: ${{ runner.os }}-pip-${{ env.poetry-version }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+            ${{ runner.os }}-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install 'poetry==${{ env.poetry-version }}'
+
+      - name: Poetry cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/pypoetry/virtualenvs
+          key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-poetry-
+
+      - name: Run tests
+        run: make ci
+
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v1
+        if: ${{ matrix.python-version == 3.8 }} # Need to do this only on one runner
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          dockerfile: docker/Dockerfile
+          repository: ilcardella/tradingbot
+          build_args: POETRY_VERSION=${{ env.poetry-version }}
+          tag_with_ref: true
+          push: ${{ startsWith(github.ref, 'refs/tags/') || startsWith(github.ref, 'refs/heads/master') }}
