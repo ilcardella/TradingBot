@@ -8,6 +8,9 @@ on:
   schedule:
     - cron: '0 0 * * 0' # weekly
 
+env:
+  poetry-version: 1.0.10
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -15,8 +18,6 @@ jobs:
       matrix:
         python-version: [3.6, 3.7, 3.8]
     name: Python ${{ matrix.python-version }}
-    env:
-      poetry-version: 1.0.10
 
     steps:
       - uses: actions/checkout@v2
@@ -54,6 +55,11 @@ jobs:
       - name: Run tests
         run: make ci
 
+  docker:
+    runs-on: ubuntu-latest
+    name: Docker build and push
+
+    steps:
       - name: Build and push Docker images
         uses: docker/build-push-action@v1
         if: ${{ matrix.python-version == 3.8 }} # Need to do this only on one runner
