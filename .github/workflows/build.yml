@@ -8,6 +8,11 @@ on:
   schedule:
     - cron: '0 0 * * 0' # weekly
 
+env:
+  poetry-version: 1.0.10
+  docker-image-name: ilcardella/tradingbot
+  push-docker-image: ${{ startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/master' }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -15,11 +20,10 @@ jobs:
       matrix:
         python-version: [3.6, 3.7, 3.8]
     name: Python ${{ matrix.python-version }}
-    env:
-      poetry-version: 1.0.10
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
@@ -54,14 +58,84 @@ jobs:
       - name: Run tests
         run: make ci
 
-      - name: Build and push Docker images
+  docker:
+    needs: build
+    runs-on: ubuntu-latest
+    name: Docker build and push
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Build and push Docker image
         uses: docker/build-push-action@v1
-        if: ${{ matrix.python-version == 3.8 }} # Need to do this only on one runner
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           dockerfile: docker/Dockerfile
-          repository: ilcardella/tradingbot
+          repository: ${{ env.docker-image-name }}
           build_args: POETRY_VERSION=${{ env.poetry-version }}
           tag_with_ref: true
-          push: ${{ startsWith(github.ref, 'refs/tags/') || startsWith(github.ref, 'refs/heads/master') }}
+          push: ${{ env.push-docker-image }}
+
+  docker-buildx:
+    needs: build
+    runs-on: ubuntu-latest
+    name: Docker buildx
+    # Until pandas releases arm64 wheels build this image only with the cron job or for releases
+    if: github.event_name == 'schedule' || startsWith(github.ref, 'refs/tags/')
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Prepare
+        id: prepare
+        run: |
+          DOCKER_IMAGE=${{ env.docker-image-name }}
+          VERSION=latest
+          PLATFORMS=linux/arm64
+
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/}
+          elif [[ $GITHUB_REF != refs/heads/master ]]; then
+            VERSION=${GITHUB_REF#refs/heads/}
+          fi
+
+          echo ::set-output name=platforms::${PLATFORMS}
+          echo ::set-output name=docker_image::${DOCKER_IMAGE}
+          echo ::set-output name=version::${VERSION}-arm64
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: crazy-max/ghaction-docker-buildx@v3
+        with:
+          buildx-version: latest
+          qemu-version: latest
+
+      - name: Cache Docker layers
+        uses: actions/cache@v2
+        id: cache
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Docker Login
+        if: success() && ${{ env.push-docker-image }}
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: |
+          echo "${DOCKER_PASSWORD}" | docker login --username "${DOCKER_USERNAME}" --password-stdin
+
+      - name: Run Buildx
+        run: |
+          docker buildx build \
+          --platform ${{ steps.prepare.outputs.platforms }} \
+          --output "type=image,push=${{ env.push-docker-image }}" \
+          --file docker/Dockerfile-arm \
+          -t ${{ steps.prepare.outputs.docker_image }}:${{ steps.prepare.outputs.version }} \
+          --build-arg POETRY_VERSION=${{ env.poetry-version }} \
+          .
