@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## []
 ### Changed
 - Improved and expanded configuration file format
-- TradingBot is installed in the user spaceand support file in the user home folder
+- TradingBot is installed in the user space and support files in the user home folder
 
 ### Fixed
 - Broker package missing __init__.py
@@ -19,10 +19,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Common interfaces to unify stocks and account interfaces
-- Support for YFinance
+- Support for Yahoo Finance
 - Formatting and linting support with black and flake8
 - Static types checking with mypy
 - Make `install-system` target to install TradingBot
+- Support Docker image on aarch64 architecture
 
 ## [1.2.0] - 2019-11-16
 ### Added

@@ -82,8 +82,8 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     name: Docker buildx
-    # Until pandas releases arm64 wheels build this image only with the cron job or for releases
-    if: github.event_name == 'schedule' || startsWith(github.ref, 'refs/tags/')
+    #if: github.event_name == 'schedule' || startsWith(github.ref, 'refs/tags/')
+    if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/master' 
 
     steps:
       - name: Checkout
