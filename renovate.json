@@ -3,9 +3,6 @@
     "config:base"
   ],
   "baseBranches": ["master"],
-  "pip_setup": {
-      "enabled": true
-  },
   "poetry": {
       "enabled": true
   },

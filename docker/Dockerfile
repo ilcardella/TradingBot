@@ -7,6 +7,8 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* \
     && pip install "poetry==$POETRY_VERSION"
 
+ENV PATH /root/.local/bin:$PATH
+
 WORKDIR /workspace
 
 COPY ./ /workspace
