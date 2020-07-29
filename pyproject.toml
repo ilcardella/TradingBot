@@ -34,7 +34,7 @@ isort = "^5.0.2"
 mypy = "^0.782"
 
 [tool.poetry.scripts]
-trading_bot = 'tradingbot.__main__:main'
+trading_bot = 'tradingbot:main'
 
 [tool.black]
 line-length = 88
