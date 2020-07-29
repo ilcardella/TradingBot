@@ -6,8 +6,7 @@ from tradingbot.TradingBot import TradingBot
 
 
 def get_menu_parser() -> argparse.Namespace:
-    # TODO use pip for version
-    VERSION = "1.2.0"
+    VERSION = "2.0.0"
     parser = argparse.ArgumentParser(prog="TradingBot")
     main_group = parser.add_mutually_exclusive_group()
     main_group.add_argument(
