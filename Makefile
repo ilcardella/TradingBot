@@ -25,17 +25,17 @@ update:
 remove-env:
 > poetry env remove python3
 
-install-system:
+install-system: clean
 > pip3 install --user .
 > mkdir -p $(CONFIG_DIR)
 > mkdir -p $(DATA_DIR)
 > mkdir -p $(LOG_DIR)
 > cp config/config.json $(CONFIG_DIR)
 
-build:
+build: clean
 > poetry build
 
-docker:
+docker: clean
 > docker build -t ilcardella/tradingbot -f docker/Dockerfile .
 
 mypy:
@@ -57,5 +57,17 @@ lint: flake mypy
 check: format lint test
 
 ci: install check docs build
+
+clean:
+> rm -rf *egg-info
+> rm -rf build/
+> rm -rf dist/
+> find . -name '*.pyc' -exec rm -f {} +
+> find . -name '*.pyo' -exec rm -f {} +
+> find . -name '*~' -exec rm -f  {} +
+> find . -name '__pycache__' -exec rm -rf  {} +
+> find . -name '_build' -exec rm -rf  {} +
+> find . -name '.mypy_cache' -exec rm -rf  {} +
+> find . -name '.pytest_cache' -exec rm -rf  {} +
 
 .PHONY: test lint format install docs build docker install-system ci check mypy flake isort black remove update
