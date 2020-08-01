@@ -20,6 +20,8 @@ ARG POETRY_VERSION=1.0.10
 RUN python -m pip install --upgrade pip \
     && python -m pip install "poetry==$POETRY_VERSION"
 
+ENV PATH /root/.local/bin:$PATH
+
 WORKDIR /workspace
 
 COPY ./ /workspace
