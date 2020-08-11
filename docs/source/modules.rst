@@ -11,7 +11,7 @@ along with the documentation of its internal members.
 TradingBot
 **********
 
-.. automodule:: TradingBot
+.. automodule:: tradingbot
 
 .. autoclass:: TradingBot
     :members:
@@ -32,7 +32,7 @@ trades.
 AbstractInterfaces
 ------------------
 
-.. automodule:: Components.Broker.AbstractInterfaces
+.. automodule:: Components.Broker
 
 .. autoclass:: AbstractInterface
     :members:
@@ -46,7 +46,7 @@ AbstractInterfaces
 IGInterface
 -----------
 
-.. automodule:: Components.Broker.IGInterface
+.. automodule:: Components.Broker
 
 .. autoclass:: IGInterface
     :members:
@@ -60,7 +60,7 @@ Enums
 AVInterface
 -----------
 
-.. automodule:: Components.Broker.AVInterface
+.. automodule:: Components.Broker
 
 .. autoclass:: AVInterface
     :members:
@@ -74,7 +74,7 @@ Enums
 YFinanceInterface
 -----------------
 
-.. automodule:: Components.Broker.YFinanceInterface
+.. automodule:: Components.Broker
 
 .. autoclass:: YFInterval
     :members:
@@ -82,7 +82,7 @@ YFinanceInterface
 Broker
 ------
 
-.. automodule:: Components.Broker.Broker
+.. automodule:: Components.Broker
 
 .. autoclass:: Broker
     :members:
@@ -90,7 +90,7 @@ Broker
 BrokerFactory
 -------------
 
-.. automodule:: Components.Broker.BrokerFactory
+.. automodule:: Components.Broker
 
 .. autoclass:: BrokerFactory
     :members:
@@ -101,7 +101,7 @@ BrokerFactory
 MarketProvider
 ==============
 
-.. automodule:: Components.MarketProvider
+.. automodule:: Components
 
 .. autoclass:: MarketProvider
     :members:
@@ -115,7 +115,7 @@ Enums
 TimeProvider
 ============
 
-.. automodule:: Components.TimeProvider
+.. automodule:: Components
 
 .. autoclass:: TimeProvider
     :members:
@@ -129,7 +129,7 @@ Enums
 Backtester
 ==========
 
-.. automodule:: Components.Backtester
+.. automodule:: Components
 
 .. autoclass:: Backtester
     :members:
@@ -137,7 +137,7 @@ Backtester
 Configuration
 =============
 
-.. automodule:: Components.Configuration
+.. automodule:: Components
 
 .. autoclass:: Configuration
     :members:
@@ -145,7 +145,7 @@ Configuration
 Utils
 =====
 
-.. automodule:: Components.Utils
+.. automodule:: Components
 
 .. autoclass:: Utils
     :members:
@@ -179,7 +179,7 @@ errors.
 Market
 ======
 
-.. automodule:: Interfaces.Market
+.. automodule:: Interfaces
 
 .. autoclass:: Market
     :members:
@@ -187,7 +187,7 @@ Market
 MarketHistory
 =============
 
-.. automodule:: Interfaces.MarketHistory
+.. automodule:: Interfaces
 
 .. autoclass:: MarketHistory
     :members:
@@ -195,7 +195,7 @@ MarketHistory
 MarketMACD
 ==========
 
-.. automodule:: Interfaces.MarketMACD
+.. automodule:: Interfaces
 
 .. autoclass:: MarketMACD
     :members:
@@ -203,7 +203,7 @@ MarketMACD
 Position
 ========
 
-.. automodule:: Interfaces.Position
+.. automodule:: Interfaces
 
 .. autoclass:: Position
     :members:
@@ -219,7 +219,7 @@ The other modules described here are strategies available in TradingBot.
 Strategy
 ========
 
-.. automodule:: Strategies.Strategy
+.. automodule:: Strategies
 
 .. autoclass:: Strategy
     :members:
@@ -227,7 +227,7 @@ Strategy
 StrategyFactory
 ===============
 
-.. automodule:: Strategies.StrategyFactory
+.. automodule:: Strategies
 
 .. autoclass:: StrategyFactory
     :members:
@@ -235,7 +235,7 @@ StrategyFactory
 SimpleMACD
 ==========
 
-.. automodule:: Strategies.SimpleMACD
+.. automodule:: Strategies
 
 .. autoclass:: SimpleMACD
     :members:
@@ -243,7 +243,7 @@ SimpleMACD
 Weighted Average Peak Detection
 ===============================
 
-.. automodule:: Strategies.WeightedAvgPeak
+.. automodule:: Strategies
 
 .. autoclass:: WeightedAvgPeak
     :members:
