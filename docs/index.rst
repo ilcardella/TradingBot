@@ -1,8 +1,10 @@
+##########################
 TradingBot's documentation
-==========================
+##########################
 
+************
 Introduction
-^^^^^^^^^^^^
+************
 
 TradingBot is an autonomous trading system that uses customised strategies to
 trade in the London Stock Exchange market.

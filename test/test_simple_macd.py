@@ -17,11 +17,9 @@ from common.MockRequests import (
     ig_request_watchlist,
 )
 
-from tradingbot.Components.Broker.Broker import Broker
-from tradingbot.Components.Broker.BrokerFactory import BrokerFactory
-from tradingbot.Components.Configuration import Configuration
-from tradingbot.Components.Utils import TradeDirection
-from tradingbot.Strategies.SimpleMACD import SimpleMACD
+from tradingbot.components import Configuration, TradeDirection
+from tradingbot.components.broker import Broker, BrokerFactory
+from tradingbot.strategies import SimpleMACD
 
 
 @pytest.fixture

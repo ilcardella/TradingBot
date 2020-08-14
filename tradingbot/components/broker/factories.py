@@ -1,14 +1,14 @@
 from enum import Enum
 from typing import TypeVar, Union
 
-from tradingbot.Components.Broker.AbstractInterfaces import (
+from .. import Configuration
+from . import (
     AccountInterface,
+    AVInterface,
+    IGInterface,
     StocksInterface,
+    YFinanceInterface,
 )
-from tradingbot.Components.Broker.AVInterface import AVInterface
-from tradingbot.Components.Broker.IGInterface import IGInterface
-from tradingbot.Components.Broker.YFinanceInterface import YFinanceInterface
-from tradingbot.Components.Configuration import Configuration
 
 AccountInterfaceImpl = TypeVar("AccountInterfaceImpl", bound=AccountInterface)
 StocksInterfaceImpl = TypeVar("StocksInterfaceImpl", bound=StocksInterface)

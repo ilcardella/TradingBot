@@ -2,10 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from tradingbot.Components.Configuration import Configuration
-from tradingbot.Strategies.SimpleMACD import SimpleMACD
-from tradingbot.Strategies.StrategyFactory import StrategyFactory
-from tradingbot.Strategies.WeightedAvgPeak import WeightedAvgPeak
+from tradingbot.components import Configuration
+from tradingbot.strategies import SimpleMACD, StrategyFactory, WeightedAvgPeak
 
 
 @pytest.fixture

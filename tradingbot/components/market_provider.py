@@ -4,9 +4,9 @@ from enum import Enum
 from pathlib import Path
 from typing import Deque, Iterator, List
 
-from tradingbot.Components.Broker.Broker import Broker
-from tradingbot.Components.Configuration import Configuration
-from tradingbot.Interfaces.Market import Market
+from ..interfaces import Market
+from . import Configuration
+from .broker import Broker
 
 
 class MarketSource(Enum):

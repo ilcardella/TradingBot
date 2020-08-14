@@ -1,10 +1,9 @@
 from enum import Enum
 from typing import Union
 
-from tradingbot.Components.Broker.Broker import Broker
-from tradingbot.Components.Configuration import Configuration
-from tradingbot.Strategies.SimpleMACD import SimpleMACD
-from tradingbot.Strategies.WeightedAvgPeak import WeightedAvgPeak
+from ..components import Configuration
+from ..components.broker import Broker
+from . import SimpleMACD, WeightedAvgPeak
 
 StrategyImpl = Union[SimpleMACD, WeightedAvgPeak]
 

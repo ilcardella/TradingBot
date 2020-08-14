@@ -18,14 +18,9 @@ from common.MockRequests import (
     yf_request_prices,
 )
 
-from tradingbot.Components.Broker.Broker import Broker
-from tradingbot.Components.Broker.BrokerFactory import BrokerFactory, InterfaceNames
-from tradingbot.Components.Configuration import Configuration
-from tradingbot.Components.Utils import Interval, TradeDirection
-from tradingbot.Interfaces.Market import Market
-from tradingbot.Interfaces.MarketHistory import MarketHistory
-from tradingbot.Interfaces.MarketMACD import MarketMACD
-from tradingbot.Interfaces.Position import Position
+from tradingbot.components import Configuration, Interval, TradeDirection
+from tradingbot.components.broker import Broker, BrokerFactory, InterfaceNames
+from tradingbot.interfaces import Market, MarketHistory, MarketMACD, Position
 
 
 @pytest.fixture(

@@ -10,11 +10,9 @@ from common.MockRequests import (
     ig_request_trade,
 )
 
-from tradingbot.Components.Broker.Broker import Broker
-from tradingbot.Components.Broker.BrokerFactory import BrokerFactory
-from tradingbot.Components.Configuration import Configuration
-from tradingbot.Components.Utils import TradeDirection
-from tradingbot.Strategies.WeightedAvgPeak import WeightedAvgPeak
+from tradingbot.components import Configuration, TradeDirection
+from tradingbot.components.broker import Broker, BrokerFactory
+from tradingbot.strategies import WeightedAvgPeak
 
 
 @pytest.fixture

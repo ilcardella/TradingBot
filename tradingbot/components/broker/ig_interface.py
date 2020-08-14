@@ -6,16 +6,9 @@ from typing import Any, Dict, List, Optional
 import pandas
 import requests
 
-from tradingbot.Components.Broker.AbstractInterfaces import (
-    AccountBalances,
-    AccountInterface,
-    StocksInterface,
-)
-from tradingbot.Components.Utils import Interval, TradeDirection, Utils
-from tradingbot.Interfaces.Market import Market
-from tradingbot.Interfaces.MarketHistory import MarketHistory
-from tradingbot.Interfaces.MarketMACD import MarketMACD
-from tradingbot.Interfaces.Position import Position
+from ...interfaces import Market, MarketHistory, MarketMACD, Position
+from .. import Interval, TradeDirection, Utils
+from . import AccountBalances, AccountInterface, StocksInterface
 
 
 class IG_API_URL(Enum):

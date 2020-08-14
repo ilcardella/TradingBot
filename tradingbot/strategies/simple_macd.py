@@ -5,12 +5,10 @@ from typing import Tuple
 import numpy as np
 import pandas
 
-from tradingbot.Components.Broker.Broker import Broker
-from tradingbot.Components.Configuration import Configuration
-from tradingbot.Components.Utils import Interval, TradeDirection, Utils
-from tradingbot.Interfaces.Market import Market
-from tradingbot.Interfaces.MarketMACD import MarketMACD
-from tradingbot.Strategies.Strategy import BacktestResult, Strategy, TradeSignal
+from ..components import Configuration, Interval, TradeDirection, Utils
+from ..components.broker import Broker
+from ..interfaces import Market, MarketMACD
+from . import BacktestResult, Strategy, TradeSignal
 
 
 class SimpleMACD(Strategy):

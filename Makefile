@@ -26,7 +26,7 @@ remove-env:
 > poetry env remove python3
 
 install-system: clean
-> pip3 install --user .
+> python3 -m pip install --user .
 > mkdir -p $(CONFIG_DIR)
 > mkdir -p $(DATA_DIR)
 > mkdir -p $(LOG_DIR)
@@ -54,9 +54,9 @@ format: isort black
 
 lint: flake mypy
 
-check: format lint test
+check: install format lint test
 
-ci: install check docs build
+ci: check docs build
 
 clean:
 > rm -rf *egg-info

@@ -3,11 +3,9 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-from tradingbot.Components.Broker.Broker import Broker
-from tradingbot.Components.Configuration import Configuration
-from tradingbot.Components.Utils import TradeDirection
-from tradingbot.Interfaces.Market import Market
-from tradingbot.Interfaces.Position import Position
+from ..components import Configuration, TradeDirection
+from ..components.broker import Broker
+from ..interfaces import Market, Position
 
 DataPoints = Any
 BacktestResult = Dict[str, Union[float, List[Tuple[str, TradeDirection, float]]]]

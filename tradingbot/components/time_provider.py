@@ -6,7 +6,7 @@ from enum import Enum
 import pytz
 from govuk_bank_holidays.bank_holidays import BankHolidays
 
-from tradingbot.Components.Utils import Utils
+from . import Utils
 
 
 class TimeAmount(Enum):

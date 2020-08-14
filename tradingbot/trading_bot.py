@@ -6,20 +6,19 @@ from typing import List, Optional
 
 import pytz
 
-from tradingbot.Components.Backtester import Backtester
-from tradingbot.Components.Broker.Broker import Broker as BrokerInterface
-from tradingbot.Components.Broker.BrokerFactory import BrokerFactory
-from tradingbot.Components.Configuration import Configuration
-from tradingbot.Components.MarketProvider import MarketProvider
-from tradingbot.Components.TimeProvider import TimeAmount, TimeProvider
-from tradingbot.Components.Utils import (
+from .components import (
+    Backtester,
+    Configuration,
     MarketClosedException,
+    MarketProvider,
     NotSafeToTradeException,
+    TimeAmount,
+    TimeProvider,
     TradeDirection,
 )
-from tradingbot.Interfaces.Market import Market
-from tradingbot.Interfaces.Position import Position
-from tradingbot.Strategies.StrategyFactory import StrategyFactory, StrategyImpl
+from .components.broker import Broker, BrokerFactory
+from .interfaces import Market, Position
+from .strategies import StrategyFactory, StrategyImpl
 
 
 class TradingBot:
@@ -30,7 +29,7 @@ class TradingBot:
 
     time_provider: TimeProvider
     config: Configuration
-    broker: BrokerInterface
+    broker: Broker
     strategy: StrategyImpl
     market_provider: MarketProvider
 
@@ -52,7 +51,7 @@ class TradingBot:
 
         # Init trade services and create the broker interface
         # The Factory is used to create the services from the configuration file
-        self.broker = BrokerInterface(BrokerFactory(self.config))
+        self.broker = Broker(BrokerFactory(self.config))
 
         # Create strategy from the factory class
         self.strategy = StrategyFactory(

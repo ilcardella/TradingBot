@@ -5,7 +5,8 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update \
     && apt-get install -y --no-install-recommends make \
     && rm -rf /var/lib/apt/lists/* \
-    && pip install "poetry==$POETRY_VERSION"
+    && python -m pip install --upgrade pip \
+    && python -m pip install "poetry==$POETRY_VERSION"
 
 ENV PATH /root/.local/bin:$PATH
 

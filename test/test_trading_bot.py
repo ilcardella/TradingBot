@@ -18,8 +18,8 @@ from common.MockRequests import (
     yf_request_prices,
 )
 
-from tradingbot.Components.TimeProvider import TimeProvider
-from tradingbot.TradingBot import TradingBot
+from tradingbot import TradingBot
+from tradingbot.components import TimeProvider
 
 
 class MockTimeProvider(TimeProvider):

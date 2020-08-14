@@ -2,7 +2,7 @@ from typing import List
 
 import pandas
 
-from tradingbot.Interfaces.Market import Market
+from . import Market
 
 
 class MarketMACD:
