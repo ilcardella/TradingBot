@@ -26,7 +26,7 @@ remove-env:
 > poetry env remove python3
 
 install-system: clean
-> pip3 install --user .
+> python3 -m pip install --user .
 > mkdir -p $(CONFIG_DIR)
 > mkdir -p $(DATA_DIR)
 > mkdir -p $(LOG_DIR)
