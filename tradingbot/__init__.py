@@ -1,7 +1,7 @@
 import argparse
 import sys
 
-from .Components import TimeProvider
+from .components import TimeProvider
 from .trading_bot import TradingBot
 
 

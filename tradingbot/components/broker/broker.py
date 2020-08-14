@@ -1,15 +1,8 @@
 from typing import Any, Dict, List, Optional
 
-from tradingbot.Components.Broker.AbstractInterfaces import (
-    AccountInterface,
-    StocksInterface,
-)
-from tradingbot.Components.Broker.BrokerFactory import BrokerFactory
-from tradingbot.Components.Utils import Interval, TradeDirection
-from tradingbot.Interfaces.Market import Market
-from tradingbot.Interfaces.MarketHistory import MarketHistory
-from tradingbot.Interfaces.MarketMACD import MarketMACD
-from tradingbot.Interfaces.Position import Position
+from ...interfaces import Market, MarketHistory, MarketMACD, Position
+from .. import Interval, TradeDirection
+from . import AccountInterface, BrokerFactory, StocksInterface
 
 
 class Broker:

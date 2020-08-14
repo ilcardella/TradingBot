@@ -6,7 +6,7 @@ from typing import List, Optional
 
 import pytz
 
-from .Components import (
+from .components import (
     Backtester,
     Configuration,
     MarketClosedException,
@@ -16,9 +16,9 @@ from .Components import (
     TimeProvider,
     TradeDirection,
 )
-from .Components.Broker import Broker, BrokerFactory
-from .Interfaces import Market, Position
-from .Strategies import StrategyFactory, StrategyImpl
+from .components.broker import Broker, BrokerFactory
+from .interfaces import Market, Position
+from .strategies import StrategyFactory, StrategyImpl
 
 
 class TradingBot:

@@ -22,86 +22,11 @@ Components
 The ``Components`` module contains the components that provides services
 used by TradingBot.
 
-Broker
-======
+.. automodule:: tradingbot.components
 
-The ``Broker`` class is the wrapper of all the trading services and provides
-the main interface for the ``strategies`` to access market data and perform
-trades.
-
-AbstractInterfaces
-------------------
-
-.. automodule:: Components.Broker
-
-.. autoclass:: AbstractInterface
-    :members:
-
-.. autoclass:: AccountInterface
-    :members:
-
-.. autoclass:: StocksInterface
-    :members:
-
-IGInterface
------------
-
-.. automodule:: Components.Broker
-
-.. autoclass:: IGInterface
-    :members:
-
-Enums
-^^^^^
-
-.. autoclass:: IG_API_URL
-    :members:
-
-AVInterface
------------
-
-.. automodule:: Components.Broker
-
-.. autoclass:: AVInterface
-    :members:
-
-Enums
-^^^^^
-
-.. autoclass:: AVInterval
-    :members:
-
-YFinanceInterface
------------------
-
-.. automodule:: Components.Broker
-
-.. autoclass:: YFInterval
-    :members:
-
-Broker
-------
-
-.. automodule:: Components.Broker
-
-.. autoclass:: Broker
-    :members:
-
-BrokerFactory
--------------
-
-.. automodule:: Components.Broker
-
-.. autoclass:: BrokerFactory
-    :members:
-
-.. autoclass:: InterfaceNames
-    :members:
 
 MarketProvider
 ==============
-
-.. automodule:: Components
 
 .. autoclass:: MarketProvider
     :members:
@@ -115,8 +40,6 @@ Enums
 TimeProvider
 ============
 
-.. automodule:: Components
-
 .. autoclass:: TimeProvider
     :members:
 
@@ -129,23 +52,17 @@ Enums
 Backtester
 ==========
 
-.. automodule:: Components
-
 .. autoclass:: Backtester
     :members:
 
 Configuration
 =============
 
-.. automodule:: Components
-
 .. autoclass:: Configuration
     :members:
 
 Utils
 =====
-
-.. automodule:: Components
 
 .. autoclass:: Utils
     :members:
@@ -168,6 +85,72 @@ Exceptions
 .. autoclass:: NotSafeToTradeException
     :members:
 
+Broker
+******
+
+The ``Broker`` class is the wrapper of all the trading services and provides
+the main interface for the ``strategies`` to access market data and perform
+trades.
+
+.. automodule:: tradingbot.components.broker
+
+AbstractInterfaces
+==================
+
+.. autoclass:: AbstractInterface
+    :members:
+
+.. autoclass:: AccountInterface
+    :members:
+
+.. autoclass:: StocksInterface
+    :members:
+
+IGInterface
+===========
+
+.. autoclass:: IGInterface
+    :members:
+
+Enums
+-----
+
+.. autoclass:: IG_API_URL
+    :members:
+
+AVInterface
+===========
+
+.. autoclass:: AVInterface
+    :members:
+
+Enums
+-----
+
+.. autoclass:: AVInterval
+    :members:
+
+YFinanceInterface
+=================
+
+.. autoclass:: YFInterval
+    :members:
+
+Broker
+======
+
+.. autoclass:: Broker
+    :members:
+
+BrokerFactory
+=============
+
+.. autoclass:: BrokerFactory
+    :members:
+
+.. autoclass:: InterfaceNames
+    :members:
+
 Interfaces
 **********
 
@@ -176,10 +159,10 @@ information between different TradingBot components.
 The purpose of this module is have clear internal API and avoid integration
 errors.
 
+.. automodule:: tradingbot.interfaces
+
 Market
 ======
-
-.. automodule:: Interfaces
 
 .. autoclass:: Market
     :members:
@@ -187,23 +170,17 @@ Market
 MarketHistory
 =============
 
-.. automodule:: Interfaces
-
 .. autoclass:: MarketHistory
     :members:
 
 MarketMACD
 ==========
 
-.. automodule:: Interfaces
-
 .. autoclass:: MarketMACD
     :members:
 
 Position
 ========
-
-.. automodule:: Interfaces
 
 .. autoclass:: Position
     :members:
@@ -216,10 +193,10 @@ analyse the markets. The ``Strategy`` class is the parent from where
 any custom strategy **must** inherit from.
 The other modules described here are strategies available in TradingBot.
 
+.. automodule:: tradingbot.strategies
+
 Strategy
 ========
-
-.. automodule:: Strategies
 
 .. autoclass:: Strategy
     :members:
@@ -227,23 +204,17 @@ Strategy
 StrategyFactory
 ===============
 
-.. automodule:: Strategies
-
 .. autoclass:: StrategyFactory
     :members:
 
 SimpleMACD
 ==========
 
-.. automodule:: Strategies
-
 .. autoclass:: SimpleMACD
     :members:
 
 Weighted Average Peak Detection
 ===============================
-
-.. automodule:: Strategies
 
 .. autoclass:: WeightedAvgPeak
     :members:

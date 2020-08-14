@@ -15,13 +15,9 @@ from common.MockRequests import (
     ig_request_watchlist,
 )
 
-from tradingbot.Components.Broker.BrokerFactory import InterfaceNames
-from tradingbot.Components.Broker.IGInterface import IGInterface
-from tradingbot.Components.Configuration import Configuration
-from tradingbot.Components.Utils import Interval, TradeDirection
-from tradingbot.Interfaces.Market import Market
-from tradingbot.Interfaces.MarketHistory import MarketHistory
-from tradingbot.Interfaces.Position import Position
+from tradingbot.components import Configuration, Interval, TradeDirection
+from tradingbot.components.broker import IGInterface, InterfaceNames
+from tradingbot.interfaces import Market, MarketHistory, Position
 
 
 @pytest.fixture

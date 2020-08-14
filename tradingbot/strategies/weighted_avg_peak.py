@@ -7,12 +7,10 @@ import numpy
 from numpy import Inf, NaN, arange, array, asarray, isscalar
 from scipy import stats
 
-from tradingbot.Components.Broker.Broker import Broker
-from tradingbot.Components.Configuration import Configuration
-from tradingbot.Components.Utils import Interval, TradeDirection, Utils
-from tradingbot.Interfaces.Market import Market
-from tradingbot.Interfaces.MarketHistory import MarketHistory
-from tradingbot.Strategies.Strategy import BacktestResult, Strategy, TradeSignal
+from ..components import Configuration, Interval, TradeDirection, Utils
+from ..components.broker import Broker
+from ..interfaces import Market, MarketHistory
+from . import BacktestResult, Strategy, TradeSignal
 
 
 class WeightedAvgPeak(Strategy):

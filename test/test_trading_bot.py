@@ -19,7 +19,7 @@ from common.MockRequests import (
 )
 
 from tradingbot import TradingBot
-from tradingbot.Components import TimeProvider
+from tradingbot.components import TimeProvider
 
 
 class MockTimeProvider(TimeProvider):

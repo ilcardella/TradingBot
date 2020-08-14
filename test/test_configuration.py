@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from tradingbot.Components.Configuration import Configuration
+from tradingbot.components import Configuration
 
 
 def test_init():
