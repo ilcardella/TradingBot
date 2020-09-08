@@ -115,7 +115,7 @@ jobs:
           context: .
           file: docker/Dockerfile
           platforms: ${{ steps.prepare.outputs.platforms }}
-          build_args: POETRY_VERSION=${{ env.poetry-version }}
+          build-args: POETRY_VERSION=${{ env.poetry-version }}
           push: ${{ env.push-docker-image }}
           tags: ${{ steps.prepare.outputs.tags }}
           cache-from: type=local,src=/tmp/.buildx-cache
@@ -184,7 +184,7 @@ jobs:
           context: .
           file: docker/Dockerfile-arm
           platforms: ${{ steps.prepare.outputs.platforms }}
-          build_args: POETRY_VERSION=${{ env.poetry-version }}
+          build-args: POETRY_VERSION=${{ env.poetry-version }}
           push: ${{ env.push-docker-image }}
           tags: ${{ steps.prepare.outputs.tags }}
           cache-from: type=local,src=/tmp/.buildx-cache
