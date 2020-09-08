@@ -30,7 +30,7 @@ requests-mock = "^1.8.0"
 pytest = "^6.0.0"
 black = {version = "^20.8b1", allow-prereleases = true}
 flake8 = "^3.8.3"
-isort = "^5.5.0"
+isort = "^5.5.1"
 mypy = "^0.782"
 
 [tool.poetry.scripts]
