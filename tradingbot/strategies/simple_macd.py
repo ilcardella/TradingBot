@@ -127,8 +127,7 @@ class SimpleMACD(Strategy):
     def backtest(
         self, market: Market, start_date: datetime.datetime, end_date: datetime.datetime
     ) -> BacktestResult:
-        """Backtest the strategy
-        """
+        """Backtest the strategy"""
         # TODO
         raise NotImplementedError("Work in progress")
         # Generic initialisations

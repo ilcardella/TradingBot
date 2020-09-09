@@ -10,8 +10,7 @@ from . import Utils
 
 
 class TimeAmount(Enum):
-    """Types of amount of time to wait for
-    """
+    """Types of amount of time to wait for"""
 
     SECONDS = 0
     NEXT_MARKET_OPENING = 1

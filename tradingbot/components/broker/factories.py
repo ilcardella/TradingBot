@@ -37,8 +37,12 @@ class BrokerFactory:
         else:
             raise ValueError("Interface {} not supported".format(name))
 
-    def make_stock_interface_from_config(self,) -> BrokerInterfaces:
+    def make_stock_interface_from_config(
+        self,
+    ) -> BrokerInterfaces:
         return self.make(self.config.get_active_stocks_interface())
 
-    def make_account_interface_from_config(self,) -> BrokerInterfaces:
+    def make_account_interface_from_config(
+        self,
+    ) -> BrokerInterfaces:
         return self.make(self.config.get_active_account_interface())

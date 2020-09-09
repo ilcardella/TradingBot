@@ -374,7 +374,6 @@ class WeightedAvgPeak(Strategy):
     def backtest(
         self, market: Market, start_date: datetime, end_date: datetime
     ) -> BacktestResult:
-        """Backtest the strategy
-            """
+        """Backtest the strategy"""
         # TODO
         raise NotImplementedError("Work in progress")

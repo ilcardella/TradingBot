@@ -23,8 +23,7 @@ class Backtester:
         self.result = None
 
     def start(self, market: Market, start_dt: datetime, end_dt: datetime) -> None:
-        """Backtest the given market within the specified range
-        """
+        """Backtest the given market within the specified range"""
         logging.info(
             "Backtester started for market id {} from {} to {}".format(
                 market.id, start_dt.date(), end_dt.date()
@@ -33,7 +32,6 @@ class Backtester:
         self.result = self.strategy.backtest(market, start_dt, end_dt)
 
     def print_results(self) -> None:
-        """Print backtest result in log file
-        """
+        """Print backtest result in log file"""
         logging.info("Backtest result:")
         logging.info(self.result)
