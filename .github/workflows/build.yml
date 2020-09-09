@@ -6,7 +6,7 @@ on:
     branches:
       - master
   schedule:
-    - cron: '0 0 * * 0' # weekly
+    - cron: '0 0 * * *' # nightly build
 
 env:
   poetry-version: 1.0.10
@@ -131,7 +131,8 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     name: Docker arm64
-    if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/master'
+    # This build takes ~3h so run only nightly or on releases
+    if: github.event_name == 'schedule' || startsWith(github.ref, 'refs/tags/')
 
     steps:
       - name: Checkout
