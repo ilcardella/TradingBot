@@ -2,18 +2,7 @@ FROM python:3.8-slim-buster
 
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends python3-numpy \
-                                                    python3-scipy \
-                                                    python3-pandas \
-                                                    python3-cryptography \
-                                                    cython3 \
-                                                    build-essential \
-                                                    gfortran \
-                                                    libssl-dev \
-                                                    libffi-dev \
-                                                    libatlas-base-dev \
-                                                    libopenblas-dev \
-                                                    liblapack-dev \
+    && apt-get install -y --no-install-recommends build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 ARG POETRY_VERSION=1.1.3
