@@ -131,8 +131,8 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     name: Docker arm64
-    # This build takes ~3h so run only nightly or on releases
-    if: github.event_name == 'schedule' || startsWith(github.ref, 'refs/tags/')
+    # Uncomment to build only for releases and on schedule
+    #if: github.event_name == 'schedule' || startsWith(github.ref, 'refs/tags/')
 
     steps:
       - name: Checkout
