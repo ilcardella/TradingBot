@@ -1,5 +1,6 @@
 import argparse
 import sys
+from pathlib import Path
 
 from .components import TimeProvider
 from .trading_bot import TradingBot
@@ -8,6 +9,14 @@ from .trading_bot import TradingBot
 def get_menu_parser() -> argparse.Namespace:
     VERSION = "2.0.0"
     parser = argparse.ArgumentParser(prog="TradingBot")
+    parser.add_argument(
+        "-f",
+        "--config",
+        help="Configuration file path",
+        default="",
+        metavar="FILEPATH",
+        type=Path,
+    )
     main_group = parser.add_mutually_exclusive_group()
     main_group.add_argument(
         "-v", "--version", action="version", version="%(prog)s {}".format(VERSION)
@@ -18,13 +27,14 @@ def get_menu_parser() -> argparse.Namespace:
         help="Close all the open positions",
         action="store_true",
     )
-    backtest_group = parser.add_argument_group("Backtesting")
-    backtest_group.add_argument(
+    main_group.add_argument(
+        "-b",
         "--backtest",
         help="Backtest the market related to the specified id",
         nargs=1,
         metavar="MARKET_ID",
     )
+    backtest_group = parser.add_argument_group("Backtesting")
     backtest_group.add_argument(
         "--epic",
         help="IG epic of the market to backtest. MARKET_ID will be ignored",
@@ -50,12 +60,12 @@ def get_menu_parser() -> argparse.Namespace:
 
 
 def main() -> None:
-    tp = TimeProvider()
     args = get_menu_parser()
+    bot = TradingBot(time_provider=TimeProvider(), config_filepath=args.config)
     if args.close_positions:
-        TradingBot(tp).close_open_positions()
+        bot.close_open_positions()
     elif args.backtest and args.start and args.end:
         epic = args.epic[0] if args.epic else None
-        TradingBot(tp).backtest(args.backtest[0], args.start[0], args.end[0], epic)
+        bot.backtest(args.backtest[0], args.start[0], args.end[0], epic)
     else:
-        TradingBot(tp).start()
+        bot.start()
