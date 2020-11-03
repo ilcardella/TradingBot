@@ -24,7 +24,7 @@ scipy = "^1.5.3"
 yfinance = "^0.1.55"
 
 [tool.poetry.dev-dependencies]
-sphinx = "^3.2.1"
+sphinx = "^3.3.0"
 sphinx-rtd-theme = "^0.5.0"
 requests-mock = "^1.8.0"
 pytest = "^6.1.2"
