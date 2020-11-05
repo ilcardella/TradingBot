@@ -20,7 +20,7 @@ numpy = "^1.19.4"
 pandas = "^1.1.4"
 pytz = "^2020.4"
 requests = "^2.23.0"
-scipy = "^1.5.3"
+scipy = "^1.5.4"
 yfinance = "^0.1.55"
 
 [tool.poetry.dev-dependencies]
