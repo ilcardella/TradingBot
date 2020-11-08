@@ -3,6 +3,7 @@
     "time_zone": "Europe/London",
     "credentials_filepath": "test/test_data/credentials.json",
     "spin_interval": 3600,
+    "paper_trading": false,
     "logging": {
         "enable": true,
         "log_filepath": "/tmp/trading_bot_{timestamp}.log",
@@ -33,8 +34,7 @@
             "order_force_open": true,
             "use_g_stop": false,
             "use_demo_account": true,
-            "controlled_risk": false,
-            "paper_trading": false
+            "controlled_risk": false
         },
         "alpha_vantage": {
             "api_timeout": 12

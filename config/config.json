@@ -3,13 +3,14 @@
     "time_zone": "Europe/London",
     "credentials_filepath": "{home}/.TradingBot/config/.credentials",
     "spin_interval": 3600,
+    "paper_trading": false,
     "logging": {
         "enable": true,
         "log_filepath": "{home}/.TradingBot/log/trading_bot_{timestamp}.log",
         "debug": false
     },
     "market_source": {
-        "active": "api",
+        "active": "watchlist",
         "values": [
             "list",
             "api",
@@ -33,8 +34,7 @@
             "order_force_open": true,
             "use_g_stop": false,
             "use_demo_account": true,
-            "controlled_risk": false,
-            "paper_trading": false
+            "controlled_risk": false
         },
         "alpha_vantage": {
             "api_timeout": 12

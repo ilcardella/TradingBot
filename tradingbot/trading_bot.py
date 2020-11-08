@@ -148,7 +148,8 @@ class TradingBot:
 
     def process_market(self, market: Market, open_positions: List[Position]) -> None:
         """Spin the strategy on all the markets"""
-        self.safety_checks()
+        if not self.config.is_paper_trading_enabled():
+            self.safety_checks()
         logging.info("Processing {}".format(market.id))
         try:
             self.strategy.set_open_positions(open_positions)

@@ -84,7 +84,7 @@ def test_value_getters():
     assert not config.get_ig_use_g_stop()
     assert config.get_ig_use_demo_account()
     assert not config.get_ig_controlled_risk()
-    assert not config.get_ig_paper_trading()
+    assert not config.is_paper_trading_enabled()
     assert config.get_alphavantage_api_timeout() == 12
     assert config.get_yfinance_api_timeout() == 0.5
     assert config.get_active_account_interface() == "ig_interface"

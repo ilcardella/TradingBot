@@ -101,13 +101,10 @@ ENV/
 .mypy_cache/
 
 # App specific
-epic_ids.txt
-.credentials
+data/*
 log.txt
 pid.txt
 markets_db/
 .pytest_cache
 _build
 _builds
-
-Pipfile.lock
