@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## []
 ### Added
 - Input CLI parameter `--config` to specify a configuration file
+- Added `simple_boll_bands` strategy
 
 ### Changed
 - Moved `paper_trading` configuration outside of the single broker interface

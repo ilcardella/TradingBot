@@ -218,3 +218,9 @@ Weighted Average Peak Detection
 
 .. autoclass:: WeightedAvgPeak
     :members:
+
+Simple Bollinger Bands
+======================
+
+.. autoclass:: SimpleBollingerBands
+    :members:

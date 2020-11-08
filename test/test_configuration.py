@@ -90,7 +90,11 @@ def test_value_getters():
     assert config.get_active_account_interface() == "ig_interface"
     assert config.get_account_interface_values() == ["ig_interface"]
     assert config.get_active_strategy() == "simple_macd"
-    assert config.get_strategies_values() == ["simple_macd", "weighted_avg_peak"]
+    assert config.get_strategies_values() == [
+        "simple_macd",
+        "weighted_avg_peak",
+        "simple_boll_bands",
+    ]
 
 
 def test_replace_placeholders():
