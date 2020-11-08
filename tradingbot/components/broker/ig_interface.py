@@ -46,7 +46,7 @@ class IGInterface(AccountInterface, StocksInterface):
         )
         self.api_base_url = IG_API_URL.BASE_URI.value.replace("@", demoPrefix)
         self.authenticated_headers = {}
-        if self._config.get_ig_paper_trading():
+        if self._config.is_paper_trading_enabled():
             logging.info("Paper trading is active")
         if not self.authenticate():
             logging.error("Authentication failed")
@@ -118,11 +118,14 @@ class IGInterface(AccountInterface, StocksInterface):
         url = "{}/{}".format(self.api_base_url, IG_API_URL.ACCOUNTS.value)
         d = self._http_get(url)
         if d is not None:
-            for i in d["accounts"]:
-                if str(i["accountType"]) == "SPREADBET":
-                    balance = i["balance"]["balance"]
-                    deposit = i["balance"]["deposit"]
-                    return balance, deposit
+            try:
+                for i in d["accounts"]:
+                    if str(i["accountType"]) == "SPREADBET":
+                        balance = i["balance"]["balance"]
+                        deposit = i["balance"]["deposit"]
+                        return balance, deposit
+            except Exception:
+                return None, None
         return None, None
 
     def get_open_positions(self) -> List[Position]:
@@ -254,7 +257,7 @@ class IGInterface(AccountInterface, StocksInterface):
             - **stop**: stop level
             - Returns **False** if an error occurs otherwise True
         """
-        if self._config.get_ig_paper_trading():
+        if self._config.is_paper_trading_enabled():
             logging.info(
                 "Paper trade: {} {} with limit={} and stop={}".format(
                     trade_direction.value, epic_id, limit, stop
@@ -322,7 +325,7 @@ class IGInterface(AccountInterface, StocksInterface):
             - **position**: position json object obtained from IG API
             - Returns **False** if an error occurs otherwise True
         """
-        if self._config.get_ig_paper_trading():
+        if self._config.is_paper_trading_enabled():
             logging.info("Paper trade: close {} position".format(position.epic))
             return True
         # To close we need the opposite direction
