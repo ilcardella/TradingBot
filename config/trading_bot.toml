@@ -36,7 +36,7 @@ controlled_risk = false
 [stocks_interface.alpha_vantage]
 api_timeout = 12
 [stocks_interface.yfinance]
-api_timeout = 12
+api_timeout = 0.5
 
 [account_interface]
 active = "ig_interface"
