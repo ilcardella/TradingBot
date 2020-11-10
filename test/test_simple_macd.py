@@ -51,7 +51,7 @@ def mock_http_calls(requests_mock):
 
 @pytest.fixture
 def config():
-    config = Configuration.from_filepath(Path("test/test_data/config.json"))
+    config = Configuration.from_filepath(Path("test/test_data/trading_bot.toml"))
     config.config["strategies"]["active"] = "simple_macd"
     config.config["stocks_interface"]["active"] = "alpha_vantage"
     config.config["stocks_interface"]["alpha_vantage"]["api_timeout"] = 0

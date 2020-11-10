@@ -66,7 +66,7 @@ sudo chmod 600 ${HOME}/.TradingBot/config/.credentials
 
 ### Market source
 
-There are different ways to define which markets to analyse with TradinbgBot. You can select your preferred option in the `config.json` file with the `market_source` parameter:
+There are different ways to define which markets to analyse with TradinbgBot. You can select your preferred option in the configuration file under the `market_source` section:
 
 - **Local file**
 
@@ -83,7 +83,7 @@ TradingBot navigates the IG markets dynamically using the available API call to 
 
 ### Configuration file
 
-The `config.json` file is in the `config` folder and it contains several configurable parameter to personalise
+The configuration file is in the `config` folder and it contains several configurable parameter to personalise
 how TradingBot work. It is important to setup this file appropriately in order to avoid unexpected behaviours.
 
 ## Start TradingBot
@@ -202,7 +202,7 @@ As mentioned above, it's important that you configure TradingBot before starting
 Once the image is available you can run `TradingBot` in a Docker container mounting the configuration files:
 ```
 docker run -d \
-    -v /path/to/config.json:/.TradingBot/config/config.json \
+    -v /path/to/trading_bot.toml:/.TradingBot/config/trading_bot.toml \
     -v /path/to/.credentials:/.TradingBot/config/.credentials \
     tradingbot:latest
 ```

@@ -68,7 +68,7 @@ def test_trading_bot(mock_http_calls):
     """
     Test trading bot main functions
     """
-    config = Path("test/test_data/config.json")
+    config = Path("test/test_data/trading_bot.toml")
     tb = TradingBot(MockTimeProvider(), config_filepath=config)
     assert tb is not None
     # This is a hack because we are testing the functions used within

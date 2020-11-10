@@ -17,7 +17,7 @@ from tradingbot.strategies import WeightedAvgPeak
 
 @pytest.fixture
 def config():
-    config = Configuration.from_filepath(Path("test/test_data/config.json"))
+    config = Configuration.from_filepath(Path("test/test_data/trading_bot.toml"))
     config.config["strategies"]["active"] = "weighted_avg_peak"
     return config
 

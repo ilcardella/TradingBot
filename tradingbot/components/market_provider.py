@@ -114,7 +114,7 @@ class MarketProvider:
     def _load_epic_ids_from_local_file(self, filepath: Path) -> List[str]:
         """
         Read a file from filesystem containing a list of epic ids.
-        The filepath is defined in config.json file
+        The filepath is defined in the configuration file
         Returns a 'list' of strings where each string is a market epic
         """
         # define empty list

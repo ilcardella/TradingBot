@@ -30,7 +30,7 @@ install-system: clean
 > mkdir -p $(CONFIG_DIR)
 > mkdir -p $(DATA_DIR)
 > mkdir -p $(LOG_DIR)
-> cp config/config.json $(CONFIG_DIR)
+> cp config/trading_bot.toml $(CONFIG_DIR)
 
 build: clean
 > poetry build

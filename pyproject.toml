@@ -10,7 +10,7 @@ documentation = "https://tradingbot.readthedocs.io/en/latest"
 packages = [
     { include = "tradingbot" }
 ]
-include = ["config/config.json"]
+include = ["config/trading_bot.toml"]
 
 [tool.poetry.dependencies]
 python = "^3.6.1"
@@ -22,6 +22,7 @@ pytz = "^2020.4"
 requests = "^2.23.0"
 scipy = "^1.5.4"
 yfinance = "^0.1.55"
+toml = "^0.10.2"
 
 [tool.poetry.dev-dependencies]
 sphinx = "^3.3.0"
