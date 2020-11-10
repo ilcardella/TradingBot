@@ -1,9 +1,9 @@
 # Percentage of account value to use
 max_account_usable = 50
 time_zone = "Europe/London"
-# Available placeholders: {home} = user home directory
+# Path to the credentials file
 credentials_filepath = "{home}/.TradingBot/config/.credentials"
-# Seconds to wait for between each spin of the bot
+# Seconds to wait for between each spin of the bot across all the markets
 spin_interval = 3600
 # Enable paper trading
 paper_trading = false

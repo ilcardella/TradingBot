@@ -112,7 +112,7 @@ to decide whether to buy, sell or hold a specific market.
 
 #. Add the implementation for these functions:
 
-   * *read_configuration*: ``config`` is the json object loaded from the ``config.json`` file
+   * *read_configuration*: ``config`` is the configuration wrapper instance loaded from the configuration file
    * *initialise*: initialise the strategy or any internal members
    * *fetch_datapoints*: fetch the required past price datapoints
    * *find_trade_signal*: it is the core of your custom strategy, here you can use the broker interface to decide if trade the given epic
@@ -130,7 +130,7 @@ to decide whether to buy, sell or hold a specific market.
 #. Edit the ``StrategyFactory`` module inporting the new strategy and adding
    its name to the ``StrategyNames`` enum. Then add it to the *make* function
 
-#. Edit the ``config.json`` adding a new section for your strategy parameters
+#. Edit the ``TradingBot`` configuration file adding a new section for your strategy parameters
 
 #. Create a unit test for your strategy
 
