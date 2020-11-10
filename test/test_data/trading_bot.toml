@@ -1,0 +1,59 @@
+# Percentage of account value to use
+max_account_usable = 90
+time_zone = "Europe/London"
+# Available placeholders: {home} = user home directory
+credentials_filepath = "test/test_data/credentials.json"
+# Seconds to wait for between each spin of the bot
+spin_interval = 3600
+# Enable paper trading
+paper_trading = false
+
+[logging]
+enable = true
+log_filepath = "/tmp/trading_bot_{timestamp}.log"
+debug = false
+
+[market_source]
+active = "watchlist"
+values = ["list", "api", "watchlist"]
+[market_source.epic_id_list]
+filepath = "test/test_data/epic_ids.txt"
+[market_source.watchlist]
+name = "trading_bot"
+
+[stocks_interface]
+active = "ig_interface"
+values = ["yfinance", "alpha_vantage", "ig_interface"]
+[stocks_interface.ig_interface]
+order_type = "MARKET"
+order_size = 1
+order_expiry = "DFB"
+order_currency = "GBP"
+order_force_open = true
+use_g_stop = false
+use_demo_account = true
+controlled_risk = false
+[stocks_interface.alpha_vantage]
+api_timeout = 12
+[stocks_interface.yfinance]
+api_timeout = 0.5
+
+[account_interface]
+active = "ig_interface"
+values = ["ig_interface"]
+
+[strategies]
+active = "simple_macd"
+values = ["simple_macd", "weighted_avg_peak", "simple_boll_bands"]
+[strategies.simple_macd]
+max_spread_perc = 5
+limit_perc = 10
+stop_perc = 5
+[strategies.weighted_avg_peak]
+max_spread = 3
+limit_perc = 10
+stop_perc = 5
+[strategies.simple_boll_bands]
+max_spread_perc = 3
+limit_perc = 10
+stop_perc = 5

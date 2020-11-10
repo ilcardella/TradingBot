@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Moved `paper_trading` configuration outside of the single broker interface
+- Converted configuration file from `json` to `toml` format 
 
 ## [2.0.0] - 2020-07-29
 ### Changed

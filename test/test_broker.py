@@ -1,6 +1,5 @@
-import json
-
 import pytest
+import toml
 from common.MockRequests import (
     av_request_macd_ext,
     av_request_prices,
@@ -31,11 +30,11 @@ from tradingbot.interfaces import Market, MarketHistory, MarketMACD, Position
     ]
 )
 def config(request):
-    with open("test/test_data/config.json", "r") as f:
-        config = json.load(f)
+    with open("test/test_data/trading_bot.toml", "r") as f:
+        config = toml.load(f)
         # Inject the fixture parameter in the configuration
         config["stocks_interface"]["active"] = request.param
-        # To speed up the tests, reduce the timout of all interfaces
+        # To speed up the tests, reduce the timeout of all interfaces
         config["stocks_interface"][InterfaceNames.YAHOO_FINANCE.value][
             "api_timeout"
         ] = 0

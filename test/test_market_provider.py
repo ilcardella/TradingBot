@@ -18,7 +18,7 @@ def config():
     """
     Returns a dict with config parameter for strategy and simpleMACD
     """
-    return Configuration.from_filepath(Path("test/test_data/config.json"))
+    return Configuration.from_filepath(Path("test/test_data/trading_bot.toml"))
 
 
 @pytest.fixture
@@ -38,8 +38,8 @@ def test_market_provider_epics_list(config, broker):
     """
     # Configure TradingBot to use an epic list
     config.config["market_source"]["active"] = "list"
-    config.config["market_source"][
-        "epic_ids_filepath"
+    config.config["market_source"]["epic_id_list"][
+        "filepath"
     ] = "test/test_data/epics_list.txt"
 
     # Create the class to test
@@ -78,7 +78,7 @@ def test_market_provider_watchlist(config, broker):
     # Define configuration for this test
     config.config["market_source"]["active"] = "watchlist"
     # Watchlist name depending on test data json
-    config.config["market_source"]["watchlist_name"] = "My Watchlist"
+    config.config["market_source"]["watchlist"]["name"] = "My Watchlist"
 
     # Create class to test
     mp = MarketProvider(config, broker)
@@ -115,8 +115,8 @@ def test_market_provider_market_from_epic(config, broker):
     """
     # Define configuration for this test
     config.config["market_source"]["active"] = "list"
-    config.config["market_source"][
-        "epic_ids_filepath"
+    config.config["market_source"]["epic_id_list"][
+        "filepath"
     ] = "test/test_data/epics_list.txt"
 
     # Create class to test
@@ -132,8 +132,8 @@ def test_search_market(config, broker, requests_mock):
     """
     # Define configuration for this test
     config.config["market_source"]["active"] = "list"
-    config.config["market_source"][
-        "epic_ids_filepath"
+    config.config["market_source"]["epic_id_list"][
+        "filepath"
     ] = "test/test_data/epics_list.txt"
 
     mp = MarketProvider(config, broker)

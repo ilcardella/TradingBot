@@ -2,14 +2,16 @@ import json
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, MutableMapping, Optional, Union
 
-DEFAULT_CONFIGURATION_PATH = Path.home() / ".TradingBot" / "config" / "config.json"
-CONFIGURATION_ROOT = "trading_mate_root"
+import toml
+
+DEFAULT_CONFIGURATION_PATH = Path.home() / ".TradingBot" / "config" / "trading_bot.toml"
+CONFIGURATION_ROOT = "trading_bot_root"
 
 # FIXME Property should be of type JSON byt it requires typing to accepts recursive types
 Property = Any
-ConfigDict = Dict[str, Property]
+ConfigDict = MutableMapping[str, Property]
 CredentialDict = Dict[str, str]
 
 
@@ -25,9 +27,9 @@ class Configuration:
     @staticmethod
     def from_filepath(filepath: Optional[Path]) -> "Configuration":
         filepath = filepath if filepath else DEFAULT_CONFIGURATION_PATH
-        logging.debug("Loading configuration from: {}".format(filepath))
+        logging.debug("Loading configuration: {}".format(filepath))
         with filepath.open(mode="r") as f:
-            return Configuration(json.load(f))
+            return Configuration(toml.load(f))
 
     def _find_property(self, fields: List[str]) -> Union[ConfigDict, Property]:
         if CONFIGURATION_ROOT in fields:
@@ -63,7 +65,7 @@ class Configuration:
         )
         return string
 
-    def get_raw_config(self) -> Dict[str, Property]:
+    def get_raw_config(self) -> ConfigDict:
         return self._find_property([CONFIGURATION_ROOT])
 
     def get_max_account_usable(self) -> Property:
@@ -98,10 +100,10 @@ class Configuration:
         return self._find_property(["market_source", "values"])
 
     def get_epic_ids_filepath(self) -> Property:
-        return self._find_property(["market_source", "epic_ids_filepath"])
+        return self._find_property(["market_source", "epic_id_list", "filepath"])
 
     def get_watchlist_name(self) -> Property:
-        return self._find_property(["market_source", "watchlist_name"])
+        return self._find_property(["market_source", "watchlist", "name"])
 
     def get_active_stocks_interface(self) -> Property:
         return self._find_property(["stocks_interface", "active"])

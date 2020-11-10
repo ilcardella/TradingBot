@@ -1,6 +1,5 @@
-import json
-
 import pytest
+import toml
 from common.MockRequests import (
     ig_request_account_details,
     ig_request_confirm_trade,
@@ -22,8 +21,8 @@ from tradingbot.interfaces import Market, MarketHistory, Position
 
 @pytest.fixture
 def config():
-    with open("test/test_data/config.json", "r") as f:
-        config = json.load(f)
+    with open("test/test_data/trading_bot.toml", "r") as f:
+        config = toml.load(f)
         # Inject ig_interface as active interface in the config file
         config["stocks_interface"]["active"] = InterfaceNames.IG_INDEX.value
         config["account_interface"]["active"] = InterfaceNames.IG_INDEX.value

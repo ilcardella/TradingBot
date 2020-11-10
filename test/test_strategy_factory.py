@@ -8,7 +8,7 @@ from tradingbot.strategies import SimpleMACD, StrategyFactory, WeightedAvgPeak
 
 @pytest.fixture
 def config():
-    return Configuration.from_filepath(Path("test/test_data/config.json"))
+    return Configuration.from_filepath(Path("test/test_data/trading_bot.toml"))
 
 
 @pytest.fixture
