@@ -205,21 +205,18 @@ class TradingBot:
         if direction is TradeDirection.NONE or limit is None or stop is None:
             return
 
-        if len(open_positions) > 0:
-            for item in open_positions:
-                # If a same direction trade already exist, don't trade
-                if item.epic == market.epic and direction is item.direction:
-                    logging.info(
-                        "There is already an open position for this epic, skip trade"
-                    )
-                    return
-                # If a trade in opposite direction exist, close the position
-                elif item.epic == market.epic and direction is not item.direction:
-                    self.broker.close_position(item)
-                    return
-            self.broker.trade(market.epic, direction, limit, stop)
-        else:
-            logging.error("Unable to fetch open positions! Avoid trading this epic")
+        for item in open_positions:
+            # If a same direction trade already exist, don't trade
+            if item.epic == market.epic and direction is item.direction:
+                logging.info(
+                    "There is already an open position for this epic, skip trade"
+                )
+                return
+            # If a trade in opposite direction exist, close the position
+            elif item.epic == market.epic and direction is not item.direction:
+                self.broker.close_position(item)
+                return
+        self.broker.trade(market.epic, direction, limit, stop)
 
     def backtest(
         self,
