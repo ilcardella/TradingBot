@@ -34,9 +34,9 @@ class YFinanceInterface(StocksInterface):
         self._wait_before_call(self._config.get_yfinance_api_timeout())
 
         ticker = yf.Ticker(self._format_market_id(market.id))
-        # TODO check data_range and fetch only necessary data
         data = ticker.history(
-            period="max", interval=self._to_yf_interval(interval).value
+            period=self._to_yf_data_range(data_range),
+            interval=self._to_yf_interval(interval).value,
         )
         # Reverse dataframe to have most recent data at the top
         data = data.iloc[::-1]
@@ -102,3 +102,26 @@ class YFinanceInterface(StocksInterface):
         elif interval == Interval.MONTH:
             return YFInterval.MONTH_1
         raise ValueError("Unsupported interval {}".format(interval.name))
+
+    def _to_yf_data_range(self, days: int) -> str:
+        # Values: 1d,5d,1mo,3mo,6mo,1y,2y,5y,10y,ytd,max
+        if days < 2:
+            return "1d"
+        elif days < 6:
+            return "5d"
+        elif days < 32:
+            return "1mo"
+        elif days < 93:
+            return "3mo"
+        elif days < 186:
+            return "6mo"
+        elif days < 366:
+            return "1y"
+        elif days < 732:
+            return "2y"
+        elif days < 1830:
+            return "5y"
+        elif days < 3660:
+            return "10y"
+        else:
+            return "max"

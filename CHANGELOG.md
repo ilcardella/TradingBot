@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Moved `paper_trading` configuration outside of the single broker interface
 - Converted configuration file from `json` to `toml` format
+- YFinance interface fetch only necessary data for specified data range
 
 ### Fixed
 - Bug preventing to process trade when account does not hold any position yet
