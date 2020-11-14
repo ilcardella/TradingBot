@@ -43,9 +43,6 @@ class SimpleBollingerBands(Strategy):
     def find_trade_signal(
         self, market: Market, datapoints: MarketHistory
     ) -> TradeSignal:
-        direction = TradeDirection.NONE
-        stop = None
-        limit = None
         df = datapoints.dataframe[: self.window * 2].copy()
         indexer = pandas.api.indexers.FixedForwardWindowIndexer(window_size=self.window)
         # 1. Compute the price moving averate
