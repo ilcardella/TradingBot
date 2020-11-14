@@ -47,7 +47,7 @@ class SimpleBollingerBands(Strategy):
         direction = TradeDirection.NONE
         stop = None
         limit = None
-        df = datapoints.dataframe.loc[: self.window * 2].copy()
+        df = datapoints.dataframe[: self.window * 2].copy()
         indexer = pandas.api.indexers.FixedForwardWindowIndexer(window_size=self.window)
         # 1. Compute the price moving averate
         df["30_Day_MA"] = df[MarketHistory.CLOSE_COLUMN].rolling(window=indexer).mean()
