@@ -17,15 +17,14 @@ class SimpleBollingerBands(Strategy):
 
     def __init__(self, config: Configuration, broker: Broker) -> None:
         super().__init__(config, broker)
-        logging.info("Simple Bollinger Bands strategy initialised.")
-        self.window = 20
+        logging.info("Simple Bollinger Bands strategy created")
 
     def read_configuration(self, config: Configuration) -> None:
         """
         Read the json configuration
         """
         raw = config.get_raw_config()
-        self.max_spread_perc = raw["strategies"]["simple_boll_bands"]["max_spread_perc"]
+        self.window = raw["strategies"]["simple_boll_bands"]["window"]
         self.limit_p = raw["strategies"]["simple_boll_bands"]["limit_perc"]
         self.stop_p = raw["strategies"]["simple_boll_bands"]["stop_perc"]
 
@@ -33,7 +32,7 @@ class SimpleBollingerBands(Strategy):
         """
         Initialise the strategy
         """
-        pass
+        logging.info("Simple Bollinger Bands strategy initialised")
 
     def fetch_datapoints(self, market: Market) -> MarketHistory:
         """
@@ -44,30 +43,34 @@ class SimpleBollingerBands(Strategy):
     def find_trade_signal(
         self, market: Market, datapoints: MarketHistory
     ) -> TradeSignal:
-        direction = TradeDirection.NONE
-        stop = None
-        limit = None
         df = datapoints.dataframe[: self.window * 2].copy()
         indexer = pandas.api.indexers.FixedForwardWindowIndexer(window_size=self.window)
         # 1. Compute the price moving averate
-        df["30_Day_MA"] = df[MarketHistory.CLOSE_COLUMN].rolling(window=indexer).mean()
+        df["MA"] = df[MarketHistory.CLOSE_COLUMN].rolling(window=indexer).mean()
         # 2. Compute the prices standard deviation
         # set .std(ddof=0) for population std instead of sample
-        df["30_Day_STD"] = df[MarketHistory.CLOSE_COLUMN].rolling(window=indexer).std()
+        df["STD"] = df[MarketHistory.CLOSE_COLUMN].rolling(window=indexer).std()
         # 1. Compute upper band
-        df["Upper_Band"] = df["30_Day_MA"] + (df["30_Day_STD"] * 2)
+        df["Upper_Band"] = df["MA"] + (df["STD"] * 2)
         # 2. Compute lower band
-        df["Lower_Band"] = df["30_Day_MA"] - (df["30_Day_STD"] * 2)
+        df["Lower_Band"] = df["MA"] - (df["STD"] * 2)
         # 3. Compare the last price with the band boundaries and trigger signals
         if df[MarketHistory.CLOSE_COLUMN].iloc[1] < df["Lower_Band"].iloc[1]:
-            direction = TradeDirection.BUY
-            limit = market.offer + Utils.percentage_of(self.limit_p, market.offer)
-            stop = market.bid - Utils.percentage_of(self.stop_p, market.bid)
-        elif df[MarketHistory.CLOSE_COLUMN].iloc[1] > df["Upper_Band"].iloc[1]:
-            direction = TradeDirection.SELL
-            limit = market.bid - Utils.percentage_of(self.limit_p, market.bid)
-            stop = market.offer + Utils.percentage_of(self.stop_p, market.offer)
+            return self._buy(market.offer, market.bid)
+        # elif df[MarketHistory.CLOSE_COLUMN].iloc[1] > df["Upper_Band"].iloc[1]:
+        #     return self._buy(market.offer, market.bid)
+        return TradeDirection.NONE, None, None
 
+    def _buy(self, offer: float, bid: float) -> TradeSignal:
+        direction = TradeDirection.BUY
+        limit = offer + Utils.percentage_of(self.limit_p, offer)
+        stop = bid - Utils.percentage_of(self.stop_p, bid)
+        return direction, limit, stop
+
+    def _sell(self, offer: float, bid: float) -> TradeSignal:
+        direction = TradeDirection.SELL
+        limit = bid - Utils.percentage_of(self.limit_p, bid)
+        stop = offer + Utils.percentage_of(self.stop_p, offer)
         return direction, limit, stop
 
     def backtest(

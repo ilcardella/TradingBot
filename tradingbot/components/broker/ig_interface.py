@@ -70,6 +70,9 @@ class IGInterface(AccountInterface, StocksInterface):
         response = requests.post(url, data=json.dumps(data), headers=headers)
 
         if response.status_code != 200:
+            logging.debug(
+                "Authentication returned code: {}".format(response.status_code)
+            )
             return False
 
         headers_json = dict(response.headers)
