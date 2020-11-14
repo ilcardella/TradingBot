@@ -108,25 +108,9 @@ def test_find_trade_signal_sell(config, broker, requests_mock):
     data = strategy.fetch_datapoints(market)
     tradeDir, limit, stop = strategy.find_trade_signal(market, data)
 
-    assert tradeDir is not None
-    assert limit is not None
-    assert stop is not None
-
-    assert tradeDir == TradeDirection.SELL
-    assert (
-        limit
-        == market.bid
-        - market.bid
-        * config.config["strategies"]["simple_boll_bands"]["limit_perc"]
-        / 100
-    )
-    assert (
-        stop
-        == market.offer
-        + market.offer
-        * config.config["strategies"]["simple_boll_bands"]["stop_perc"]
-        / 100
-    )
+    assert tradeDir is TradeDirection.NONE
+    assert limit is None
+    assert stop is None
 
 
 def test_find_trade_signal_hold(config, broker, requests_mock):

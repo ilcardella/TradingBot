@@ -157,7 +157,7 @@ class TradingBot:
             self.process_trade(market, trade, limit, stop, open_positions)
         except Exception as e:
             logging.error("Strategy exception caught: {}".format(e))
-            logging.error(traceback.format_exc())
+            logging.debug(traceback.format_exc())
             return
 
     def close_open_positions(self) -> None:

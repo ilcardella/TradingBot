@@ -54,6 +54,6 @@ max_spread = 3
 limit_perc = 10
 stop_perc = 5
 [strategies.simple_boll_bands]
-max_spread_perc = 3
+window = 60
 limit_perc = 10
 stop_perc = 5
