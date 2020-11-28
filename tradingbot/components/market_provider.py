@@ -30,6 +30,7 @@ class MarketProvider:
     broker: Broker
     epic_list: List[str] = []
     epic_list_iter: Iterator[str]
+    market_list_iter: Iterator[Market]
     node_stack: Deque[str]
 
     def __init__(self, config: Configuration, broker: Broker) -> None:
@@ -104,7 +105,7 @@ class MarketProvider:
                 Path(self.config.get_epic_ids_filepath())
             )
         elif source == MarketSource.WATCHLIST.value:
-            market_list = self._load_epic_ids_from_watchlist(
+            market_list = self._load_markets_from_watchlist(
                 self.config.get_watchlist_name()
             )
             self.market_list_iter = iter(market_list)
@@ -150,7 +151,7 @@ class MarketProvider:
         except Exception:
             raise StopIteration
 
-    def _load_epic_ids_from_watchlist(self, watchlist_name: str) -> List[str]:
+    def _load_markets_from_watchlist(self, watchlist_name: str) -> List[Market]:
         markets = self.broker.get_markets_from_watchlist(
             self.config.get_watchlist_name()
         )
