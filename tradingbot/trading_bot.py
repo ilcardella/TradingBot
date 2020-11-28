@@ -94,6 +94,8 @@ class TradingBot:
         - wait for configured wait time
         - start over
         """
+        if single_pass:
+            logging.info("Performing a single iteration of the market source")
         while True:
             try:
                 # Process current open positions
@@ -104,21 +106,28 @@ class TradingBot:
                 self.time_provider.wait_for(
                     TimeAmount.SECONDS, self.config.get_spin_interval()
                 )
+                if single_pass:
+                    break
             except MarketClosedException:
                 logging.warning("Market is closed: stop processing")
+                if single_pass:
+                    break
                 self.time_provider.wait_for(TimeAmount.NEXT_MARKET_OPENING)
             except NotSafeToTradeException:
+                if single_pass:
+                    break
                 self.time_provider.wait_for(
                     TimeAmount.SECONDS, self.config.get_spin_interval()
                 )
             except StopIteration:
+                if single_pass:
+                    break
                 self.time_provider.wait_for(
                     TimeAmount.SECONDS, self.config.get_spin_interval()
                 )
             except Exception as e:
                 logging.error("Generic exception caught: {}".format(e))
                 logging.error(traceback.format_exc())
-            finally:
                 if single_pass:
                     break
 
