@@ -1,6 +1,6 @@
 FROM python:3.8-slim-buster
 
-ARG POETRY_VERSION=1.1.3
+ARG POETRY_VERSION
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update \
     && apt-get install -y --no-install-recommends make \

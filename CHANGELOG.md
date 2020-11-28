@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Bug preventing to process trade when account does not hold any position yet
+- Fixed arm64 docker image build adding missing build dependencies
 
 ## [2.0.0] - 2020-07-29
 ### Changed

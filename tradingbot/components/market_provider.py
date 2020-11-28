@@ -102,6 +102,8 @@ class MarketProvider:
                 Path(self.config.get_epic_ids_filepath())
             )
         elif self.config.get_active_market_source() == MarketSource.WATCHLIST.value:
+            # TODO _load_epic_ids_from_watchlist() already returns markets so it's stupid
+            # just pick the epic and then ask again the market data after
             self.epic_list = self._load_epic_ids_from_watchlist(
                 self.config.get_watchlist_name()
             )
