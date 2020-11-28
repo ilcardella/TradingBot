@@ -34,6 +34,12 @@ def get_menu_parser() -> argparse.Namespace:
         nargs=1,
         metavar="MARKET_ID",
     )
+    main_group.add_argument(
+        "-s",
+        "--single-pass",
+        help="Run a single iteration on the market source",
+        action="store_true",
+    )
     backtest_group = parser.add_argument_group("Backtesting")
     backtest_group.add_argument(
         "--epic",
@@ -68,4 +74,4 @@ def main() -> None:
         epic = args.epic[0] if args.epic else None
         bot.backtest(args.backtest[0], args.start[0], args.end[0], epic)
     else:
-        bot.start()
+        bot.start(single_pass=args.single_pass)
