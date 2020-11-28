@@ -121,7 +121,6 @@ class TradingBot:
             finally:
                 if single_pass:
                     break
-                continue
 
     def process_open_positions(self) -> None:
         """
