@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Moved `paper_trading` configuration outside of the single broker interface
 - Converted configuration file from `json` to `toml` format
 - YFinance interface fetch only necessary data for specified data range
+- When using a watchlist as market source, markets are only fetched once
 
 ### Fixed
 - Bug preventing to process trade when account does not hold any position yet

@@ -30,6 +30,7 @@ class MarketProvider:
     broker: Broker
     epic_list: List[str] = []
     epic_list_iter: Iterator[str]
+    market_list_iter: Iterator[Market]
     node_stack: Deque[str]
 
     def __init__(self, config: Configuration, broker: Broker) -> None:
@@ -41,11 +42,12 @@ class MarketProvider:
         """
         Return the next market from the configured source
         """
-        if self.config.get_active_market_source() == MarketSource.LIST.value:
-            return self._next_from_list()
-        elif self.config.get_active_market_source() == MarketSource.WATCHLIST.value:
-            return self._next_from_list()
-        elif self.config.get_active_market_source() == MarketSource.API.value:
+        source = self.config.get_active_market_source()
+        if source == MarketSource.LIST.value:
+            return self._next_from_epic_list()
+        elif source == MarketSource.WATCHLIST.value:
+            return self._next_from_market_list()
+        elif source == MarketSource.API.value:
             return self._next_from_api()
         else:
             raise RuntimeError("ERROR: invalid market_source configuration")
@@ -94,20 +96,20 @@ class MarketProvider:
         # Initialise epic list
         self.epic_list = []
         self.epic_list_iter = iter([])
+        self.market_list_iter = iter([])
         # Initialise API members
         self.node_stack = deque()
-
-        if self.config.get_active_market_source() == MarketSource.LIST.value:
+        source = self.config.get_active_market_source()
+        if source == MarketSource.LIST.value:
             self.epic_list = self._load_epic_ids_from_local_file(
                 Path(self.config.get_epic_ids_filepath())
             )
-        elif self.config.get_active_market_source() == MarketSource.WATCHLIST.value:
-            # TODO _load_epic_ids_from_watchlist() already returns markets so it's stupid
-            # just pick the epic and then ask again the market data after
-            self.epic_list = self._load_epic_ids_from_watchlist(
+        elif source == MarketSource.WATCHLIST.value:
+            market_list = self._load_markets_from_watchlist(
                 self.config.get_watchlist_name()
             )
-        elif self.config.get_active_market_source() == MarketSource.API.value:
+            self.market_list_iter = iter(market_list)
+        elif source == MarketSource.API.value:
             self.epic_list = self._load_epic_ids_from_api_node("180500")
         else:
             raise RuntimeError("ERROR: invalid market_source configuration")
@@ -136,14 +138,20 @@ class MarketProvider:
             logging.error("Epic list is empty!")
         return epic_ids
 
-    def _next_from_list(self) -> Market:
+    def _next_from_epic_list(self) -> Market:
         try:
             epic = next(self.epic_list_iter)
             return self._create_market(epic)
         except Exception:
             raise StopIteration
 
-    def _load_epic_ids_from_watchlist(self, watchlist_name: str) -> List[str]:
+    def _next_from_market_list(self) -> Market:
+        try:
+            return next(self.market_list_iter)
+        except Exception:
+            raise StopIteration
+
+    def _load_markets_from_watchlist(self, watchlist_name: str) -> List[Market]:
         markets = self.broker.get_markets_from_watchlist(
             self.config.get_watchlist_name()
         )
@@ -151,7 +159,7 @@ class MarketProvider:
             message = "Watchlist {} not found!".format(watchlist_name)
             logging.error(message)
             raise RuntimeError(message)
-        return [m.epic for m in markets]
+        return markets
 
     def _load_epic_ids_from_api_node(self, node_id: str) -> List[str]:
         node = self.broker.navigate_market_node(node_id)
@@ -177,11 +185,11 @@ class MarketProvider:
         # Return the next item in the epic_list, but if the list is finished
         # navigate the next node in the stack and return a new list
         try:
-            return self._next_from_list()
+            return self._next_from_epic_list()
         except Exception:
             self.epic_list = self._load_epic_ids_from_api_node(self.node_stack.pop())
             self.epic_list_iter = iter(self.epic_list)
-            return self._next_from_list()
+            return self._next_from_epic_list()
 
     def _create_market(self, epic_id: str) -> Market:
         market = self.broker.get_market_info(epic_id)
