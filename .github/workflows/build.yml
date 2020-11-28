@@ -9,7 +9,7 @@ on:
     - cron: '0 0 * * *' # nightly build
 
 env:
-  poetry-version: 1.1.3
+  poetry-version: 1.1.4
   docker-image-name: ilcardella/tradingbot
   push-docker-image: ${{ startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/master' }}
 
