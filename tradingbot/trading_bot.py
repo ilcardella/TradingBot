@@ -86,7 +86,7 @@ class TradingBot:
                 level=debugLevel, format="[%(asctime)s] %(levelname)s: %(message)s"
             )
 
-    def start(self) -> None:
+    def start(self, single_pass=False) -> None:
         """
         Starts the TradingBot main loop
         - process open positions
@@ -118,7 +118,9 @@ class TradingBot:
             except Exception as e:
                 logging.error("Generic exception caught: {}".format(e))
                 logging.error(traceback.format_exc())
-                continue
+            finally:
+                if single_pass:
+                    break
 
     def process_open_positions(self) -> None:
         """
