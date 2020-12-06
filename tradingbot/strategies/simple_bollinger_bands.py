@@ -55,10 +55,10 @@ class SimpleBollingerBands(Strategy):
         # 2. Compute lower band
         df["Lower_Band"] = df["MA"] - (df["STD"] * 2)
         # 3. Compare the last price with the band boundaries and trigger signals
-        if df[MarketHistory.CLOSE_COLUMN].iloc[1] < df["Lower_Band"].iloc[1]:
+        if (df[MarketHistory.CLOSE_COLUMN].iloc[0] > df["Lower_Band"].iloc[0]) and (
+            df[MarketHistory.CLOSE_COLUMN].iloc[1] < df["Lower_Band"].iloc[1]
+        ):
             return self._buy(market.offer, market.bid)
-        # elif df[MarketHistory.CLOSE_COLUMN].iloc[1] > df["Upper_Band"].iloc[1]:
-        #     return self._buy(market.offer, market.bid)
         return TradeDirection.NONE, None, None
 
     def _buy(self, offer: float, bid: float) -> TradeSignal:
