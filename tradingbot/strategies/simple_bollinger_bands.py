@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import pandas
 
 from ..components import Configuration, Interval, TradeDirection, Utils
@@ -83,25 +83,25 @@ class SimpleBollingerBands(Strategy):
         stop = market.offer + Utils.percentage_of(self.stop_p, market.offer)
         return direction, limit, stop
 
-    def _plot(self, dataframe: pandas.DataFrame):
-        ax = plt.gca()
-        dataframe.plot(
-            kind="line",
-            x=MarketHistory.DATE_COLUMN,
-            y=MarketHistory.CLOSE_COLUMN,
-            ax=ax,
-            color="blue",
-        )
-        dataframe.plot(
-            kind="line", x=MarketHistory.DATE_COLUMN, y="Lower_Band", ax=ax, color="red"
-        )
-        dataframe.plot(
-            kind="line", x=MarketHistory.DATE_COLUMN, y="Upper_Band", ax=ax, color="red"
-        )
-        dataframe.plot(
-            kind="line", x=MarketHistory.DATE_COLUMN, y="MA", ax=ax, color="green"
-        )
-        plt.show()
+    # def _plot(self, dataframe: pandas.DataFrame):
+    #     ax = plt.gca()
+    #     dataframe.plot(
+    #         kind="line",
+    #         x=MarketHistory.DATE_COLUMN,
+    #         y=MarketHistory.CLOSE_COLUMN,
+    #         ax=ax,
+    #         color="blue",
+    #     )
+    #     dataframe.plot(
+    #         kind="line", x=MarketHistory.DATE_COLUMN, y="Lower_Band", ax=ax, color="red"
+    #     )
+    #     dataframe.plot(
+    #         kind="line", x=MarketHistory.DATE_COLUMN, y="Upper_Band", ax=ax, color="red"
+    #     )
+    #     dataframe.plot(
+    #         kind="line", x=MarketHistory.DATE_COLUMN, y="MA", ax=ax, color="green"
+    #     )
+    #     plt.show()
 
     def backtest(
         self, market: Market, start_date: datetime, end_date: datetime
