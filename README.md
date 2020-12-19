@@ -172,14 +172,16 @@ NOTE: Remember to set the correct timezone in your machine!
 
 ## Docker
 
-You can run TradingBot in a Docker container (https://docs.docker.com/).
+You can run TradingBot in a [Docker](https://docs.docker.com/) container.
 
-The Docker image is configured with a default TradingBot configuration and it
+The Docker images are configured with a default TradingBot configuration and it
 does not have any `.credentials` files.
 **You must mount these files when running the Docker container**
 
 ### Pull
 
+The Docker images are available in the official [Docker Hub](https://hub.docker.com/r/ilcardella/tradingbot).
+Currently `TradingBot` supports both `amd64` and `arm64` architectures.
 You can pull the Docker image directly from the Docker Hub.
 Latest version:
 ```
@@ -187,7 +189,7 @@ docker pull ilcardella/tradingbot:latest
 ```
 Tagged version:
 ```
-docker pull ilcardella/tradingbot:v1.2.0
+docker pull ilcardella/tradingbot:v2.0.0
 ```
 
 ### Build
