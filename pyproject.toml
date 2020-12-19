@@ -23,6 +23,7 @@ requests = "^2.25.1"
 scipy = "^1.5.4"
 yfinance = "^0.1.55"
 toml = "^0.10.2"
+matplotlib = "^3.3.3"
 
 [tool.poetry.dev-dependencies]
 sphinx = "^3.3.1"
