@@ -7,6 +7,7 @@ INSTALL_DIR = ${HOME}/.TradingBot
 DATA_DIR = $(INSTALL_DIR)/data
 CONFIG_DIR = $(INSTALL_DIR)/config
 LOG_DIR = $(INSTALL_DIR)/log
+POETRY_VERSION=1.1.4
 
 default: check
 
@@ -36,7 +37,7 @@ build: clean
 > poetry build
 
 docker: clean
-> docker build -t ilcardella/tradingbot -f docker/Dockerfile .
+> docker build -t ilcardella/tradingbot -f docker/Dockerfile --build-arg POETRY_VERSION=$(POETRY_VERSION) .
 
 mypy:
 > poetry run mypy tradingbot/
