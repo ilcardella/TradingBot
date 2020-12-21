@@ -23,7 +23,7 @@ python-versions = "*"
 
 [[package]]
 name = "alpha-vantage"
-version = "2.2.0"
+version = "2.3.1"
 description = "Python module to get stock data from the Alpha Vantage Api"
 category = "main"
 optional = false
@@ -730,7 +730,7 @@ testing = ["pytest (>=3.5,!=3.7.3)", "pytest-checkdocs (>=1.2.3)", "pytest-flake
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6.1"
-content-hash = "b9e909dea193d655a2af6b10706c1444717e58ca646e8b49065476d82e772026"
+content-hash = "361de3e84882e75bbf04cd4daaa83ca342d4c3fbbd30badb31d26c57818b6106"
 
 [metadata.files]
 aiohttp = [
@@ -762,7 +762,8 @@ alabaster = [
     {file = "alabaster-0.7.12.tar.gz", hash = "sha256:a661d72d58e6ea8a57f7a86e37d86716863ee5e92788398526d58b26a4e4dc02"},
 ]
 alpha-vantage = [
-    {file = "alpha_vantage-2.2.0.tar.gz", hash = "sha256:919504b709f59f9d16642a620c898952d1d9634b4459bdf0c17539f24c403350"},
+    {file = "alpha_vantage-2.3.1-py3-none-any.whl", hash = "sha256:5d05355febe6f0fafc4bd11dc6ce3504a02d9d3c105d60202539855c0f608661"},
+    {file = "alpha_vantage-2.3.1.tar.gz", hash = "sha256:0ce76908c3e2a22f9bbdacead90195ec3a4fa41ef8ae7c69a4a2fc99459bfbec"},
 ]
 appdirs = [
     {file = "appdirs-1.4.4-py2.py3-none-any.whl", hash = "sha256:a841dacd6b99318a741b166adb07e19ee71a274450e68237b4650ca1055ab128"},
