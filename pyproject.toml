@@ -26,7 +26,7 @@ toml = "^0.10.2"
 
 [tool.poetry.dev-dependencies]
 sphinx = "^3.4.2"
-sphinx-rtd-theme = "^0.5.0"
+sphinx-rtd-theme = "^0.5.1"
 requests-mock = "^1.8.0"
 pytest = "^6.2.1"
 black = {version = "^20.8b1", allow-prereleases = true}
