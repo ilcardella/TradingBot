@@ -32,7 +32,7 @@ pytest = "^6.2.2"
 black = {version = "^20.8b1", allow-prereleases = true}
 flake8 = "^3.8.4"
 isort = "^5.7.0"
-mypy = "^0.800"
+mypy = "^0.812"
 
 [tool.poetry.scripts]
 trading_bot = 'tradingbot:main'
