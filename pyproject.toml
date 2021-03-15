@@ -30,7 +30,7 @@ sphinx-rtd-theme = "^0.5.1"
 requests-mock = "^1.8.0"
 pytest = "^6.2.2"
 black = {version = "^20.8b1", allow-prereleases = true}
-flake8 = "^3.8.4"
+flake8 = "^3.9.0"
 isort = "^5.7.0"
 mypy = "^0.812"
 
