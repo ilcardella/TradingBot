@@ -2,6 +2,8 @@ name: TradingBot CI
 
 on:
   push:
+    branches:
+      - master # Prevent building other branches to speed up PRs
   pull_request:
     branches:
       - master
