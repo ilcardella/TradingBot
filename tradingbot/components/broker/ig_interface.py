@@ -448,6 +448,7 @@ class IGInterface(AccountInterface, StocksInterface):
         Return the json object returned from the API if 200 is received
         Return None if an error is received from the API
         """
+        self._wait_before_call(self._config.get_ig_api_timeout())
         response = requests.get(url, headers=self.authenticated_headers)
         if response.status_code != 200:
             logging.error("HTTP request returned {}".format(response.status_code))

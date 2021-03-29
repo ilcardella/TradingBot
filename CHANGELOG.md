@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `simple_boll_bands` strategy
 - Added `--single-pass` optional argument to perform a single iteration of the strategy
 - Support for Python 3.9
+- IGInterface `api_timeout` configuration parameter to pace http requests
 
 ### Changed
 - Moved `paper_trading` configuration outside of the single broker interface
