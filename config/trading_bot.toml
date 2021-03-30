@@ -33,6 +33,7 @@ order_force_open = true
 use_g_stop = false
 use_demo_account = true
 controlled_risk = false
+api_timeout = 3
 [stocks_interface.alpha_vantage]
 api_timeout = 12
 [stocks_interface.yfinance]

@@ -88,10 +88,6 @@ class AccountInterface(AbstractInterface):
     def navigate_market_node(self, node_id: str) -> Dict[str, Any]:
         pass
 
-    # No need to override this
-    def _wait_before_call(self, timeout: float) -> None:
-        super()._wait_before_call(timeout)
-
 
 class StocksInterface(AbstractInterface):
     # This MUST not be overwritten. Use the "initialise()" to init a children interface
@@ -109,7 +105,3 @@ class StocksInterface(AbstractInterface):
         self, market: Market, interval: Interval, data_range: int
     ) -> MarketMACD:
         pass
-
-    # No need to override this
-    def _wait_before_call(self, timeout: float) -> None:
-        super()._wait_before_call(timeout)
