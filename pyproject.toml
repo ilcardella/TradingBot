@@ -25,7 +25,7 @@ pandas = [
 pytz = "^2021.1"
 requests = "^2.25.1"
 scipy = "^1.5.4"
-yfinance = "^0.1.55"
+yfinance = "^0.1.67"
 toml = "^0.10.2"
 
 [tool.poetry.dev-dependencies]
