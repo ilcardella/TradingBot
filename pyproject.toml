@@ -23,7 +23,7 @@ pandas = [
   { version = "1.2.2", python = "^3.7.1" }
 ]
 pytz = "^2021.1"
-requests = "^2.25.1"
+requests = "^2.26.0"
 scipy = "^1.5.4"
 yfinance = "^0.1.55"
 toml = "^0.10.2"
