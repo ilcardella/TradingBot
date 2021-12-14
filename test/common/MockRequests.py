@@ -22,7 +22,7 @@ class AV_API_URL(Enum):
 class YF_API_URL(Enum):
     """YFinance API URLs"""
 
-    BASE_URI = "https://query1.finance.yahoo.com/v8/finance/chart"
+    BASE_URI = "https://query2.finance.yahoo.com/v8/finance/chart"
 
 
 def read_json(filepath):
