@@ -7,7 +7,7 @@ INSTALL_DIR = ${HOME}/.TradingBot
 DATA_DIR = $(INSTALL_DIR)/data
 CONFIG_DIR = $(INSTALL_DIR)/config
 LOG_DIR = $(INSTALL_DIR)/log
-POETRY_VERSION=1.1.4
+POETRY_VERSION=1.1.12
 
 default: check
 

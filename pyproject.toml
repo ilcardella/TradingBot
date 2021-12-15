@@ -13,27 +13,22 @@ packages = [
 include = ["config/trading_bot.toml"]
 
 [tool.poetry.dependencies]
-python = "^3.6.1"
+python = ">= 3.7.1 < 3.11"
 alpha-vantage = "^2.3.1"
 govuk-bank-holidays = "^0.8"
-numpy = "^1.19.5"
-# Fixed to keep Python 3.6.1 compatibility
-pandas = [
-  { version = "1.1.5", python = "3.6.1" },
-  { version = "1.2.2", python = "^3.7.1" }
-]
 pytz = "^2021.1"
 requests = "^2.25.1"
-scipy = "^1.5.4"
 yfinance = "^0.1.55"
 toml = "^0.10.2"
+pandas = "^1.3.5"
+scipy = "^1.7.3"
 
 [tool.poetry.dev-dependencies]
-sphinx = "^3.5.2"
+sphinx = "^4.3.1"
 sphinx-rtd-theme = "^0.5.1"
 requests-mock = "^1.8.0"
 pytest = "^6.2.2"
-black = {version = "^20.8b1", allow-prereleases = true}
+black = {version = "^21.12b0", allow-prereleases = true}
 flake8 = "^3.8.4"
 isort = "^5.7.0"
 mypy = "^0.812"
@@ -66,5 +61,5 @@ use_parentheses="True"
 line_length=88
 
 [build-system]
-requires = ["poetry>=0.12"]
-build-backend = "poetry.masonry.api"
+requires = ["poetry_core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

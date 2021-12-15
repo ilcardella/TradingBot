@@ -11,7 +11,7 @@ on:
     - cron: '0 0 * * *' # nightly build
 
 env:
-  poetry-version: 1.1.4
+  poetry-version: '1.1.12'
   docker-image-name: ilcardella/tradingbot
   push-docker-image: ${{ startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/master' }}
 
@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9]
+        python-version: ['3.7', '3.8', '3.9', '3.10']
     name: Python ${{ matrix.python-version }}
 
     steps:
