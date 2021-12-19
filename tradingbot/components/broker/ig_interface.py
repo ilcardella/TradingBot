@@ -109,7 +109,7 @@ class IGInterface(AccountInterface, StocksInterface):
         if response.status_code != 200:
             return False
 
-        logging.info("Using default account: {}".format(accountId))
+        logging.info("Default IG account set")
         return True
 
     def get_account_balances(self) -> AccountBalances:
