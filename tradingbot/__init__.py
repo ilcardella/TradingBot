@@ -13,7 +13,6 @@ def get_menu_parser() -> argparse.Namespace:
         "-f",
         "--config",
         help="Configuration file path",
-        default="",
         metavar="FILEPATH",
         type=Path,
     )
