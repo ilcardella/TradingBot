@@ -34,7 +34,7 @@ jobs:
           architecture: x64
 
       - name: Pip cache
-        uses: actions/cache@v3.0.2
+        uses: actions/cache@v3.0.4
         with:
           # This path is specific to Ubuntu
           path: ~/.cache/pip
@@ -50,7 +50,7 @@ jobs:
           pip install 'poetry==${{ env.poetry-version }}'
 
       - name: Poetry cache
-        uses: actions/cache@v3.0.2
+        uses: actions/cache@v3.0.4
         with:
           path: ~/.cache/pypoetry/virtualenvs
           key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
@@ -96,7 +96,7 @@ jobs:
         uses: docker/setup-buildx-action@master
 
       - name: Cache Docker layers
-        uses: actions/cache@v3.0.2
+        uses: actions/cache@v3.0.4
         id: cache
         with:
           path: /tmp/.buildx-cache
