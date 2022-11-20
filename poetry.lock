@@ -90,7 +90,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 dev = ["coverage[toml] (>=5.0.2)", "furo", "hypothesis", "mypy", "pre-commit", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins", "six", "sphinx", "sphinx-notfound-page", "zope.interface"]
 docs = ["furo", "sphinx", "sphinx-notfound-page", "zope.interface"]
 tests = ["coverage[toml] (>=5.0.2)", "hypothesis", "mypy", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins", "six", "zope.interface"]
-tests_no_zope = ["coverage[toml] (>=5.0.2)", "hypothesis", "mypy", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins", "six"]
+tests-no-zope = ["coverage[toml] (>=5.0.2)", "hypothesis", "mypy", "pympler", "pytest (>=4.3.0)", "pytest-mypy-plugins", "six"]
 
 [[package]]
 name = "babel"
@@ -147,7 +147,7 @@ optional = false
 python-versions = ">=3.5.0"
 
 [package.extras]
-unicode_backport = ["unicodedata2"]
+unicode-backport = ["unicodedata2"]
 
 [[package]]
 name = "click"
@@ -201,7 +201,7 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "govuk-bank-holidays"
-version = "0.10"
+version = "0.11"
 description = "Tool to load UK bank holidays from GOV.UK"
 category = "main"
 optional = false
@@ -261,9 +261,9 @@ python-versions = ">=3.6.1,<4.0"
 
 [package.extras]
 colors = ["colorama (>=0.4.3,<0.5.0)"]
-pipfile_deprecated_finder = ["pipreqs", "requirementslib"]
+pipfile-deprecated-finder = ["pipreqs", "requirementslib"]
 plugins = ["setuptools"]
-requirements_deprecated_finder = ["pip-api", "pipreqs"]
+requirements-deprecated-finder = ["pip-api", "pipreqs"]
 
 [[package]]
 name = "jinja2"
@@ -524,7 +524,7 @@ urllib3 = ">=1.21.1,<1.27"
 
 [package.extras]
 socks = ["PySocks (>=1.5.6,!=1.5.7)"]
-use_chardet_on_py3 = ["chardet (>=3.0.2,<6)"]
+use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
 name = "requests-mock"
@@ -788,7 +788,7 @@ testing = ["func-timeout", "jaraco.itertools", "pytest (>=4.6)", "pytest-black (
 [metadata]
 lock-version = "1.1"
 python-versions = ">= 3.7.1 < 3.11"
-content-hash = "19d17edfa9d8ee00217b2e9b6471814270fbb6f9aa41de7ceba72750737f35e8"
+content-hash = "e2c605e046f544b6ac4c152efc0faa70c9dd930a65607193ca2236addff29d60"
 
 [metadata.files]
 aiohttp = [
@@ -1000,9 +1000,8 @@ frozenlist = [
     {file = "frozenlist-1.2.0.tar.gz", hash = "sha256:68201be60ac56aff972dc18085800b6ee07973c49103a8aba669dee3d71079de"},
 ]
 govuk-bank-holidays = [
-    {file = "govuk-bank-holidays-0.10.tar.gz", hash = "sha256:07123f2c48a8cfdb63f4b9006ae77e91f00eb8044a23a698ea47486a06dfc111"},
-    {file = "govuk_bank_holidays-0.10-py2.py3-none-any.whl", hash = "sha256:cc42d441150f6f08adbed2fb3601dcc0cc7bf1ecb909a44a3a85fdb20861711b"},
-    {file = "govuk_bank_holidays-0.10-py3-none-any.whl", hash = "sha256:bc01d62b6af8b188758ce2bfbd1a402604f2cfd445c2ea9b506420a8aa81a219"},
+    {file = "govuk-bank-holidays-0.11.tar.gz", hash = "sha256:6c993f59bff512740066ae5891a9ce3155e94291560d1d5169fea6e634111a46"},
+    {file = "govuk_bank_holidays-0.11-py3-none-any.whl", hash = "sha256:9e214828802bbed303f01dacee3facc2296a8bcac9c814654ac7300b37381f78"},
 ]
 idna = [
     {file = "idna-3.3-py3-none-any.whl", hash = "sha256:84d9dd047ffa80596e0f246e2eab0b391788b0503584e8945f2368256d2735ff"},
