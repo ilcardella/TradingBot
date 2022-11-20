@@ -1,3 +1,5 @@
+# mypy: ignore-errors
+
 import logging
 import math
 from datetime import datetime
