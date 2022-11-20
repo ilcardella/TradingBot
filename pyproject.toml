@@ -31,7 +31,7 @@ pytest = "^6.2.2"
 black = "^22.10.0"
 flake8 = "^3.8.4"
 isort = "^5.7.0"
-mypy = "^0.812"
+mypy = "^0.991"
 
 [tool.poetry.scripts]
 trading_bot = 'tradingbot:main'
