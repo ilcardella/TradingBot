@@ -24,6 +24,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Issue 372 - Fixed security warning in ig_interface.py logging
 - Issue 358 - Removed default value for `--config` optional argument
 
+### Removed
+- Support for Python 3.6 and 3.7
+
 ## [2.0.0] - 2020-07-29
 ### Changed
 - Improved and expanded configuration file format
