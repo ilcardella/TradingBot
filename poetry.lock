@@ -52,6 +52,14 @@ aiohttp = "*"
 requests = "*"
 
 [[package]]
+name = "appdirs"
+version = "1.4.4"
+description = "A small Python module for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "async-timeout"
 version = "4.0.1"
 description = "Timeout context manager for asyncio programs"
@@ -750,18 +758,19 @@ typing-extensions = {version = ">=3.7.4", markers = "python_version < \"3.8\""}
 
 [[package]]
 name = "yfinance"
-version = "0.1.67"
+version = "0.1.87"
 description = "Download market data from Yahoo! Finance API"
 category = "main"
 optional = false
 python-versions = "*"
 
 [package.dependencies]
+appdirs = ">=1.4.4"
 lxml = ">=4.5.1"
 multitasking = ">=0.0.7"
 numpy = ">=1.15"
-pandas = ">=0.24"
-requests = ">=2.20"
+pandas = ">=0.24.0"
+requests = ">=2.26"
 
 [[package]]
 name = "zipp"
@@ -778,7 +787,7 @@ testing = ["func-timeout", "jaraco.itertools", "pytest (>=4.6)", "pytest-black (
 [metadata]
 lock-version = "1.1"
 python-versions = ">= 3.7.1 < 3.11"
-content-hash = "6d452b048fe597d353455e75ab5d689cec3a562cedd2b50aebdcbb657021f9eb"
+content-hash = "336df05e183e85a0b671f57d321b66001b387874e27f54b9672cb35b40a73ec9"
 
 [metadata.files]
 aiohttp = [
@@ -866,6 +875,10 @@ alabaster = [
 alpha-vantage = [
     {file = "alpha_vantage-2.3.1-py3-none-any.whl", hash = "sha256:5d05355febe6f0fafc4bd11dc6ce3504a02d9d3c105d60202539855c0f608661"},
     {file = "alpha_vantage-2.3.1.tar.gz", hash = "sha256:0ce76908c3e2a22f9bbdacead90195ec3a4fa41ef8ae7c69a4a2fc99459bfbec"},
+]
+appdirs = [
+    {file = "appdirs-1.4.4-py2.py3-none-any.whl", hash = "sha256:a841dacd6b99318a741b166adb07e19ee71a274450e68237b4650ca1055ab128"},
+    {file = "appdirs-1.4.4.tar.gz", hash = "sha256:7d5d0167b2b1ba821647616af46a749d1c653740dd0d2415100fe26e27afdf41"},
 ]
 async-timeout = [
     {file = "async-timeout-4.0.1.tar.gz", hash = "sha256:b930cb161a39042f9222f6efb7301399c87eeab394727ec5437924a36d6eef51"},
@@ -1578,7 +1591,8 @@ yarl = [
     {file = "yarl-1.7.2.tar.gz", hash = "sha256:45399b46d60c253327a460e99856752009fcee5f5d3c80b2f7c0cae1c38d56dd"},
 ]
 yfinance = [
-    {file = "yfinance-0.1.67-py2.py3-none-any.whl", hash = "sha256:597a3e83804726f45acceb3d56bcd16317c718cc62876234deb4c2b561e65b42"},
+    {file = "yfinance-0.1.87-py2.py3-none-any.whl", hash = "sha256:1011dcb9f60a4eaffb87d7b24319acfa1e5f4cd124b412bfa5437d6143ad5170"},
+    {file = "yfinance-0.1.87.tar.gz", hash = "sha256:78eaeff72a2e903cae08a2b45febeac2d0f99556febfae24f702f198bfc34fd4"},
 ]
 zipp = [
     {file = "zipp-3.6.0-py3-none-any.whl", hash = "sha256:9fe5ea21568a0a70e50f273397638d39b03353731e6cbbb3fd8502a33fec40bc"},
