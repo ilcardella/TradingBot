@@ -189,7 +189,7 @@ python-versions = ">=3.7"
 
 [[package]]
 name = "govuk-bank-holidays"
-version = "0.11"
+version = "0.12"
 description = "Tool to load UK bank holidays from GOV.UK"
 category = "main"
 optional = false
@@ -795,7 +795,7 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "10b58cd659f05eefd70cddb75a87f78014d7f6019bd0d2229e81a44d22109abd"
+content-hash = "2423f05cab585f770be7e64abbfcf27aacecb82b93dc538302340ed2e6547b74"
 
 [metadata.files]
 aiohttp = [
@@ -1042,8 +1042,8 @@ frozenlist = [
     {file = "frozenlist-1.3.3.tar.gz", hash = "sha256:58bcc55721e8a90b88332d6cd441261ebb22342e238296bb330968952fbb3a6a"},
 ]
 govuk-bank-holidays = [
-    {file = "govuk-bank-holidays-0.11.tar.gz", hash = "sha256:6c993f59bff512740066ae5891a9ce3155e94291560d1d5169fea6e634111a46"},
-    {file = "govuk_bank_holidays-0.11-py3-none-any.whl", hash = "sha256:9e214828802bbed303f01dacee3facc2296a8bcac9c814654ac7300b37381f78"},
+    {file = "govuk-bank-holidays-0.12.tar.gz", hash = "sha256:32694697e1d9795d133cf8e39a1dd69baa23bda4a72b76f476dd4ee3df7d9b13"},
+    {file = "govuk_bank_holidays-0.12-py3-none-any.whl", hash = "sha256:4cf28203b96c8ac07065538a0e49f44e4f0c6553ad418600b275f5ab60d23c68"},
 ]
 idna = [
     {file = "idna-3.4-py3-none-any.whl", hash = "sha256:90b77e79eaa3eba6de819a0c442c0b4ceefc341a7a2ab77d7562bf49f425c5c2"},
