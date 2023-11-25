@@ -9,7 +9,7 @@ RUN apt-get update \
     python-dev \
     && rm -rf /var/lib/apt/lists/* \
     && python -m pip install --upgrade pip \
-    && python -m pip install "poetry==$POETRY_VERSION"
+    && python -m pip install poetry
 
 ENV PATH=/root/.local/bin:$PATH
 
