@@ -7,11 +7,8 @@ on:
   pull_request:
     branches:
       - master
-  schedule:
-    - cron: '0 0 * * *' # nightly build
 
 env:
-  poetry-version: '1.2.2'
   docker-image-name: ilcardella/tradingbot
   push-docker-image: ${{ startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/master' }}
 
@@ -20,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.8', '3.9', '3.10']
+        python-version: ['3.8', '3.9', '3.10', '3.11']
     name: Python ${{ matrix.python-version }}
 
     steps:
@@ -39,7 +36,7 @@ jobs:
           # This path is specific to Ubuntu
           path: ~/.cache/pip
           # Look to see if there is a cache hit for the corresponding poetry.lock
-          key: ${{ runner.os }}-pip-${{ env.poetry-version }}
+          key: ${{ runner.os }}-pip-${{ matrix.python-version }}
           restore-keys: |
             ${{ runner.os }}-pip-
             ${{ runner.os }}-
@@ -47,7 +44,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install 'poetry==${{ env.poetry-version }}'
+          python -m pip install poetry
 
       - name: Poetry cache
         uses: actions/cache@v3
@@ -86,8 +83,8 @@ jobs:
             TAGS="$TAGS,${DOCKER_IMAGE}:latest"
           fi
 
-          echo ::set-output name=platforms::${PLATFORMS}
-          echo ::set-output name=tags::${TAGS}
+          echo "platforms=${PLATFORMS}" >> $GITHUB_OUTPUT
+          echo "tags=${TAGS}" >> $GITHUB_OUTPUT
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@master
@@ -118,7 +115,6 @@ jobs:
           context: .
           file: docker/Dockerfile
           platforms: ${{ steps.prepare.outputs.platforms }}
-          build-args: POETRY_VERSION=${{ env.poetry-version }}
           push: ${{ env.push-docker-image }}
           tags: ${{ steps.prepare.outputs.tags }}
           cache-from: type=local,src=/tmp/.buildx-cache
