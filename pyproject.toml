@@ -15,7 +15,7 @@ include = ["config/trading_bot.toml"]
 [tool.poetry.dependencies]
 python = "^3.8"
 alpha-vantage = "^2.3.1"
-govuk-bank-holidays = "^0.13"
+govuk-bank-holidays = "^0.14"
 pytz = "^2023.3"
 requests = "^2.31.0"
 yfinance = "^0.1.90"
