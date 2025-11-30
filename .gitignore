@@ -108,3 +108,5 @@ markets_db/
 .pytest_cache
 _build
 _builds
+
+.ruff_cache/

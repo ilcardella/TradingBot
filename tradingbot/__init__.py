@@ -18,7 +18,7 @@ def get_menu_parser() -> argparse.Namespace:
     )
     main_group = parser.add_mutually_exclusive_group()
     main_group.add_argument(
-        "-v", "--version", action="version", version="%(prog)s {}".format(VERSION)
+        "-v", "--version", action="version", version=f"%(prog)s {VERSION}"
     )
     main_group.add_argument(
         "-c",
@@ -29,9 +29,9 @@ def get_menu_parser() -> argparse.Namespace:
     main_group.add_argument(
         "-b",
         "--backtest",
-        help="Backtest the market related to the specified id",
+        help="Run backtest using CSV file with OHLCV data (columns: Gmt time, Open, High, Low, Close, Volume)",
         nargs=1,
-        metavar="MARKET_ID",
+        metavar="CSV_FILE",
     )
     main_group.add_argument(
         "-s",
@@ -41,25 +41,25 @@ def get_menu_parser() -> argparse.Namespace:
     )
     backtest_group = parser.add_argument_group("Backtesting")
     backtest_group.add_argument(
-        "--epic",
-        help="IG epic of the market to backtest. MARKET_ID will be ignored",
+        "--cash",
+        help="Initial cash for backtesting (default: 10000)",
+        type=float,
+        default=10000,
+        metavar="AMOUNT",
+    )
+    backtest_group.add_argument(
+        "--commission",
+        help="Commission per trade as percentage (default: 0.2)",
+        type=float,
+        default=0.2,
+        metavar="PERCENT",
+    )
+    backtest_group.add_argument(
+        "--plot",
+        help="Save backtest plot to specified HTML file",
         nargs=1,
-        metavar="EPIC_ID",
+        metavar="FILENAME",
         default=None,
-    )
-    backtest_group.add_argument(
-        "--start",
-        help="Start date for the strategy backtest",
-        nargs=1,
-        metavar="YYYY-MM-DD",
-        required="--backtest" in sys.argv,
-    )
-    backtest_group.add_argument(
-        "--end",
-        help="End date for the strategy backtest",
-        nargs=1,
-        metavar="YYYY-MM-DD",
-        required="--backtest" in sys.argv,
     )
     return parser.parse_args()
 
@@ -69,8 +69,15 @@ def main() -> None:
     bot = TradingBot(time_provider=TimeProvider(), config_filepath=args.config)
     if args.close_positions:
         bot.close_open_positions()
-    elif args.backtest and args.start and args.end:
-        epic = args.epic[0] if args.epic else None
-        bot.backtest(args.backtest[0], args.start[0], args.end[0], epic)
+    elif args.backtest:
+        # Convert commission from percentage to decimal
+        commission = args.commission / 100.0
+        plot_file = args.plot[0] if args.plot else None
+        bot.backtest(
+            csv_path=args.backtest[0],
+            cash=args.cash,
+            commission=commission,
+            plot_filename=plot_file,
+        )
     else:
         bot.start(single_pass=args.single_pass)

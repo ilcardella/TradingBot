@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - IGInterface `api_timeout` configuration parameter to pace http requests
 
 ### Changed
+- General overall of the codebase and documentation
+- Use `uv` instead of `poetry` for dependency management
+- Updated CI/CD pipeline
+
+### Changed
 - Moved `paper_trading` configuration outside of the single broker interface
 - Converted configuration file from `json` to `toml` format
 - YFinance interface fetch only necessary data for specified data range

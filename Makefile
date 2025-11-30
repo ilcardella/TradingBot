@@ -11,50 +11,45 @@ LOG_DIR = $(INSTALL_DIR)/log
 default: check
 
 test:
-> poetry run python -m pytest
+> uv run pytest
 
 docs:
-> poetry run make -C docs html
+> uv run make -C docs html
 
 install:
-> poetry install -v
+> uv sync
 
 update:
-> poetry update
-
-remove-env:
-> poetry env remove python3
+> uv lock --upgrade
+> uv sync
 
 install-system: clean
-> python3 -m pip install --user .
+> uv build
+> python3 -m pip install --user dist/*.whl
 > mkdir -p $(CONFIG_DIR)
 > mkdir -p $(DATA_DIR)
 > mkdir -p $(LOG_DIR)
 > cp config/trading_bot.toml $(CONFIG_DIR)
 
 build: clean
-> poetry build
+> uv build
 
 docker: clean
 > docker build -t ilcardella/tradingbot -f docker/Dockerfile .
 
 mypy:
-> poetry run mypy tradingbot/
+> uv run mypy tradingbot/
 
-flake:
-> poetry run flake8 tradingbot/ test/
+lint:
+> uv run ruff check tradingbot/ test/
 
-isort:
-> poetry run isort tradingbot/ test/
+format:
+> uv run ruff format tradingbot/ test/
 
-black:
-> poetry run black tradingbot/ test/
+format-check:
+> uv run ruff format --check tradingbot/ test/
 
-format: isort black
-
-lint: flake mypy
-
-check: install format lint test
+check: install format-check lint mypy test
 
 ci: check docs build
 
@@ -69,5 +64,6 @@ clean:
 > find . -name '_build' -exec rm -rf  {} +
 > find . -name '.mypy_cache' -exec rm -rf  {} +
 > find . -name '.pytest_cache' -exec rm -rf  {} +
+> find . -name '.ruff_cache' -exec rm -rf  {} +
 
-.PHONY: test lint format install docs build docker install-system ci check mypy flake isort black remove update
+.PHONY: test lint format format-check install docs build docker install-system ci check mypy update clean

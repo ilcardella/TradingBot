@@ -35,7 +35,7 @@ class BrokerFactory:
         elif name == InterfaceNames.YAHOO_FINANCE.value:
             return YFinanceInterface(self.config)
         else:
-            raise ValueError("Interface {} not supported".format(name))
+            raise ValueError(f"Interface {name} not supported")
 
     def make_stock_interface_from_config(
         self,

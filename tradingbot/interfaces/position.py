@@ -4,7 +4,6 @@ from ..components import TradeDirection
 
 
 class Position:
-
     deal_id: str
     size: int
     create_date: str

@@ -75,5 +75,5 @@ class TimeProvider:
         elif time_amount_type is TimeAmount.SECONDS:
             if amount < 0:
                 raise ValueError("Invalid amount of time to wait for")
-        logging.info("Wait for {0:.2f} hours...".format(amount / 3600))
+        logging.info(f"Wait for {amount / 3600:.2f} hours...")
         time.sleep(amount)

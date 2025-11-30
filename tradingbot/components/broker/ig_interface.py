@@ -66,13 +66,11 @@ class IGInterface(AccountInterface, StocksInterface):
             "X-IG-API-KEY": self._config.get_credentials()["api_key"],
             "Version": "2",
         }
-        url = "{}/{}".format(self.api_base_url, IG_API_URL.SESSION.value)
+        url = f"{self.api_base_url}/{IG_API_URL.SESSION.value}"
         response = requests.post(url, data=json.dumps(data), headers=headers)
 
         if response.status_code != 200:
-            logging.debug(
-                "Authentication returned code: {}".format(response.status_code)
-            )
+            logging.debug(f"Authentication returned code: {response.status_code}")
             return False
 
         headers_json = dict(response.headers)
@@ -100,7 +98,7 @@ class IGInterface(AccountInterface, StocksInterface):
             - **accountId**: String representing the accound id to use
             - Returns **False** if an error occurs otherwise True
         """
-        url = "{}/{}".format(self.api_base_url, IG_API_URL.SESSION.value)
+        url = f"{self.api_base_url}/{IG_API_URL.SESSION.value}"
         data = {"accountId": accountId, "defaultAccount": "True"}
         response = requests.put(
             url, data=json.dumps(data), headers=self.authenticated_headers
@@ -118,7 +116,7 @@ class IGInterface(AccountInterface, StocksInterface):
 
             - Returns **(None,None)** if an error occurs otherwise (balance, deposit)
         """
-        url = "{}/{}".format(self.api_base_url, IG_API_URL.ACCOUNTS.value)
+        url = f"{self.api_base_url}/{IG_API_URL.ACCOUNTS.value}"
         d = self._http_get(url)
         if d is not None:
             try:
@@ -137,7 +135,7 @@ class IGInterface(AccountInterface, StocksInterface):
 
             - Returns the json object returned by the IG API
         """
-        url = "{}/{}".format(self.api_base_url, IG_API_URL.POSITIONS.value)
+        url = f"{self.api_base_url}/{IG_API_URL.POSITIONS.value}"
         data = self._http_get(url)
         positions = []
         for d in data["positions"]:
@@ -181,11 +179,11 @@ class IGInterface(AccountInterface, StocksInterface):
             - **epic_id**: market epic as string
             - Returns **None** if an error occurs otherwise the json returned by IG API
         """
-        url = "{}/{}/{}".format(self.api_base_url, IG_API_URL.MARKETS.value, epic_id)
+        url = f"{self.api_base_url}/{IG_API_URL.MARKETS.value}/{epic_id}"
         info = self._http_get(url)
 
         if "markets" in info:
-            raise RuntimeError("Multiple matches found for epic: {}".format(epic_id))
+            raise RuntimeError(f"Multiple matches found for epic: {epic_id}")
         if self._config.get_ig_controlled_risk():
             info["minNormalStopOrLimitDistance"] = info["minControlledRiskStopDistance"]
         market = Market()
@@ -206,9 +204,7 @@ class IGInterface(AccountInterface, StocksInterface):
         """
         Returns a list of markets that matched the search string
         """
-        url = "{}/{}?searchTerm={}".format(
-            self.api_base_url, IG_API_URL.MARKETS.value, search
-        )
+        url = f"{self.api_base_url}/{IG_API_URL.MARKETS.value}?searchTerm={search}"
         data = self._http_get(url)
         markets = []
         if data is not None and "markets" in data:
@@ -218,22 +214,14 @@ class IGInterface(AccountInterface, StocksInterface):
     def get_prices(
         self, market: Market, interval: Interval, data_range: int
     ) -> MarketHistory:
-        url = "{}/{}/{}/{}/{}".format(
-            self.api_base_url,
-            IG_API_URL.PRICES.value,
-            market.epic,
-            interval,
-            data_range,
-        )
+        url = f"{self.api_base_url}/{IG_API_URL.PRICES.value}/{market.epic}/{interval}/{data_range}"
         data = self._http_get(url)
         if "allowance" in data:
             remaining_allowance = data["allowance"]["remainingAllowance"]
             reset_time = Utils.humanize_time(int(data["allowance"]["allowanceExpiry"]))
             if remaining_allowance < 100:
-                logging.warn(
-                    "Remaining API calls left: {}".format(str(remaining_allowance))
-                )
-                logging.warn("Time to API Key reset: {}".format(str(reset_time)))
+                logging.warn(f"Remaining API calls left: {str(remaining_allowance)}")
+                logging.warn(f"Time to API Key reset: {str(reset_time)}")
         dates = []
         highs = []
         lows = []
@@ -262,13 +250,11 @@ class IGInterface(AccountInterface, StocksInterface):
         """
         if self._config.is_paper_trading_enabled():
             logging.info(
-                "Paper trade: {} {} with limit={} and stop={}".format(
-                    trade_direction.value, epic_id, limit, stop
-                )
+                f"Paper trade: {trade_direction.value} {epic_id} with limit={limit} and stop={stop}"
             )
             return True
 
-        url = "{}/{}".format(self.api_base_url, IG_API_URL.POSITIONS_OTC.value)
+        url = f"{self.api_base_url}/{IG_API_URL.POSITIONS_OTC.value}"
         data = {
             "direction": trade_direction.value,
             "epic": epic_id,
@@ -293,15 +279,11 @@ class IGInterface(AccountInterface, StocksInterface):
         deal_ref = d["dealReference"]
         if self.confirm_order(deal_ref):
             logging.info(
-                "Order {} for {} confirmed with limit={} and stop={}".format(
-                    trade_direction.value, epic_id, limit, stop
-                )
+                f"Order {trade_direction.value} for {epic_id} confirmed with limit={limit} and stop={stop}"
             )
             return True
         else:
-            logging.warning(
-                "Trade {} of {} has failed!".format(trade_direction.value, epic_id)
-            )
+            logging.warning(f"Trade {trade_direction.value} of {epic_id} has failed!")
             return False
 
     def confirm_order(self, dealRef: str) -> bool:
@@ -311,7 +293,7 @@ class IGInterface(AccountInterface, StocksInterface):
             - **dealRef**: dealing reference to confirm
             - Returns **False** if an error occurs otherwise True
         """
-        url = "{}/{}/{}".format(self.api_base_url, IG_API_URL.CONFIRMS.value, dealRef)
+        url = f"{self.api_base_url}/{IG_API_URL.CONFIRMS.value}/{dealRef}"
         d = self._http_get(url)
 
         if d is not None:
@@ -329,7 +311,7 @@ class IGInterface(AccountInterface, StocksInterface):
             - Returns **False** if an error occurs otherwise True
         """
         if self._config.is_paper_trading_enabled():
-            logging.info("Paper trade: close {} position".format(position.epic))
+            logging.info(f"Paper trade: close {position.epic} position")
             return True
         # To close we need the opposite direction
         direction = TradeDirection.NONE
@@ -341,7 +323,7 @@ class IGInterface(AccountInterface, StocksInterface):
             logging.error("Wrong position direction!")
             return False
 
-        url = "{}/{}".format(self.api_base_url, IG_API_URL.POSITIONS_OTC.value)
+        url = f"{self.api_base_url}/{IG_API_URL.POSITIONS_OTC.value}"
         data = {
             "dealId": position.deal_id,
             "epic": None,
@@ -361,10 +343,10 @@ class IGInterface(AccountInterface, StocksInterface):
         d = json.loads(r.text)
         deal_ref = d["dealReference"]
         if self.confirm_order(deal_ref):
-            logging.info("Position  for {} closed".format(position.epic))
+            logging.info(f"Position  for {position.epic} closed")
             return True
         else:
-            logging.error("Could not close position for {}".format(position.epic))
+            logging.error(f"Could not close position for {position.epic}")
             return False
 
     def close_all_positions(self) -> bool:
@@ -382,9 +364,7 @@ class IGInterface(AccountInterface, StocksInterface):
                         if not self.close_position(p):
                             result = False
                     except Exception:
-                        logging.error(
-                            "Error closing position for {}".format(p.market_id)
-                        )
+                        logging.error(f"Error closing position for {p.market_id}")
                         result = False
             else:
                 logging.error("Unable to retrieve open positions!")
@@ -411,7 +391,7 @@ class IGInterface(AccountInterface, StocksInterface):
 
             - Returns the json representing the market node
         """
-        url = "{}/{}/{}".format(self.api_base_url, IG_API_URL.MARKET_NAV.value, node_id)
+        url = f"{self.api_base_url}/{IG_API_URL.MARKET_NAV.value}/{node_id}"
         return self._http_get(url)
 
     def _get_watchlist(self, id: str) -> Dict[str, Any]:
@@ -421,7 +401,7 @@ class IGInterface(AccountInterface, StocksInterface):
             - **id**: id of the watchlist. If empty id is provided, the
               function returns the list of all the watchlist in the account
         """
-        url = "{}/{}/{}".format(self.api_base_url, IG_API_URL.WATCHLISTS.value, id)
+        url = f"{self.api_base_url}/{IG_API_URL.WATCHLISTS.value}/{id}"
         return self._http_get(url)
 
     def get_markets_from_watchlist(self, name: str) -> List[Market]:
@@ -451,8 +431,8 @@ class IGInterface(AccountInterface, StocksInterface):
         self._wait_before_call(self._config.get_ig_api_timeout())
         response = requests.get(url, headers=self.authenticated_headers)
         if response.status_code != 200:
-            logging.error("HTTP request returned {}".format(response.status_code))
-            raise RuntimeError("HTTP request returned {}".format(response.status_code))
+            logging.error(f"HTTP request returned {response.status_code}")
+            raise RuntimeError(f"HTTP request returned {response.status_code}")
         data = json.loads(response.text)
         if "errorCode" in data:
             logging.error(data["errorCode"])

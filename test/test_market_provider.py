@@ -37,10 +37,8 @@ def test_market_provider_epics_list(config, broker):
     Test the MarketProvider configured to fetch markets from an epics list
     """
     # Configure TradingBot to use an epic list
-    config.config["market_source"]["active"] = "list"
-    config.config["market_source"]["epic_id_list"][
-        "filepath"
-    ] = "test/test_data/epics_list.txt"
+    config.config.market_source.active = "list"
+    config.config.market_source.epic_id_list.filepath = "test/test_data/epics_list.txt"
 
     # Create the class to test
     mp = MarketProvider(config, broker)
@@ -49,8 +47,8 @@ def test_market_provider_epics_list(config, broker):
     for _ in range(4):
         # Read the test epic list and create a local list of the expected epics
         expected_list = []
-        with open("test/test_data/epics_list.txt", "r") as epics_list:
-            for cnt, line in enumerate(epics_list):
+        with open("test/test_data/epics_list.txt") as epics_list:
+            for line in epics_list:
                 epic = line.rstrip()
                 expected_list += [epic]
 
@@ -68,7 +66,7 @@ def test_market_provider_epics_list(config, broker):
             mp.reset()
             continue
         # If we get here it means that next did not raise an exception at the end of the list
-        assert False
+        raise AssertionError("Expected StopIteration to be raised")
 
 
 def test_market_provider_watchlist(config, broker):
@@ -76,9 +74,9 @@ def test_market_provider_watchlist(config, broker):
     Test the MarketProvider configured to fetch markets from an IG watchlist
     """
     # Define configuration for this test
-    config.config["market_source"]["active"] = "watchlist"
+    config.config.market_source.active = "watchlist"
     # Watchlist name depending on test data json
-    config.config["market_source"]["watchlist"]["name"] = "My Watchlist"
+    config.config.market_source.watchlist.name = "My Watchlist"
 
     # Create class to test
     mp = MarketProvider(config, broker)
@@ -101,7 +99,7 @@ def test_market_provider_api(config, broker):
     Test the MarketProvider configured to fetch markets from IG nodes
     """
     # Define configuration for this test
-    config.config["market_source"]["active"] = "api"
+    config.config.market_source.active = "api"
 
     # TODO
     # Create class to test
@@ -114,10 +112,8 @@ def test_market_provider_market_from_epic(config, broker):
     Test the MarketProvider get_market_from_epic() function
     """
     # Define configuration for this test
-    config.config["market_source"]["active"] = "list"
-    config.config["market_source"]["epic_id_list"][
-        "filepath"
-    ] = "test/test_data/epics_list.txt"
+    config.config.market_source.active = "list"
+    config.config.market_source.epic_id_list.filepath = "test/test_data/epics_list.txt"
 
     # Create class to test
     mp = MarketProvider(config, broker)
@@ -131,10 +127,8 @@ def test_search_market(config, broker, requests_mock):
     Test the MarketProvider search_market() function
     """
     # Define configuration for this test
-    config.config["market_source"]["active"] = "list"
-    config.config["market_source"]["epic_id_list"][
-        "filepath"
-    ] = "test/test_data/epics_list.txt"
+    config.config.market_source.active = "list"
+    config.config.market_source.epic_id_list.filepath = "test/test_data/epics_list.txt"
 
     mp = MarketProvider(config, broker)
 

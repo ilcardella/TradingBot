@@ -39,7 +39,7 @@ class Strategy(ABC):
         Run the strategy against the specified market
         """
         datapoints = self.fetch_datapoints(market)
-        logging.debug("Strategy datapoints: {}".format(datapoints))
+        logging.debug(f"Strategy datapoints: {datapoints}")
         if datapoints is None:
             logging.debug("Unable to fetch market datapoints")
             return TradeDirection.NONE, None, None

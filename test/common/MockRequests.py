@@ -22,23 +22,23 @@ class AV_API_URL(Enum):
 class YF_API_URL(Enum):
     """YFinance API URLs"""
 
-    BASE_URI = "https://query2.finance.yahoo.com/v8/finance/chart"
+    BASE_URI = "https://fc.yahoo.com"
 
 
 def read_json(filepath):
     """Read a JSON file"""
     try:
-        with open(filepath, "r") as file:
+        with open(filepath) as file:
             return json.load(file)
-    except IOError:
+    except OSError:
         exit()
 
 
 def ig_request_login(mock, data="mock_login.json", fail=False):
     """Mock login response"""
     mock.post(
-        "{}/{}".format(IG_BASE_URI, IG_API_URL.SESSION.value),
-        json=read_json("{}/{}".format(TEST_DATA_IG, data)),
+        f"{IG_BASE_URI}/{IG_API_URL.SESSION.value}",
+        json=read_json(f"{TEST_DATA_IG}/{data}"),
         headers={"CST": "mock", "X-SECURITY-TOKEN": "mock"},
         status_code=401 if fail else 200,
     )
@@ -47,8 +47,8 @@ def ig_request_login(mock, data="mock_login.json", fail=False):
 def ig_request_set_account(mock, data="mock_set_account.json", fail=False):
     """Mock set account response"""
     mock.put(
-        "{}/{}".format(IG_BASE_URI, IG_API_URL.SESSION.value),
-        json=read_json("{}/{}".format(TEST_DATA_IG, data)),
+        f"{IG_BASE_URI}/{IG_API_URL.SESSION.value}",
+        json=read_json(f"{TEST_DATA_IG}/{data}"),
         status_code=401 if fail else 200,
     )
 
@@ -56,8 +56,8 @@ def ig_request_set_account(mock, data="mock_set_account.json", fail=False):
 def ig_request_account_details(mock, data="mock_account_details.json", fail=False):
     """Mock account details"""
     mock.get(
-        "{}/{}".format(IG_BASE_URI, IG_API_URL.ACCOUNTS.value),
-        json=read_json("{}/{}".format(TEST_DATA_IG, data)),
+        f"{IG_BASE_URI}/{IG_API_URL.ACCOUNTS.value}",
+        json=read_json(f"{TEST_DATA_IG}/{data}"),
         status_code=401 if fail else 200,
     )
 
@@ -65,8 +65,8 @@ def ig_request_account_details(mock, data="mock_account_details.json", fail=Fals
 def ig_request_open_positions(mock, data="mock_positions.json", fail=False):
     """Mock open positions call"""
     mock.get(
-        "{}/{}".format(IG_BASE_URI, IG_API_URL.POSITIONS.value),
-        json=read_json("{}/{}".format(TEST_DATA_IG, data)),
+        f"{IG_BASE_URI}/{IG_API_URL.POSITIONS.value}",
+        json=read_json(f"{TEST_DATA_IG}/{data}"),
         status_code=401 if fail else 200,
     )
 
@@ -74,10 +74,8 @@ def ig_request_open_positions(mock, data="mock_positions.json", fail=False):
 def ig_request_market_info(mock, args="", data="mock_market_info.json", fail=False):
     """Mock market info call"""
     mock.get(
-        re.compile("{}/{}/{}".format(IG_BASE_URI, IG_API_URL.MARKETS.value, args)),
-        json=data
-        if isinstance(data, dict)
-        else read_json("{}/{}".format(TEST_DATA_IG, data)),
+        re.compile(f"{IG_BASE_URI}/{IG_API_URL.MARKETS.value}/{args}"),
+        json=data if isinstance(data, dict) else read_json(f"{TEST_DATA_IG}/{data}"),
         status_code=401 if fail else 200,
     )
 
@@ -86,13 +84,9 @@ def ig_request_search_market(mock, args="", data="mock_market_search.json", fail
     """Mock market search call"""
     mock.get(
         re.compile(
-            re.escape(
-                "{}/{}?searchTerm={}".format(
-                    IG_BASE_URI, IG_API_URL.MARKETS.value, args
-                )
-            )
+            re.escape(f"{IG_BASE_URI}/{IG_API_URL.MARKETS.value}?searchTerm={args}")
         ),
-        json=read_json("{}/{}".format(TEST_DATA_IG, data)),
+        json=read_json(f"{TEST_DATA_IG}/{data}"),
         status_code=401 if fail else 200,
     )
 
@@ -100,16 +94,18 @@ def ig_request_search_market(mock, args="", data="mock_market_search.json", fail
 def ig_request_prices(mock, args="", data="mock_historic_price.json", fail=False):
     """Mock prices call"""
     mock.get(
-        re.compile("{}/{}/{}".format(IG_BASE_URI, IG_API_URL.PRICES.value, args)),
-        json=read_json("{}/{}".format(TEST_DATA_IG, data)),
+        re.compile(f"{IG_BASE_URI}/{IG_API_URL.PRICES.value}/{args}"),
+        json=read_json(f"{TEST_DATA_IG}/{data}"),
         status_code=401 if fail else 200,
     )
 
 
-def ig_request_trade(mock, data={"dealReference": "123456789"}, fail=False):
+def ig_request_trade(mock, data=None, fail=False):
     """Mock trade call"""
+    if data is None:
+        data = {"dealReference": "123456789"}
     mock.post(
-        "{}/{}".format(IG_BASE_URI, IG_API_URL.POSITIONS_OTC.value),
+        f"{IG_BASE_URI}/{IG_API_URL.POSITIONS_OTC.value}",
         json=data,
         status_code=401 if fail else 200,
     )
@@ -117,12 +113,14 @@ def ig_request_trade(mock, data={"dealReference": "123456789"}, fail=False):
 
 def ig_request_confirm_trade(
     mock,
-    data={"dealId": "123456789", "dealStatus": "SUCCESS", "reason": "SUCCESS"},
+    data=None,
     fail=False,
 ):
     """Mock confirm trade call"""
+    if data is None:
+        data = {"dealId": "123456789", "dealStatus": "SUCCESS", "reason": "SUCCESS"}
     mock.get(
-        "{}/{}/{}".format(IG_BASE_URI, IG_API_URL.CONFIRMS.value, data["dealId"]),
+        f"{IG_BASE_URI}/{IG_API_URL.CONFIRMS.value}/{data['dealId']}",
         json=data,
         status_code=401 if fail else 200,
     )
@@ -133,8 +131,8 @@ def ig_request_navigate_market(
 ):
     """Mock navigate market call"""
     mock.get(
-        re.compile("{}/{}/{}".format(IG_BASE_URI, IG_API_URL.MARKET_NAV.value, args)),
-        json=read_json("{}/{}".format(TEST_DATA_IG, data)),
+        re.compile(f"{IG_BASE_URI}/{IG_API_URL.MARKET_NAV.value}/{args}"),
+        json=read_json(f"{TEST_DATA_IG}/{data}"),
         status_code=401 if fail else 200,
     )
 
@@ -142,8 +140,8 @@ def ig_request_navigate_market(
 def ig_request_watchlist(mock, args="", data="mock_watchlist_list.json", fail=False):
     """Mock watchlist call"""
     mock.get(
-        re.compile("{}/{}/{}".format(IG_BASE_URI, IG_API_URL.WATCHLISTS.value, args)),
-        json=read_json("{}/{}".format(TEST_DATA_IG, data)),
+        re.compile(f"{IG_BASE_URI}/{IG_API_URL.WATCHLISTS.value}/{args}"),
+        json=read_json(f"{TEST_DATA_IG}/{data}"),
         status_code=401 if fail else 200,
     )
 
@@ -158,14 +156,10 @@ def av_request_macd_ext(mock, args="", data="mock_macd_ext_buy.json", fail=False
     mock.get(
         re.compile(
             re.escape(
-                "{}function={}&symbol={}".format(
-                    AV_API_URL.BASE_URI.value, AV_API_URL.MACD_EXT.value, args
-                )
+                f"{AV_API_URL.BASE_URI.value}function={AV_API_URL.MACD_EXT.value}&symbol={args}"
             )
         ),
-        json=data
-        if isinstance(data, dict)
-        else read_json("{}/{}".format(TEST_DATA_AV, data)),
+        json=data if isinstance(data, dict) else read_json(f"{TEST_DATA_AV}/{data}"),
         status_code=401 if fail else 200,
     )
 
@@ -175,14 +169,10 @@ def av_request_prices(mock, args="", data="mock_av_daily.json", fail=False):
     mock.get(
         re.compile(
             re.escape(
-                "{}function={}&symbol={}".format(
-                    AV_API_URL.BASE_URI.value, AV_API_URL.TS_DAILY.value, args
-                )
+                f"{AV_API_URL.BASE_URI.value}function={AV_API_URL.TS_DAILY.value}&symbol={args}"
             )
         ),
-        json=data
-        if isinstance(data, dict)
-        else read_json("{}/{}".format(TEST_DATA_AV, data)),
+        json=data if isinstance(data, dict) else read_json(f"{TEST_DATA_AV}/{data}"),
         status_code=401 if fail else 200,
     )
 
@@ -195,9 +185,9 @@ def av_request_prices(mock, args="", data="mock_av_daily.json", fail=False):
 def yf_request_prices(mock, args="", data="mock_history_day_max.json", fail=False):
     """Mock YF prices"""
     mock.get(
-        re.compile(re.escape("{}/{}".format(YF_API_URL.BASE_URI.value, args))),
-        json=data
-        if isinstance(data, dict)
-        else read_json("{}/{}".format(TEST_DATA_YF, data)),
+        re.compile(re.escape(f"{YF_API_URL.BASE_URI.value}/{args}")),
+        json=data if isinstance(data, dict) else read_json(f"{TEST_DATA_YF}/{data}"),
         status_code=401 if fail else 200,
     )
+
+    mock.get("https://guce.yahoo.com/consent/", status_code=401 if fail else 200)

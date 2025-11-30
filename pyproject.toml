@@ -1,68 +1,74 @@
-[tool.poetry]
-name = "TradingBot"
+[project]
+name = "tradingbot"
 version = "2.0.0"
 description = "Autonomous market trader based on custom strategies"
-authors = ["Alberto Cardellini"]
-license = "MIT"
 readme = "README.md"
-homepage = "https://github.com/ilcardella/TradingBot"
-documentation = "https://tradingbot.readthedocs.io/en/latest"
-packages = [
-    { include = "tradingbot" }
+requires-python = ">=3.8"
+authors = [
+    { name = "Alberto Cardellini" }
 ]
-include = ["config/trading_bot.toml"]
+license = { text = "MIT" }
+dependencies = [
+    "alpha-vantage>=2.3.1",
+    "backtesting>=0.4.0",
+    "govuk-bank-holidays>=0.14",
+    "pandas>=1.5.2",
+    "pydantic>=2.0.0",
+    "pytz>=2023.3",
+    "requests>=2.31.0",
+    "scipy>=1.7.3",
+    "toml>=0.10.2",
+    "yfinance>=0.2.33",
+]
 
-[tool.poetry.dependencies]
-python = "^3.8"
-alpha-vantage = "^2.3.1"
-govuk-bank-holidays = "^0.13"
-pytz = "^2023.3"
-requests = "^2.31.0"
-yfinance = "^0.1.90"
-toml = "^0.10.2"
-pandas = "^1.5.2"
-scipy = "^1.7.3"
+[project.scripts]
+trading_bot = "tradingbot:main"
 
-[tool.poetry.scripts]
-trading_bot = 'tradingbot:main'
+[dependency-groups]
+dev = [
+    "ruff>=0.8.0",
+    "mypy>=1.7",
+    "pytest>=7.2.0",
+    "requests-mock>=1.8.0",
+    "sphinx>=5.3.0",
+    "sphinx-rtd-theme>=1.0.0",
+    "types-pytz>=2023.3.1.1",
+    "types-requests>=2.28.11.5",
+    "types-toml>=0.10.8.1",
+]
 
-[tool.poetry.group.dev.dependencies]
-sphinx = "^5.3.0"
-sphinx-rtd-theme = "^1.0.0"
-requests-mock = "^1.8.0"
-pytest = "^7.2.0"
-black = "^22.10.0"
-flake8 = "^5.0.4"
-isort = "^5.7.0"
-mypy = "^1.7"
-types-toml = "^0.10.8.1"
-types-pytz = "^2022.6.0.1"
-types-requests = "^2.28.11.5"
-
-[tool.black]
+[tool.ruff]
 line-length = 88
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
-'''
+target-version = "py38"
 
-[tool.isort]
-multi_line_output=3
-include_trailing_comma="True"
-force_grid_wrap=0
-use_parentheses="True"
-line_length=88
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501",  # line too long (handled by formatter)
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]  # unused imports in __init__.py
+
+[tool.ruff.lint.isort]
+known-first-party = ["tradingbot"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
 
 [build-system]
-requires = ["poetry_core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"

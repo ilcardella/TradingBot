@@ -30,7 +30,7 @@ from tradingbot.interfaces import Market, MarketHistory, MarketMACD, Position
     ]
 )
 def config(request):
-    with open("test/test_data/trading_bot.toml", "r") as f:
+    with open("test/test_data/trading_bot.toml") as f:
         config = toml.load(f)
         # Inject the fixture parameter in the configuration
         config["stocks_interface"]["active"] = request.param

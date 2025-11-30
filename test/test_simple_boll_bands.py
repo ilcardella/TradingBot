@@ -52,9 +52,9 @@ def mock_http_calls(requests_mock):
 @pytest.fixture
 def config():
     config = Configuration.from_filepath(Path("test/test_data/trading_bot.toml"))
-    config.config["strategies"]["active"] = "simple_boll_bands"
-    config.config["stocks_interface"]["active"] = "alpha_vantage"
-    config.config["stocks_interface"]["alpha_vantage"]["api_timeout"] = 0
+    config.config.strategies.active = "simple_boll_bands"
+    config.config.stocks_interface.active = "alpha_vantage"
+    config.config.stocks_interface.alpha_vantage.api_timeout = 0
     return config
 
 
@@ -87,16 +87,12 @@ def test_find_trade_signal_buy(config, broker, requests_mock):
     assert (
         limit
         == market.offer
-        + market.offer
-        * config.config["strategies"]["simple_boll_bands"]["limit_perc"]
-        / 100
+        + market.offer * config.config.strategies.simple_boll_bands.limit_perc / 100
     )
     assert (
         stop
         == market.bid
-        - market.bid
-        * config.config["strategies"]["simple_boll_bands"]["stop_perc"]
-        / 100
+        - market.bid * config.config.strategies.simple_boll_bands.stop_perc / 100
     )
 
 

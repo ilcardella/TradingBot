@@ -1,6 +1,5 @@
 import logging
 import traceback
-from datetime import datetime as dt
 from pathlib import Path
 from typing import List, Optional
 
@@ -126,7 +125,7 @@ class TradingBot:
                     TimeAmount.SECONDS, self.config.get_spin_interval()
                 )
             except Exception as e:
-                logging.error("Generic exception caught: {}".format(e))
+                logging.error(f"Generic exception caught: {e}")
                 logging.error(traceback.format_exc())
                 if single_pass:
                     break
@@ -161,13 +160,13 @@ class TradingBot:
         """Spin the strategy on all the markets"""
         if not self.config.is_paper_trading_enabled():
             self.safety_checks()
-        logging.info("Processing {}".format(market.id))
+        logging.info(f"Processing {market.id}")
         try:
             self.strategy.set_open_positions(open_positions)
             trade, limit, stop = self.strategy.run(market)
             self.process_trade(market, trade, limit, stop, open_positions)
         except Exception as e:
-            logging.error("Strategy exception caught: {}".format(e))
+            logging.error(f"Strategy exception caught: {e}")
             logging.debug(traceback.format_exc())
             return
 
@@ -195,7 +194,7 @@ class TradingBot:
             raise NotSafeToTradeException()
         if percent_used >= self.config.get_max_account_usable():
             logging.warning(
-                "Stop trading because {}% of account is used".format(str(percent_used))
+                f"Stop trading because {str(percent_used)}% of account is used"
             )
             raise NotSafeToTradeException()
         if not self.time_provider.is_market_open(self.config.get_time_zone()):
@@ -231,33 +230,50 @@ class TradingBot:
 
     def backtest(
         self,
-        market_id: str,
-        start_date: str,
-        end_date: str,
-        epic_id: Optional[str] = None,
+        csv_path: str,
+        cash: float = 10000,
+        commission: float = 0.002,
+        plot_filename: Optional[str] = None,
     ) -> None:
         """
-        Backtest a market using the configured strategy
+        Backtest the configured strategy using historical data from a CSV file
+
+        Args:
+            csv_path: Path to CSV file with OHLCV data (columns: Gmt time, Open, High, Low, Close, Volume)
+            cash: Initial capital for backtesting (default: 10000)
+            commission: Commission per trade as decimal (default: 0.002 = 0.2%)
+            plot_filename: Optional filename to save the backtest plot (e.g., 'backtest.html')
         """
+        logging.info("=" * 60)
+        logging.info("STARTING BACKTEST")
+        logging.info("=" * 60)
+        logging.info(f"Strategy: {self.strategy.__class__.__name__}")
+        logging.info(f"CSV file: {csv_path}")
+        logging.info(f"Initial cash: ${cash}")
+        logging.info(f"Commission: {commission * 100}%")
+        logging.info("=" * 60)
+
+        # Create backtester with the configured strategy
+        bt = Backtester(self.strategy)
+
         try:
-            start = dt.strptime(start_date, "%Y-%m-%d")
-            end = dt.strptime(end_date, "%Y-%m-%d")
-        except ValueError as e:
-            logging.error("Wrong date format! Must be YYYY-MM-DD")
-            logging.debug(e)
+            # Run backtest
+            bt.start(csv_path=csv_path, cash=cash, commission=commission)
+
+            # Print results
+            bt.print_results()
+
+            # Generate plot if requested
+            if plot_filename:
+                bt.plot_results(filename=plot_filename)
+                logging.info(f"Plot saved to: {plot_filename}")
+
+        except FileNotFoundError:
+            logging.error(f"CSV file not found: {csv_path}")
+            logging.error("Please provide a valid CSV file with OHLCV data")
+            logging.error("Expected columns: Gmt time, Open, High, Low, Close, Volume")
             exit(1)
-
-        bt = Backtester(self.broker, self.strategy)
-
-        try:
-            market = (
-                self.market_provider.search_market(market_id)
-                if epic_id is None or epic_id == ""
-                else self.market_provider.get_market_from_epic(epic_id)
-            )
         except Exception as e:
-            logging.error(e)
+            logging.error(f"Backtest failed: {e}")
+            logging.debug(traceback.format_exc())
             exit(1)
-
-        bt.start(market, start, end)
-        bt.print_results()

@@ -66,11 +66,9 @@ class AVInterface(StocksInterface):
             return AVInterval.MONTHLY
         else:
             logging.error(
-                "Unable to convert interval {} to AlphaVantage equivalent".format(
-                    interval.value
-                )
+                f"Unable to convert interval {interval.value} to AlphaVantage equivalent"
             )
-            raise ValueError("Unsupported Interval value: {}".format(interval))
+            raise ValueError(f"Unsupported Interval value: {interval}")
 
     def get_prices(
         self, market: Market, interval: Interval, data_range: int
@@ -91,7 +89,7 @@ class AVInterface(StocksInterface):
             data = self.weekly(market.id)
         # TODO implement monthly call
         else:
-            raise ValueError("Unsupported Interval.{}".format(interval.name))
+            raise ValueError(f"Unsupported Interval.{interval.name}")
         history = MarketHistory(
             market,
             data.index,
@@ -116,7 +114,7 @@ class AVInterface(StocksInterface):
             return data
         except Exception as e:
             print(e)
-            logging.error("AlphaVantage wrong api call for {}".format(market))
+            logging.error(f"AlphaVantage wrong api call for {market}")
             logging.debug(e)
             logging.debug(traceback.format_exc())
             logging.debug(sys.exc_info()[0])
@@ -138,7 +136,7 @@ class AVInterface(StocksInterface):
             )
             return data
         except Exception as e:
-            logging.error("AlphaVantage wrong api call for {}".format(market))
+            logging.error(f"AlphaVantage wrong api call for {market}")
             logging.debug(e)
             logging.debug(traceback.format_exc())
             logging.debug(sys.exc_info()[0])
@@ -157,7 +155,7 @@ class AVInterface(StocksInterface):
             data, meta_data = self.TS.get_weekly(symbol=market)
             return data
         except Exception as e:
-            logging.error("AlphaVantage wrong api call for {}".format(market))
+            logging.error(f"AlphaVantage wrong api call for {market}")
             logging.debug(e)
             logging.debug(traceback.format_exc())
             logging.debug(sys.exc_info()[0])
@@ -178,7 +176,7 @@ class AVInterface(StocksInterface):
             )
             return data
         except Exception:
-            logging.error("AlphaVantage wrong api call for {}".format(market))
+            logging.error(f"AlphaVantage wrong api call for {market}")
         return None
 
     # Technical indicators

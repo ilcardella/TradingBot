@@ -21,7 +21,7 @@ from tradingbot.interfaces import Market, MarketHistory, Position
 
 @pytest.fixture
 def config():
-    with open("test/test_data/trading_bot.toml", "r") as f:
+    with open("test/test_data/trading_bot.toml") as f:
         config = toml.load(f)
         # Inject ig_interface as active interface in the config file
         config["stocks_interface"]["active"] = InterfaceNames.IG_INDEX.value

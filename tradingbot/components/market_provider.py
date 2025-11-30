@@ -73,9 +73,7 @@ class MarketProvider:
         """
         markets = self.broker.search_market(search)
         if markets is None or len(markets) < 1:
-            raise RuntimeError(
-                "ERROR: Unable to find market matching: {}".format(search)
-            )
+            raise RuntimeError(f"ERROR: Unable to find market matching: {search}")
         else:
             # Iterate through the list and use a set to verify that the results are all the same market
             epic_set = set()
@@ -87,7 +85,7 @@ class MarketProvider:
                     epic_set.add(market_id)
             if not len(epic_set) == 1:
                 raise RuntimeError(
-                    "ERROR: Multiple markets match the search string: {}".format(search)
+                    f"ERROR: Multiple markets match the search string: {search}"
                 )
             # Good, it means the result are all the same market
             return markets[0]
@@ -131,9 +129,9 @@ class MarketProvider:
                     # remove linebreak which is the last character of the string
                     current_epic_id = line[:-1]
                     epic_ids.append(current_epic_id)
-        except IOError:
+        except OSError:
             # Create the file empty
-            logging.error("{} does not exist!".format(filepath))
+            logging.error(f"{filepath} does not exist!")
         if len(epic_ids) < 1:
             logging.error("Epic list is empty!")
         return epic_ids
@@ -142,21 +140,21 @@ class MarketProvider:
         try:
             epic = next(self.epic_list_iter)
             return self._create_market(epic)
-        except Exception:
-            raise StopIteration
+        except Exception as e:
+            raise StopIteration from e
 
     def _next_from_market_list(self) -> Market:
         try:
             return next(self.market_list_iter)
-        except Exception:
-            raise StopIteration
+        except Exception as e:
+            raise StopIteration from e
 
     def _load_markets_from_watchlist(self, watchlist_name: str) -> List[Market]:
         markets = self.broker.get_markets_from_watchlist(
             self.config.get_watchlist_name()
         )
         if markets is None:
-            message = "Watchlist {} not found!".format(watchlist_name)
+            message = f"Watchlist {watchlist_name} not found!"
             logging.error(message)
             raise RuntimeError(message)
         return markets
@@ -164,8 +162,8 @@ class MarketProvider:
     def _load_epic_ids_from_api_node(self, node_id: str) -> List[str]:
         node = self.broker.navigate_market_node(node_id)
         if "nodes" in node and isinstance(node["nodes"], list):
-            for node in node["nodes"]:
-                self.node_stack.append(node["id"])
+            for child_node in node["nodes"]:
+                self.node_stack.append(child_node["id"])
             return self._load_epic_ids_from_api_node(self.node_stack.pop())
         if "markets" in node and isinstance(node["markets"], list):
             return [
@@ -194,5 +192,5 @@ class MarketProvider:
     def _create_market(self, epic_id: str) -> Market:
         market = self.broker.get_market_info(epic_id)
         if market is None:
-            raise RuntimeError("Unable to fetch data for {}".format(epic_id))
+            raise RuntimeError(f"Unable to fetch data for {epic_id}")
         return market

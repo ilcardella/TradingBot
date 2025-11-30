@@ -70,7 +70,7 @@ class YFinanceInterface(StocksInterface):
 
     def _format_market_id(self, market_id: str) -> str:
         market_id = market_id.replace("-UK", "")
-        return "{}.L".format(market_id)
+        return f"{market_id}.L"
 
     def _to_yf_interval(self, interval: Interval) -> YFInterval:
         if interval == Interval.MINUTE_1:
@@ -101,7 +101,7 @@ class YFinanceInterface(StocksInterface):
             return YFInterval.DAY_5
         elif interval == Interval.MONTH:
             return YFInterval.MONTH_1
-        raise ValueError("Unsupported interval {}".format(interval.name))
+        raise ValueError(f"Unsupported interval {interval.name}")
 
     def _to_yf_data_range(self, days: int) -> str:
         # Values: 1d,5d,1mo,3mo,6mo,1y,2y,5y,10y,ytd,max

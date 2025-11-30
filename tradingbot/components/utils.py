@@ -131,7 +131,7 @@ class Utils:
         """Convert the given time (in seconds) into a readable format hh:mm:ss"""
         mins, secs = divmod(secs, 60)
         hours, mins = divmod(mins, 60)
-        return "%02d:%02d:%02d" % (hours, mins, secs)
+        return f"{int(hours):02d}:{int(mins):02d}:{int(secs):02d}"
 
     @staticmethod
     def macd_df_from_list(price_list: List[float]) -> pandas.DataFrame:

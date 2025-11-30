@@ -5,9 +5,9 @@ from typing import Tuple
 import numpy as np
 import pandas
 
-from ..components import Configuration, Interval, TradeDirection, Utils
+from ..components import Configuration, Interval, TradeDirection
 from ..components.broker import Broker
-from ..interfaces import Market, MarketMACD
+from ..interfaces import Market, MarketHistory
 from . import BacktestResult, Strategy, TradeSignal
 
 
@@ -15,8 +15,8 @@ class SimpleMACD(Strategy):
     """
     Strategy that use the MACD technical indicator of a market to decide whether
     to buy, sell or hold.
-    Buy when the MACD cross over the MACD signal.
-    Sell when the MACD cross below the MACD signal.
+    Buy when the MACD cross over the MACD signal and price is above 200 EMA.
+    Sell when the MACD cross below the MACD signal and price is below 200 EMA.
     """
 
     def __init__(self, config: Configuration, broker: Broker) -> None:
@@ -28,9 +28,14 @@ class SimpleMACD(Strategy):
         Read the json configuration
         """
         raw = config.get_raw_config()
-        self.max_spread_perc = raw["strategies"]["simple_macd"]["max_spread_perc"]
-        self.limit_p = raw["strategies"]["simple_macd"]["limit_perc"]
-        self.stop_p = raw["strategies"]["simple_macd"]["stop_perc"]
+        strategy_config = raw.get("strategies", {}).get("simple_macd", {})
+        self.max_spread_perc = strategy_config.get("max_spread_perc", 0.1)
+
+        # Configuration for indicators
+        self.ema_period = 200
+        self.atr_period = 14
+        self.atr_multiplier = 1.5
+        self.risk_reward_ratio = 1.5
 
     def initialise(self) -> None:
         """
@@ -38,91 +43,101 @@ class SimpleMACD(Strategy):
         """
         pass
 
-    def fetch_datapoints(self, market: Market) -> MarketMACD:
+    def fetch_datapoints(self, market: Market) -> MarketHistory:
         """
-        Fetch historic MACD data
+        Fetch historic data (prices) to calculate indicators.
+        We need enough data for EMA 200.
         """
-        return self.broker.get_macd(market, Interval.DAY, 30)
+        return self.broker.get_prices(market, Interval.DAY, 300)
 
-    def find_trade_signal(self, market: Market, datapoints: MarketMACD) -> TradeSignal:
+    def find_trade_signal(
+        self, market: Market, datapoints: MarketHistory
+    ) -> TradeSignal:
         """
-        Calculate the MACD of the previous days and find a cross between MACD
-        and MACD signal
+        Calculate indicators and find trade signal based on MACD crossover + EMA trend filter.
+        """
+        if datapoints is None or len(datapoints.dataframe) < self.ema_period:
+            logging.warning(f"Not enough data for {market.epic}")
+            return TradeDirection.NONE, None, None
 
-            - **market**: Market object
-            - **datapoints**: datapoints used to analyse the market
-            - Returns TradeDirection, limit_level, stop_level or TradeDirection.NONE, None, None
-        """
-        limit_perc = self.limit_p
-        stop_perc = max(market.stop_distance_min, self.stop_p)
+        df = self._calculate_indicators(datapoints.dataframe.copy())
+
+        # Get latest completed candle
+        curr = df.iloc[-1]
+        prev = df.iloc[-2]
 
         # Spread constraint
         if market.bid - market.offer > self.max_spread_perc:
             return TradeDirection.NONE, None, None
 
-        # Find where macd and signal cross each other
-        macd = datapoints
-        px = self.generate_signals_from_dataframe(macd.dataframe)
+        signal = TradeDirection.NONE
 
-        # Identify the trade direction looking at the last signal
-        tradeDirection = self.get_trade_direction_from_signals(px)
-        # Log only tradable epics
-        if tradeDirection is not TradeDirection.NONE:
-            logging.info(
-                "SimpleMACD says: {} {}".format(tradeDirection.name, market.id)
+        # Buy Signal:
+        # 1. Price > EMA 200 (Trend Filter)
+        # 2. MACD crosses above Signal (Prev Hist < 0 and Curr Hist > 0)
+        if curr["close"] > curr["EMA200"]:
+            if prev["Hist"] < 0 and curr["Hist"] > 0:
+                signal = TradeDirection.BUY
+
+        # Sell Signal:
+        # 1. Price < EMA 200 (Trend Filter)
+        # 2. MACD crosses below Signal (Prev Hist > 0 and Curr Hist < 0)
+        elif curr["close"] < curr["EMA200"]:
+            if prev["Hist"] > 0 and curr["Hist"] < 0:
+                signal = TradeDirection.SELL
+
+        if signal is not TradeDirection.NONE:
+            logging.info(f"SimpleMACD says: {signal.name} {market.id}")
+            limit, stop = self.calculate_stop_limit(
+                signal, market.offer, market.bid, curr["ATR"]
             )
-        else:
-            return TradeDirection.NONE, None, None
+            return signal, limit, stop
 
-        # Calculate stop and limit distances
-        limit, stop = self.calculate_stop_limit(
-            tradeDirection, market.offer, market.bid, limit_perc, stop_perc
-        )
-        return tradeDirection, limit, stop
+        return TradeDirection.NONE, None, None
+
+    def _calculate_indicators(self, df: pandas.DataFrame) -> pandas.DataFrame:
+        # EMA 200
+        df["EMA200"] = df["close"].ewm(span=self.ema_period, adjust=False).mean()
+
+        # MACD (12, 26, 9)
+        ema12 = df["close"].ewm(span=12, adjust=False).mean()
+        ema26 = df["close"].ewm(span=26, adjust=False).mean()
+        df["MACD"] = ema12 - ema26
+        df["Signal"] = df["MACD"].ewm(span=9, adjust=False).mean()
+        df["Hist"] = df["MACD"] - df["Signal"]
+
+        # ATR
+        high_low = df["high"] - df["low"]
+        high_close = np.abs(df["high"] - df["close"].shift())
+        low_close = np.abs(df["low"] - df["close"].shift())
+        ranges = pandas.concat([high_low, high_close, low_close], axis=1)
+        true_range = np.max(ranges, axis=1)
+        df["ATR"] = true_range.rolling(self.atr_period).mean()
+
+        return df
 
     def calculate_stop_limit(
         self,
         tradeDirection: TradeDirection,
         current_offer: float,
         current_bid: float,
-        limit_perc: float,
-        stop_perc: float,
+        atr: float,
     ) -> Tuple[float, float]:
         """
-        Calculate the stop and limit levels from the given percentages
+        Calculate Stop Loss and Take Profit using ATR.
         """
-        limit = None
-        stop = None
+        stop_loss_pips = atr * self.atr_multiplier
+
         if tradeDirection == TradeDirection.BUY:
-            limit = current_offer + Utils.percentage_of(limit_perc, current_offer)
-            stop = current_bid - Utils.percentage_of(stop_perc, current_bid)
+            stop = current_bid - stop_loss_pips
+            limit = current_offer + (stop_loss_pips * self.risk_reward_ratio)
         elif tradeDirection == TradeDirection.SELL:
-            limit = current_bid - Utils.percentage_of(limit_perc, current_bid)
-            stop = current_offer + Utils.percentage_of(stop_perc, current_offer)
+            stop = current_offer + stop_loss_pips
+            limit = current_bid - (stop_loss_pips * self.risk_reward_ratio)
         else:
             raise ValueError("Trade direction cannot be NONE")
+
         return limit, stop
-
-    def generate_signals_from_dataframe(
-        self, dataframe: pandas.DataFrame
-    ) -> pandas.DataFrame:
-        dataframe.loc[:, "positions"] = 0
-        dataframe.loc[:, "positions"] = np.where(
-            dataframe[MarketMACD.HIST_COLUMN] >= 0, 1, 0
-        )
-        dataframe.loc[:, "signals"] = dataframe["positions"].diff()
-        return dataframe
-
-    def get_trade_direction_from_signals(
-        self, dataframe: pandas.DataFrame
-    ) -> TradeDirection:
-        tradeDirection = TradeDirection.NONE
-        if len(dataframe["signals"]) > 0:
-            if dataframe["signals"].iloc[1] < 0:
-                tradeDirection = TradeDirection.BUY
-            elif dataframe["signals"].iloc[1] > 0:
-                tradeDirection = TradeDirection.SELL
-        return tradeDirection
 
     def backtest(
         self, market: Market, start_date: datetime.datetime, end_date: datetime.datetime
@@ -130,49 +145,3 @@ class SimpleMACD(Strategy):
         """Backtest the strategy"""
         # TODO
         raise NotImplementedError("Work in progress")
-        # Generic initialisations
-        trades = []
-        # - Get price data for market
-        prices = self.broker.get_prices(market, Interval.DAY, None)
-        # - Get macd data from broker
-        data = self.fetch_datapoints(market)
-        # - Simulate time passing by starting with N rows (from the bottom)
-        # and adding the next row (on the top) one by one, calling the strategy with
-        # the intermediate data and recording its output
-        datapoint_used = 26
-        while len(data.dataframe) > datapoint_used:
-            current_data = data.dataframe.tail(datapoint_used).copy()
-            datapoint_used += 1
-            # Get trade date
-            trade_dt = current_data.index.values[0].astype("M8[ms]").astype("O")
-            if start_date <= trade_dt <= end_date:
-                trade, limit, stop = self.find_trade_signal(market, current_data)
-                if trade is not TradeDirection.NONE:
-                    try:
-                        price = prices.loc[trade_dt.strftime("%Y-%m-%d"), "4. close"]
-                        trades.append(
-                            # [trade_dt.strftime("%Y-%m-%d"), trade, float(price)]
-                            (trade_dt.strftime("%Y-%m-%d"), trade, float(price))
-                        )
-                    except Exception as e:
-                        logging.debug(e)
-                        continue
-        if len(trades) < 2:
-            raise Exception("Not enough trades for the given date range")
-        # Iterate through trades and assess profit loss
-        balance = 1000
-        previous = trades[0]
-        for trade in trades[1:]:
-            if previous[1] is trade[1]:
-                raise Exception("Error: sequencial trades with same direction")
-            diff = trade[2] - previous[2]
-            pl = 0
-            if previous[1] is TradeDirection.BUY and trade[1] is TradeDirection.SELL:
-                pl += diff if diff >= 0 else -diff
-                # TODO consider stop and limit levels
-            if previous[1] is TradeDirection.SELL and trade[1] is TradeDirection.BUY:
-                pl += diff if diff < 0 else -diff
-                # TODO consider stop and limit levels
-            balance += pl
-            previous = trade
-        return {"balance": balance, "trades": trades}

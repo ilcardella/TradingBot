@@ -44,8 +44,8 @@ active = "ig_interface"
 values = ["ig_interface"]
 
 [strategies]
-active = "simple_macd"
-values = ["simple_macd", "weighted_avg_peak", "simple_boll_bands"]
+active = "volume_profile"
+values = ["simple_macd", "weighted_avg_peak", "simple_boll_bands", "volume_profile"]
 [strategies.simple_macd]
 max_spread_perc = 5
 limit_perc = 10
@@ -58,3 +58,13 @@ stop_perc = 5
 window = 60
 limit_perc = 10
 stop_perc = 5
+[strategies.volume_profile]
+max_spread_perc = 0.1
+lookback_periods = 50
+value_area_percentage = 70
+price_bins = 30
+imbalance_threshold = 1.5
+atr_period = 14
+base_atr_multiplier = 1.5
+min_risk_reward = 1.5
+max_risk_reward = 3.0

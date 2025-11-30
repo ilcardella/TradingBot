@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import Optional, Tuple
 
 import numpy
-from numpy import Inf, NaN, arange, array, asarray, isscalar
+from numpy import arange, array, asarray, inf, isscalar, nan
 from scipy import stats
 
 from ..components import Configuration, Interval, TradeDirection, Utils
@@ -80,7 +80,7 @@ class WeightedAvgPeak(Strategy):
         array_len_check.append(len(close_prices))
         array_len_check.append(len(ltv))
         if not all(x == array_len_check[0] for x in array_len_check):
-            logging.error("Historic datapoints incomplete for {}".format(market.epic))
+            logging.error(f"Historic datapoints incomplete for {market.epic}")
             return TradeDirection.NONE, None, None
 
         # compute weighted average and std deviation of prices using volume as weight
@@ -167,7 +167,7 @@ class WeightedAvgPeak(Strategy):
         if trade_direction is TradeDirection.NONE:
             return trade_direction, None, None
 
-        logging.info("Strategy says: {} {}".format(trade_direction.name, market.id))
+        logging.info(f"Strategy says: {trade_direction.name} {market.id}")
 
         ATR = self.calculate_stop_loss(close_prices, high_prices, low_prices)
 
@@ -207,7 +207,7 @@ class WeightedAvgPeak(Strategy):
         if int(pip_limit) >= int(self.greed_indicator):
             pip_limit = int(self.greed_indicator - 1)
         if int(stop_pips) > int(self.too_high_margin):
-            logging.warning("Junk data for {}".format(market.epic))
+            logging.warning(f"Junk data for {market.epic}")
             return TradeDirection.NONE, None, None
         return trade_direction, pip_limit, stop_pips
 
@@ -333,8 +333,8 @@ class WeightedAvgPeak(Strategy):
             logging.error("Input argument delta must be positive")
             return None, None
 
-        mn, mx = Inf, -Inf
-        mnpos, mxpos = NaN, NaN
+        mn, mx = inf, -inf
+        mnpos, mxpos = nan, nan
 
         lookformax = True
 
