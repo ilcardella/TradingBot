@@ -35,7 +35,7 @@ build: clean
 > uv build
 
 docker: clean
-> docker build -t ilcardella/tradingbot -f docker/Dockerfile .
+> docker build -t ilcardella/tradingbot -f Dockerfile .
 
 mypy:
 > uv run mypy tradingbot/

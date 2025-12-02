@@ -18,7 +18,7 @@ All the credits for the `WeightedAvgPeak` strategy goes to GitHub user @tg12.
 ## Dependencies
 
 - Python 3.6+
-- Poetry (only for development)
+- UV (only for development)
 - Docker (optional)
 
 View file `pyproject.toml` for the full list of required python packages.
@@ -120,10 +120,10 @@ sudo pip3 uninstall TradingBot
 ## Development
 
 The `Makefile` is the entrypoint for any development action.
-`Poetry` handles the dependency management and the `pyproject.toml` contains the required
+`uv` handles the dependency management and the `pyproject.toml` contains the required
 python packages.
 
-Install [poetry](https://python-poetry.org/docs/) and create the virtual environment:
+Install [uv](https://python-uv.org/docs/) and create the virtual environment:
 ```
 cd /path/to/repository
 make install
