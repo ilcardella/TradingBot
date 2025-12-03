@@ -3,12 +3,12 @@ name: TradingBot CI
 on:
   push:
     branches:
-      - master
+      - main
     tags:
       - 'v*'
   pull_request:
     branches:
-      - master
+      - main
 
 env:
   DOCKER_IMAGE_NAME: ilcardella/tradingbot
@@ -62,7 +62,7 @@ jobs:
             type=ref,event=branch
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/master' }}
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
