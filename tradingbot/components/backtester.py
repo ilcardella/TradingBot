@@ -136,7 +136,22 @@ class Backtester:
                 df.rename(columns={old_col: new_col}, inplace=True)
 
         # Parse date and set as index
-        df["Date"] = pd.to_datetime(df["Date"])
+        # Try parsing with the specific format first: %d.%m.%Y %H:%M:%S.%f
+        try:
+            df["Date"] = pd.to_datetime(df["Date"], format="%d.%m.%Y %H:%M:%S.%f")
+            logging.info("Parsed dates using format: %d.%m.%Y %H:%M:%S.%f")
+        except (ValueError, TypeError):
+            # Fall back to automatic date parsing
+            try:
+                df["Date"] = pd.to_datetime(df["Date"])
+                logging.info("Parsed dates using automatic format detection")
+            except Exception as e:
+                logging.error(f"Failed to parse dates: {e}")
+                raise ValueError(
+                    "Unable to parse date column. Expected format: %d.%m.%Y %H:%M:%S.%f "
+                    "or any standard datetime format"
+                ) from e
+
         df.set_index("Date", inplace=True)
 
         # Ensure numeric types

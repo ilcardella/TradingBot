@@ -27,13 +27,27 @@ Your CSV file must contain the following columns:
 Gmt time,Open,High,Low,Close,Volume
 ```
 
-Example:
-```csv
-Gmt time,Open,High,Low,Close,Volume
-2024-01-01 00:00:00,100.00,102.50,99.50,101.00,1000000
-2024-01-02 00:00:00,101.00,103.00,100.50,102.50,1200000
-2024-01-03 00:00:00,102.50,104.00,102.00,103.50,1100000
-```
+### Supported Date Formats
+
+The backtester supports two date formats for the `Gmt time` column:
+
+1. **European format with milliseconds** (preferred): `%d.%m.%Y %H:%M:%S.%f`
+   ```csv
+   Gmt time,Open,High,Low,Close,Volume
+   01.01.2024 00:00:00.000,100.00,102.50,99.50,101.00,1000000
+   02.01.2024 00:00:00.000,101.00,103.00,100.50,102.50,1200000
+   03.01.2024 00:00:00.000,102.50,104.00,102.00,103.50,1100000
+   ```
+
+2. **ISO format** (fallback): `YYYY-MM-DD HH:MM:SS`
+   ```csv
+   Gmt time,Open,High,Low,Close,Volume
+   2024-01-01 00:00:00,100.00,102.50,99.50,101.00,1000000
+   2024-01-02 00:00:00,101.00,103.00,100.50,102.50,1200000
+   2024-01-03 00:00:00,102.50,104.00,102.00,103.50,1100000
+   ```
+
+The backtester will automatically detect which format is used.
 
 ## Usage
 
@@ -86,7 +100,7 @@ The backtester uses the strategy configured in your `trading_bot.toml` file. To 
 
 ```toml
 [strategies]
-active = "simple_macd"  # or "volume_profile", "weighted_avg_peak", etc.
+active = "simple_macd"  # or "volume_profile", etc.
 ```
 
 ## Parameters

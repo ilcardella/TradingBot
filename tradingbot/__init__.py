@@ -66,18 +66,54 @@ def get_menu_parser() -> argparse.Namespace:
 
 def main() -> None:
     args = get_menu_parser()
-    bot = TradingBot(time_provider=TimeProvider(), config_filepath=args.config)
-    if args.close_positions:
-        bot.close_open_positions()
-    elif args.backtest:
+
+    # For backtesting, we don't need full TradingBot initialization (no broker/auth required)
+    if args.backtest:
+        from typing import cast
+
+        from .components import Backtester, Configuration
+        from .components.broker import Broker
+        from .strategies import StrategyFactory
+
+        # Load configuration
+        config = Configuration.from_filepath(args.config)
+
+        # Create a minimal broker-like object for strategy initialization
+        # The strategy won't actually use broker methods during backtesting
+        class MockBroker:
+            pass
+
+        mock_broker = MockBroker()
+
+        # Create strategy (cast to satisfy type checker)
+        strategy = StrategyFactory(
+            config, cast(Broker, mock_broker)
+        ).make_from_configuration()
+
+        # Create backtester
+        backtester = Backtester(strategy)
+
         # Convert commission from percentage to decimal
         commission = args.commission / 100.0
         plot_file = args.plot[0] if args.plot else None
-        bot.backtest(
+
+        # Run backtest
+        backtester.start(
             csv_path=args.backtest[0],
             cash=args.cash,
             commission=commission,
-            plot_filename=plot_file,
         )
+
+        # Print results
+        backtester.print_results()
+
+        # Generate plot if requested
+        if plot_file:
+            backtester.plot_results(filename=plot_file)
     else:
-        bot.start(single_pass=args.single_pass)
+        # For normal trading operations, initialize full TradingBot
+        bot = TradingBot(time_provider=TimeProvider(), config_filepath=args.config)
+        if args.close_positions:
+            bot.close_open_positions()
+        else:
+            bot.start(single_pass=args.single_pass)

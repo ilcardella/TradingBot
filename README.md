@@ -10,36 +10,26 @@ It is halfway from an academic project and a real useful piece of
 software, I guess I will see how it goes :)
 
 The main goal of this project is to provide the capability to
-write a custom trading strategy with the minimum effort.
+write a custom trading strategy with minimal effort.
 TradingBot handles all the boring stuff.
-
-All the credits for the `WeightedAvgPeak` strategy goes to GitHub user @tg12.
 
 ## Dependencies
 
-- Python 3.6+
+- Python 3.10+
 - UV (only for development)
 - Docker (optional)
 
-View file `pyproject.toml` for the full list of required python packages.
-
 ## Install
-
-First if you have not done yet, install python:
-```
-sudo apt-get update
-sudo apt-get install python3
-```
 
 Clone this repo and install `TradingBot` by running the following command from
 the repository root folder
-```
+```bash
 make install-system
 ```
 
 ## Setup
 
-Login to your IG Dashboard
+Login to your IG Index dashboard
 
 - Obtain an API KEY from the settings panel
 - If using the demo account, create demo credentials
@@ -58,8 +48,8 @@ This must be in json format
 }
 ```
 - Copy the `.credentials` file into the `${HOME}/.TradingBot/config` folder
-- Revoke permissions to read the file
-```
+- Revoke permissions to read the file from other users
+```bash
 cd config
 sudo chmod 600 ${HOME}/.TradingBot/config/.credentials
 ```
@@ -89,31 +79,20 @@ how TradingBot work. It is important to setup this file appropriately in order t
 ## Start TradingBot
 
 You can start TradingBot with
-```
+```bash
 trading_bot
-```
-
-You can start it in detached mode letting it run in the background with
-```
-nohup trading_bot >/dev/null 2>&1 &
 ```
 
 ### Close all the open positions
 
-```
+```bash
 trading_bot --close-positions [-c]
 ```
 
-## Stop TradingBot
-
-To stop a TradingBot instance running in the background
-```
-ps -ef | grep trading_bot | xargs kill -9
-```
 
 ## Uninstall
 You can use `pip` to uninstall `TradingBot`:
-```
+```bash
 sudo pip3 uninstall TradingBot
 ```
 
@@ -124,7 +103,7 @@ The `Makefile` is the entrypoint for any development action.
 python packages.
 
 Install [uv](https://python-uv.org/docs/) and create the virtual environment:
-```
+```bash
 cd /path/to/repository
 make install
 ```
@@ -148,27 +127,11 @@ Read the documentation at:
 https://tradingbot.readthedocs.io
 
 You can build it locally with:
-```
+```bash
 make docs
 ```
 
 The generated html files will be in `docs/_build/html`.
-
-## Automate
-
-**NOTE**: TradingBot monitors the market opening hours and suspend the trading when the market is closed. Generally you should NOT need a cron job!
-
-You can set up the crontab job to run and kill TradinBot at specific times.
-The only configuration required is to edit the crontab file adding the preferred schedule:
-```
-crontab -e
-```
-As an example this will start TradingBot at 8:00 in the morning and will stop it at 16:35 in the afternoon, every week day (Mon to Fri):
-```shell
-00 08 * * 1-5 trading_bot
-35 16 * * 1-5 kill -9 $(ps | grep trading_bot | grep -v grep | awk '{ print $1 }')
-```
-NOTE: Remember to set the correct timezone in your machine!
 
 ## Docker
 
@@ -184,17 +147,13 @@ The Docker images are available in the official [Docker Hub](https://hub.docker.
 Currently `TradingBot` supports both `amd64` and `arm64` architectures.
 You can pull the Docker image directly from the Docker Hub.
 Latest version:
-```
+```bash
 docker pull ilcardella/tradingbot:latest
-```
-Tagged version:
-```
-docker pull ilcardella/tradingbot:v2.0.0
 ```
 
 ### Build
 You can build the Docker image yourself using the `Dockerfile` in the `docker` folder:
-```
+```bash
 cd /path/to/repo
 make docker
 ```
@@ -202,7 +161,7 @@ make docker
 ### Run
 As mentioned above, it's important that you configure TradingBot before starting it.
 Once the image is available you can run `TradingBot` in a Docker container mounting the configuration files:
-```
+```bash
 docker run -d \
     -v /path/to/trading_bot.toml:/.TradingBot/config/trading_bot.toml \
     -v /path/to/.credentials:/.TradingBot/config/.credentials \
@@ -210,19 +169,3 @@ docker run -d \
 ```
 
 You can also mount the log folder to store the logs on the host adding `-v /host/folder:/.TradingBot/log`
-
-
-## Contributing
-
-Any contribution or suggestion is welcome, please follow the suggested workflow.
-
-### Pull Requests
-
-To add a new feature or to resolve a bug, create a feature branch from the
-`master` branch.
-
-Commit your changes and if possible add unit/integration test cases.
-Eventually push your branch and create a Pull Request against `master`.
-
-If you instead find problems or you have ideas and suggestions for future
-improvements, please open an Issue. Thanks for the support!
