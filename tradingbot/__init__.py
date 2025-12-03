@@ -69,9 +69,11 @@ def main() -> None:
 
     # For backtesting, we don't need full TradingBot initialization (no broker/auth required)
     if args.backtest:
-        from .components import Configuration
+        from typing import cast
+
+        from .components import Backtester, Configuration
+        from .components.broker import Broker
         from .strategies import StrategyFactory
-        from .components import Backtester
 
         # Load configuration
         config = Configuration.from_filepath(args.config)
@@ -83,8 +85,10 @@ def main() -> None:
 
         mock_broker = MockBroker()
 
-        # Create strategy
-        strategy = StrategyFactory(config, mock_broker).make_from_configuration()
+        # Create strategy (cast to satisfy type checker)
+        strategy = StrategyFactory(
+            config, cast(Broker, mock_broker)
+        ).make_from_configuration()
 
         # Create backtester
         backtester = Backtester(strategy)

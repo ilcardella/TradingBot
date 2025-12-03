@@ -150,7 +150,7 @@ class Backtester:
                 raise ValueError(
                     "Unable to parse date column. Expected format: %d.%m.%Y %H:%M:%S.%f "
                     "or any standard datetime format"
-                )
+                ) from e
 
         df.set_index("Date", inplace=True)
 
