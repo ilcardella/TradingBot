@@ -93,7 +93,6 @@ def test_value_getters():
     assert config.get_active_strategy() == "simple_macd"
     assert config.get_strategies_values() == [
         "simple_macd",
-        "weighted_avg_peak",
         "simple_boll_bands",
     ]
 

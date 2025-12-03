@@ -45,19 +45,18 @@ values = ["ig_interface"]
 
 [strategies]
 active = "volume_profile"
-values = ["simple_macd", "weighted_avg_peak", "simple_boll_bands", "volume_profile"]
+values = ["simple_macd", "simple_boll_bands", "volume_profile"]
+
 [strategies.simple_macd]
 max_spread_perc = 5
 limit_perc = 10
 stop_perc = 5
-[strategies.weighted_avg_peak]
-max_spread = 3
-limit_perc = 10
-stop_perc = 5
+
 [strategies.simple_boll_bands]
 window = 60
 limit_perc = 10
 stop_perc = 5
+
 [strategies.volume_profile]
 max_spread_perc = 0.1
 lookback_periods = 50

@@ -21,12 +21,6 @@ TradingBot handles all the boring stuff.
 
 ## Install
 
-First if you have not done yet, install python:
-```bash
-sudo apt-get update
-sudo apt-get install python3
-```
-
 Clone this repo and install `TradingBot` by running the following command from
 the repository root folder
 ```bash

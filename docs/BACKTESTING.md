@@ -86,7 +86,7 @@ The backtester uses the strategy configured in your `trading_bot.toml` file. To 
 
 ```toml
 [strategies]
-active = "simple_macd"  # or "volume_profile", "weighted_avg_peak", etc.
+active = "simple_macd"  # or "volume_profile", etc.
 ```
 
 ## Parameters

@@ -91,7 +91,6 @@ class StrategiesConfig(BaseModel):
     active: str = "simple_macd"
     values: List[str] = []
     simple_macd: Optional[SimpleMACDConfig] = None
-    weighted_avg_peak: Optional[WeightedAvgPeakConfig] = None
     simple_boll_bands: Optional[SimpleBollingerBandsConfig] = None
     volume_profile: Optional[VolumeProfileConfig] = None
 

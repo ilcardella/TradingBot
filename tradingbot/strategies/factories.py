@@ -3,14 +3,13 @@ from typing import Union
 
 from ..components import Configuration
 from ..components.broker import Broker
-from . import SimpleBollingerBands, SimpleMACD, VolumeProfile, WeightedAvgPeak
+from . import SimpleBollingerBands, SimpleMACD, VolumeProfile
 
-StrategyImpl = Union[SimpleMACD, WeightedAvgPeak, SimpleBollingerBands, VolumeProfile]
+StrategyImpl = Union[SimpleMACD, SimpleBollingerBands, VolumeProfile]
 
 
 class StrategyNames(Enum):
     SIMPLE_MACD = "simple_macd"
-    WEIGHTED_AVG_PEAK = "weighted_avg_peak"
     SIMPLE_BOLL_BANDS = "simple_boll_bands"
     VOLUME_PROFILE = "volume_profile"
 
@@ -48,8 +47,6 @@ class StrategyFactory:
         """
         if strategy_name == StrategyNames.SIMPLE_MACD.value:
             return SimpleMACD(self.config, self.broker)
-        elif strategy_name == StrategyNames.WEIGHTED_AVG_PEAK.value:
-            return WeightedAvgPeak(self.config, self.broker)
         elif strategy_name == StrategyNames.SIMPLE_BOLL_BANDS.value:
             return SimpleBollingerBands(self.config, self.broker)
         elif strategy_name == StrategyNames.VOLUME_PROFILE.value:
